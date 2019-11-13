@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<article>
+<articleinfo>
+<bibliomisc>MEDLINE:93113611</bibliomisc>
+</articleinfo>
+<title>
+<sentence><cons lex="calcitriol" sem="G#lipid"><w c="NN">Calcitriol</w></cons><w c=":">:</w> <w c="DT">a</w> <cons lex="hematolymphopoietrope" sem="G#other_name"><w c="NN">hematolymphopoietrope</w></cons><w c=".">?</w> <w c="(">[</w><w c="NN">editorial</w><w c=")">]</w></sentence>
+</title>
+<abstract>
+<sentence><w c="DT">A</w> <cons lex="MEDLINE_search" sem="G#other_name"><w c="NN">MEDLINE</w> <w c="NN">search</w></cons> <w c="IN">of</w> <w c="DT">the</w> <cons lex="English-language_literature" sem="G#other_name"><w c="JJ">English-language</w> <w c="NN">literature</w></cons> <w c="VBD">was</w> <w c="VBN">conducted</w> <w c="VBG">using</w> <w c="DT">the</w> <w c="NN">indexing</w> <w c="NNS">terms</w> <w c="``">'</w><cons lex="immunology" sem="G#other_name"><w c="NN">immunology</w></cons><w c=",">,</w> <cons lex="calcitriol" sem="G#lipid"><w c="NN">calcitriol</w></cons> <w c="CC">and</w> <cons lex="vitamin_D" sem="G#lipid"><w c="NN">vitamin</w> <w c="NN">D</w></cons><w c="''">'</w> <w c="TO">to</w> <w c="VB">identify</w> <w c="NNS">studies</w> <w c="VBG">indicating</w> <w c="DT">a</w> <w c="NN">role</w> <w c="IN">for</w> <cons lex="calcitriol" sem="G#lipid"><w c="NN">calcitriol</w></cons> <w c="IN">as</w> <w c="DT">a</w> <cons lex="primary_immunomodulator" sem="G#other_name"><w c="JJ">primary</w> <w c="NN">immunomodulator</w></cons><w c=".">.</w></sentence>
+<sentence><w c="CD">Sixty-six</w> <w c="NNS">papers</w> <w c="VBN">published</w> <w c="IN">between</w> <w c="NNP">January</w> <w c="CD">1956</w> <w c="CC">and</w> <w c="NNP">June</w> <w c="CD">1991</w> <w c="VBD">were</w> <w c="VBN">identified</w><w c=".">.</w></sentence>
+<sentence><w c="CD">Forty-five</w> <w c="IN">of</w> <w c="DT">these</w> <w c="NNS">reports</w> <w c="VBP">are</w> <w c="VBN">cited</w> <w c="IN">in</w> <w c="DT">this</w> <w c="NN">review</w><w c=".">.</w></sentence>
+<sentence><w c="DT">The</w> <w c="NNS">data</w> <w c="RB">strongly</w> <w c="VBP">suggest</w> <w c="DT">an</w> <cons lex="endocrine_role" sem="G#other_name"><w c="NN">endocrine</w></cons><w c=",">,</w> <cons lex="autocrine_role" sem="G#other_name"><w c="NN">autocrine</w></cons> <w c="CC">and/or</w> <cons lex="paracrine_role" sem="G#other_name"><w c="NN">paracrine</w> <w c="NN">role</w></cons> <w c="IN">for</w> <cons lex="calcitriol" sem="G#lipid"><w c="NN">calcitriol</w></cons> <w c="IN">in</w> <cons lex="immune_regulation" sem="G#other_name"><w c="JJ">immune</w> <w c="NN">regulation</w></cons><w c=".">.</w></sentence>
+<sentence><w c="DT">No</w> <w c="JJ">unifying</w> <w c="NN">hypothesis</w> <w c="VBZ">has</w> <w c="RB">yet</w> <w c="VBN">emerged</w> <w c="VBG">explaining</w> <w c="DT">this</w> <w c="NN">collection</w> <w c="IN">of</w> <w c="NNS">data</w><w c=".">.</w></sentence>
+<sentence><w c="DT">This</w> <w c="NN">paper</w> <w c="VBZ">provides</w> <w c="DT">a</w> <w c="JJ">brief</w> <w c="NN">review</w> <w c="IN">of</w> <cons lex="immune_property" sem="G#other_name"><w c="JJ">immune</w> <w c="NNS">properties</w></cons> <w c="RB">currently</w> <w c="VBN">attributed</w> <w c="TO">to</w> <cons lex="calcitriol" sem="G#lipid"><w c="NN">calcitriol</w></cons><w c=".">.</w></sentence>
+</abstract>
+</article>

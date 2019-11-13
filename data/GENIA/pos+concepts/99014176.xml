@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<article>
+<articleinfo>
+<bibliomisc>MEDLINE:99014176</bibliomisc>
+</articleinfo>
+<title>
+<sentence><w c="DT">The</w> <cons lex="nuclear_receptor" sem="G#protein_family_or_group"><w c="JJ">nuclear</w> <w c="NN">receptor</w></cons> <cons lex="PPARgamma" sem="G#protein_molecule"><w c="NN">PPARgamma</w></cons> <w c=":">-</w> <w c="JJR">bigger</w> <w c="IN">than</w> <cons lex="fat" sem="G#lipid"><w c="NN">fat</w></cons><w c=".">.</w></sentence>
+</title>
+<abstract>
+<sentence><w c="NN">Work</w> <w c="VBD">reported</w> <w c="IN">over</w> <w c="DT">the</w> <w c="JJ">past</w> <w c="NN">year</w> <w c="VBZ">has</w> <w c="VBN">provided</w> <w c="NNS">insights</w> <w c="IN">into</w> <w c="DT">the</w> <w c="NNS">mechanisms</w> <w c="WRB">whereby</w> <cons lex="ligand_activation" sem="G#other_name"><w c="NN">ligand</w> <w c="NN">activation</w></cons> <w c="IN">of</w> <w c="DT">the</w> <cons lex="nuclear_receptor_peroxisome_proliferator-activated_receptor_gamma" sem="G#protein_molecule"><w c="JJ">nuclear</w> <w c="NN">receptor</w> <w c="NN">peroxisome</w> <w c="JJ">proliferator-activated</w> <w c="NN">receptor</w> <w c="NN">gamma</w></cons> <w c="(">(</w><cons lex="PPARgamma" sem="G#protein_molecule"><w c="NN">PPARgamma</w></cons><w c=")">)</w> <w c="VBZ">regulates</w> <cons lex="systemic_glucose" sem="G#carbohydrate"><w c="JJ">systemic</w> <w c="NN">glucose</w></cons> <w c="CC">and</w> <cons lex="lipid_homeostasis" sem="G#other_name"><w c="NN">lipid</w> <w c="NN">homeostasis</w></cons><w c=".">.</w></sentence>
+<sentence><cons lex="PPARgamma" sem="G#protein_molecule"><w c="NN">PPARgamma</w></cons> <w c="VBZ">has</w> <w c="RB">also</w> <w c="VBN">been</w> <w c="VBN">implicated</w> <w c="RB">recently</w> <w c="IN">in</w> <w c="DT">the</w> <w c="NN">biology</w> <w c="IN">of</w> <w c="NNS">monocytes</w> <w c="CC">and</w> <w c="IN">in</w> <cons lex="cell-cycle_regulation" sem="G#other_name"><w c="JJ">cell-cycle</w> <w c="NN">regulation</w></cons> <w c="CC">and</w> <cons lex="cancer" sem="G#other_name"><w c="NN">cancer</w></cons><w c=".">.</w></sentence>
+<sentence><cons lex="polyunsaturated_fatty_acid" sem="G#lipid"><w c="JJ">Polyunsaturated</w> <w c="JJ">fatty</w> <w c="NNS">acids</w></cons> <w c="CC">and</w> <cons lex="eicosanoid" sem="G#other_organic_compound"><w c="NNS">eicosanoids</w></cons> <w c="VBP">bind</w> <w c="CC">and</w> <w c="VBP">activate</w> <cons lex="PPARgamma" sem="G#protein_molecule"><w c="NN">PPARgamma</w></cons><w c=",">,</w> <w c="VBG">suggesting</w> <w c="IN">that</w> <w c="DT">these</w> <cons lex="lipid" sem="G#lipid"><w c="NNS">lipids</w></cons> <w c="MD">may</w> <w c="VB">serve</w> <w c="IN">as</w> <w c="JJ">hormonal</w> <w c="NNS">regulators</w> <w c="IN">of</w> <w c="DT">a</w> <w c="NN">variety</w> <w c="IN">of</w> <cons lex="biological_process" sem="G#other_name"><w c="JJ">biological</w> <w c="NNS">processes</w></cons><w c=".">.</w></sentence>
+</abstract>
+</article>

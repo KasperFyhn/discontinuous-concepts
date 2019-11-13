@@ -1,0 +1,2405 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<knowtator-project>
+    <document id="138691" text-file="138691.txt">
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28219" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5" id="138691-0" start="0">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230012" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="34" id="138691-1" start="21">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110016" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="34" id="138691-2" start="21">recombination</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30594" type="identity">
+            <class id="UBERON:0000310" label="UBERON:0000310"/>
+            <span end="119" id="138691-3" start="113">breast</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41513" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="146" id="138691-4" start="142">gene</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30275" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="152" id="138691-5" start="147">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18238" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="159" id="138691-6" start="156">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60015" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="159" id="138691-7" start="156">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48683" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="166" id="138691-8" start="156">DNA repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_23703" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="198" id="138691-9" start="191">genetic</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28241" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="238" id="138691-10" start="233">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_23367" type="identity">
+            <class id="GO:0000724" label="GO:0000724"/>
+            <span end="260" id="138691-11" start="242">homology-dependent</span>
+            <span end="313" id="138691-12" start="279">repair of DNA double-strand breaks</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230014" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="277" id="138691-13" start="262">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_23369" type="identity">
+            <class id="GO:0000724" label="GO:0000724"/>
+            <span end="277" id="138691-14" start="262">recombinational</span>
+            <span end="313" id="138691-15" start="279">repair of DNA double-strand breaks</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18240" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="292" id="138691-16" start="289">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60017" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="292" id="138691-17" start="289">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28263" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="401" id="138691-18" start="396">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230016" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="443" id="138691-19" start="428">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_23371" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="450" id="138691-20" start="428">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28285" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="457" id="138691-21" start="452">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230018" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="494" id="138691-22" start="481">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110022" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="494" id="138691-23" start="481">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21115" type="identity">
+            <class id="NCBITaxon:2759" label="NCBITaxon:2759"/>
+            <span end="537" id="138691-24" start="527">eukaryotic</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60005" type="identity">
+            <class id="GO_EXT:recombinase" label="GO_EXT:recombinase"/>
+            <span end="549" id="138691-25" start="538">recombinase</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28327" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="555" id="138691-26" start="550">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28307" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="738" id="138691-27" start="733">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28349" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="747" id="138691-28" start="742">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48687" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="763" id="138691-29" start="757">repair</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30586" type="identity">
+            <class id="UBERON:0000310" label="UBERON:0000310"/>
+            <span end="782" id="138691-30" start="776">breast</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230020" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="815" id="138691-31" start="802">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110024" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="815" id="138691-32" start="802">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30277" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="822" id="138691-33" start="817">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30279" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="829" id="138691-34" start="824">BRCA2</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30588" type="identity">
+            <class id="UBERON:0000310" label="UBERON:0000310"/>
+            <span end="851" id="138691-35" start="845">breast</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41517" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="878" id="138691-36" start="874">gene</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120510" type="identity">
+            <class id="SO_EXT:sequence_cloning_process" label="SO_EXT:sequence_cloning_process"/>
+            <span end="940" id="138691-37" start="933">cloning</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30590" type="identity">
+            <class id="UBERON:0000310" label="UBERON:0000310"/>
+            <span end="987" id="138691-38" start="981">breast</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_21735" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1005" id="138691-39" start="1000">Cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13525" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1005" id="138691-40" start="1000">Cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_185061" type="identity">
+            <class id="SO_EXT:sequence_altered_entity_or_alteration_process" label="SO_EXT:sequence_altered_entity_or_alteration_process"/>
+            <span end="1017" id="138691-41" start="1011">mutant</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28363" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="1023" id="138691-42" start="1018">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110142" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1031" id="138691-43" start="1024">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300008" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1031" id="138691-44" start="1024">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10381" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1059" id="138691-45" start="1054">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13527" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1059" id="138691-46" start="1054">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25425" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="1072" id="138691-47" start="1061">genetically</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_30346" type="identity">
+            <class id="GO_SO_EXT:chromosome" label="GO_SO_EXT:chromosome"/>
+            <span end="1114" id="138691-48" start="1103">chromosomal</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25709" type="identity">
+            <class id="GO_SO_EXT:chromosome" label="GO_SO_EXT:chromosome"/>
+            <span end="1114" id="138691-49" start="1103">chromosomal</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120123" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_entity_or_process" label="GO_SO_EXT:sequence_rearrangement_entity_or_process"/>
+            <span end="1129" id="138691-50" start="1115">rearrangements</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110084" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_entity_or_process" label="GO_SO_EXT:sequence_rearrangement_entity_or_process"/>
+            <span end="1129" id="138691-51" start="1115">rearrangements</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120125" type="identity">
+            <class id="SO_EXT:biological_sequence" label="SO_EXT:biological_sequence"/>
+            <span end="1149" id="138691-52" start="1141">sequence</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110144" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1171" id="138691-53" start="1164">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300010" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1171" id="138691-54" start="1164">protein</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_12026" type="identity">
+            <class id="CHEBI_SO_EXT:amino_acid" label="CHEBI_SO_EXT:amino_acid"/>
+            <span end="1189" id="138691-55" start="1178">amino acids</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_2" type="identity">
+            <class id="CHEBI_SO_EXT:amino_acid" label="CHEBI_SO_EXT:amino_acid"/>
+            <span end="1189" id="138691-56" start="1178">amino acids</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_170503" type="identity">
+            <class id="SO_EXT:0000657" label="SO_EXT:0000657"/>
+            <span end="1274" id="138691-57" start="1257">repeated segments</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120128" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="1294" id="138691-58" start="1287">repeats</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110146" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1324" id="138691-59" start="1317">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300012" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="1324" id="138691-60" start="1317">protein</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_225110" type="identity">
+            <class id="SO_EXT:biological_conservation_process_or_quality" label="SO_EXT:biological_conservation_process_or_quality"/>
+            <span end="1350" id="138691-61" start="1341">conserved</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21119" type="identity">
+            <class id="NCBITaxon:40674" label="NCBITaxon:40674"/>
+            <span end="1366" id="138691-62" start="1357">mammalian</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25167" type="identity">
+            <class id="SO_EXT:0000855" label="SO_EXT:0000855"/>
+            <span end="1376" id="138691-63" start="1367">orthologs</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30592" type="identity">
+            <class id="UBERON:0000310" label="UBERON:0000310"/>
+            <span end="1391" id="138691-64" start="1385">Breast</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41527" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="1419" id="138691-65" start="1414">genes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18242" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1427" id="138691-66" start="1424">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60019" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1427" id="138691-67" start="1424">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48691" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="1434" id="138691-68" start="1424">DNA repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60009" type="identity">
+            <class id="GO_EXT:0000150" label="GO_EXT:0000150"/>
+            <span end="1516" id="138691-69" start="1494">homologous recombinase</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28383" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="1522" id="138691-70" start="1517">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_60108" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="1534" id="138691-71" start="1525">localizes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_101457" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="1548" id="138691-72" start="1541">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28403" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="1565" id="138691-73" start="1560">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28425" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="1640" id="138691-74" start="1635">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28447" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="1650" id="138691-75" start="1645">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230022" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="1682" id="138691-76" start="1667">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48693" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="1703" id="138691-77" start="1667">recombinational repair of DNA damage</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18244" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1696" id="138691-78" start="1693">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60021" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1696" id="138691-79" start="1693">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28511" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="1710" id="138691-80" start="1705">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28469" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="1720" id="138691-81" start="1715">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25711" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="1742" id="138691-82" start="1735">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48697" type="identity">
+            <class id="GO:0051320" label="GO:0051320"/>
+            <span end="1766" id="138691-83" start="1759">S phase</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120130" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1792" id="138691-84" start="1789">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60025" type="identity">
+            <class id="CHEBI_EXT:50902" label="CHEBI_EXT:50902"/>
+            <span end="1808" id="138691-85" start="1789">DNA damaging agents</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48699" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="1862" id="138691-86" start="1853">repair of</span>
+            <span end="1897" id="138691-87" start="1887">DNA damage</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18246" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1890" id="138691-88" start="1887">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60027" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="1890" id="138691-89" start="1887">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_24541" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1914" id="138691-90" start="1910">Cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13529" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="1914" id="138691-91" start="1910">Cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28533" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="1946" id="138691-92" start="1941">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28555" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="1955" id="138691-93" start="1950">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10383" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2045" id="138691-94" start="2041">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13531" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2045" id="138691-95" start="2041">cell</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230024" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="2080" id="138691-96" start="2065">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48701" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="2087" id="138691-97" start="2065">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28577" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="2113" id="138691-98" start="2108">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28599" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="2138" id="138691-99" start="2133">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60011" type="identity">
+            <class id="GO_EXT:recombinase" label="GO_EXT:recombinase"/>
+            <span end="2150" id="138691-100" start="2139">recombinase</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110148" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2169" id="138691-101" start="2162">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300014" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2169" id="138691-102" start="2162">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110150" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2177" id="138691-103" start="2170">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300016" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2177" id="138691-104" start="2170">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28687" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="2260" id="138691-105" start="2255">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28621" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="2270" id="138691-106" start="2265">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120132" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="2352" id="138691-107" start="2345">repeats</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30183" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="2361" id="138691-108" start="2356">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28643" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="2394" id="138691-109" start="2389">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25497" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2413" id="138691-110" start="2408">Cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13533" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2413" id="138691-111" start="2408">Cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28709" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="2427" id="138691-112" start="2422">BRCA1</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_48" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="2468" id="138691-113" start="2461">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28665" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="2474" id="138691-114" start="2469">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110152" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2534" id="138691-115" start="2526">proteins</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300018" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="2534" id="138691-116" start="2526">proteins</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_28421" type="identity">
+            <class id="GO:0065003" label="GO:0065003"/>
+            <span end="2568" id="138691-117" start="2556">formation of</span>
+            <span end="2590" id="138691-118" start="2581">complexes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60013" type="identity">
+            <class id="GO_EXT:recombinase" label="GO_EXT:recombinase"/>
+            <span end="2580" id="138691-119" start="2569">recombinase</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25713" type="identity">
+            <class id="GO:0032991" label="GO:0032991"/>
+            <span end="2590" id="138691-120" start="2581">complexes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18248" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="2610" id="138691-121" start="2607">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60029" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="2610" id="138691-122" start="2607">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25703" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="2643" id="138691-123" start="2636">genetic</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230026" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="2673" id="138691-124" start="2660">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110030" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="2673" id="138691-125" start="2660">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30281" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="2705" id="138691-126" start="2700">Brca1</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_172523" type="identity">
+            <class id="SO_EXT:sequence_nullness_or_absence" label="SO_EXT:sequence_nullness_or_absence"/>
+            <span end="2706" id="138691-127" start="2705">-</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_172525" type="identity">
+            <class id="SO_EXT:sequence_nullness_or_absence" label="SO_EXT:sequence_nullness_or_absence"/>
+            <span end="2708" id="138691-128" start="2707">-</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_60142" type="identity">
+            <class id="UBERON:0000922" label="UBERON:0000922"/>
+            <span end="2718" id="138691-129" start="2709">embryonic</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_30287" type="identity">
+            <class id="CL:0002322" label="CL:0002322"/>
+            <span end="2723" id="138691-130" start="2709">embryonic stem</span>
+            <span end="2734" id="138691-131" start="2729">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_plus_nested_test_Instance_10001" type="identity">
+            <class id="CL:0002322" label="CL:0002322"/>
+            <span end="2727" id="138691-132" start="2725">ES</span>
+            <span end="2734" id="138691-133" start="2729">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10385" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2734" id="138691-134" start="2729">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230028" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="2767" id="138691-135" start="2752">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48707" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="2767" id="138691-136" start="2752">recombinational</span>
+            <span end="2778" id="138691-137" start="2772">repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48709" type="identity">
+            <class id="GO:0006302" label="GO:0006302"/>
+            <span end="2778" id="138691-138" start="2768">DSB repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28731" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="2843" id="138691-139" start="2838">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28795" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="2853" id="138691-140" start="2848">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18250" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="2916" id="138691-141" start="2913">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60031" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="2916" id="138691-142" start="2913">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28753" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="2948" id="138691-143" start="2943">BRCA1</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28815" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="2958" id="138691-144" start="2953">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48711" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="2968" id="138691-145" start="2962">repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10387" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2985" id="138691-146" start="2980">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13535" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="2985" id="138691-147" start="2980">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28837" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="3019" id="138691-148" start="3014">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28773" type="identity">
+            <class id="PR_EXT:000004803" label="PR_EXT:000004803"/>
+            <span end="3031" id="138691-149" start="3026">BRCA1</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230030" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3074" id="138691-150" start="3059">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48713" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="3081" id="138691-151" start="3059">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230032" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3200" id="138691-152" start="3187">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110036" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3200" id="138691-153" start="3187">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28859" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="3219" id="138691-154" start="3214">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10431" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="3235" id="138691-155" start="3230">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13537" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="3235" id="138691-156" start="3230">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230034" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3286" id="138691-157" start="3273">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110038" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3286" id="138691-158" start="3273">recombination</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230036" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3349" id="138691-159" start="3336">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110040" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="3349" id="138691-160" start="3336">recombination</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18252" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="3380" id="138691-161" start="3377">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60033" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="3380" id="138691-162" start="3377">DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_70246" type="identity">
+            <class id="SO_EXT:sequence_alteration_process" label="SO_EXT:sequence_alteration_process"/>
+            <span end="3417" id="138691-163" start="3410">mutated</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41533" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="3427" id="138691-164" start="3422">genes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_90891" type="identity">
+            <class id="SO_EXT:sequence_coding_function" label="SO_EXT:sequence_coding_function"/>
+            <span end="3440" id="138691-165" start="3433">encodes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110154" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="3486" id="138691-166" start="3479">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300020" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="3486" id="138691-167" start="3479">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41535" type="identity">
+            <class id="SO_EXT:0000061" label="SO_EXT:0000061"/>
+            <span end="3529" id="138691-168" start="3513">restriction site</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_43" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="3540" id="138691-169" start="3534">I-SceI</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21123" type="identity">
+            <class id="NCBITaxon_EXT:yeast" label="NCBITaxon_EXT:yeast"/>
+            <span end="3549" id="138691-170" start="3544">yeast</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41537" type="identity">
+            <class id="SO_EXT:0000188" label="SO_EXT:0000188"/>
+            <span end="3556" id="138691-171" start="3550">intron</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_90893" type="identity">
+            <class id="SO_EXT:sequence_coding_function" label="SO_EXT:sequence_coding_function"/>
+            <span end="3564" id="138691-172" start="3557">encoded</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_MF_2016_02_16_Instance_19057" type="identity">
+            <class id="GO_EXT:0004519" label="GO_EXT:0004519"/>
+            <span end="3577" id="138691-173" start="3565">endonuclease</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_331338" type="identity">
+            <class id="CHEBI_SO_EXT:base" label="CHEBI_SO_EXT:base"/>
+            <span end="3593" id="138691-174" start="3589">base</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41539" type="identity">
+            <class id="SO_EXT:0000028" label="SO_EXT:0000028"/>
+            <span end="3598" id="138691-175" start="3589">base pair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41543" type="identity">
+            <class id="SO_EXT:0000409" label="SO_EXT:0000409"/>
+            <span end="3615" id="138691-176" start="3599">recognition site</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_30335" type="identity">
+            <class id="GO:0009294" label="GO:0009294"/>
+            <span end="3639" id="138691-177" start="3627">transfection</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_45" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="3652" id="138691-178" start="3646">I-SceI</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48721" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="3663" id="138691-179" start="3653">expression</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41545" type="identity">
+            <class id="SO_EXT:0000440" label="SO_EXT:0000440"/>
+            <span end="3670" id="138691-180" start="3664">vector</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_70248" type="identity">
+            <class id="SO_EXT:sequence_alteration_process" label="SO_EXT:sequence_alteration_process"/>
+            <span end="3726" id="138691-181" start="3719">mutated</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_221836" type="identity">
+            <class id="SO_EXT:sequence_copy_entity" label="SO_EXT:sequence_copy_entity"/>
+            <span end="3731" id="138691-182" start="3727">copy</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18254" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="3755" id="138691-183" start="3752">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60035" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="3755" id="138691-184" start="3752">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_31699" type="identity">
+            <class id="GO:0042148" label="GO:0042148"/>
+            <span end="3790" id="138691-185" start="3781">invade(s)</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120134" type="identity">
+            <class id="SO_EXT:biological_sequence" label="SO_EXT:biological_sequence"/>
+            <span end="3814" id="138691-186" start="3806">sequence</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_185063" type="identity">
+            <class id="SO_EXT:sequence_altered_entity_or_alteration_process" label="SO_EXT:sequence_altered_entity_or_alteration_process"/>
+            <span end="3835" id="138691-187" start="3829">mutant</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_221838" type="identity">
+            <class id="SO_EXT:sequence_copy_entity" label="SO_EXT:sequence_copy_entity"/>
+            <span end="3844" id="138691-188" start="3840">copy</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10110" type="identity">
+            <class id="GO:0006302" label="GO:0006302"/>
+            <span end="3868" id="138691-189" start="3859">repair of</span>
+            <span end="3876" id="138691-190" start="3873">DSB</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41549" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="3905" id="138691-191" start="3901">gene</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_51" type="identity">
+            <class id="GO:0035822" label="GO:0035822"/>
+            <span end="3916" id="138691-192" start="3901">gene conversion</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120141" type="identity">
+            <class id="SO_EXT:engineered_biological_sequence" label="SO_EXT:engineered_biological_sequence"/>
+            <span end="3962" id="138691-193" start="3953">construct</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10112" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="4000" id="138691-194" start="3994">repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_221840" type="identity">
+            <class id="SO_EXT:sequence_copy_entity" label="SO_EXT:sequence_copy_entity"/>
+            <span end="4052" id="138691-195" start="4048">copy</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10389" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4119" id="138691-196" start="4115">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13539" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4119" id="138691-197" start="4115">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48725" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="4166" id="138691-198" start="4156">expression</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230038" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4230" id="138691-199" start="4217">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110042" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4230" id="138691-200" start="4217">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10391" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4266" id="138691-201" start="4261">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13541" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4266" id="138691-202" start="4261">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28881" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="4287" id="138691-203" start="4282">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110156" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="4295" id="138691-204" start="4288">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300022" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="4295" id="138691-205" start="4288">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48729" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="4336" id="138691-206" start="4330">repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_47" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="4347" id="138691-207" start="4341">I-SceI</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230040" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4392" id="138691-208" start="4379">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110044" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4392" id="138691-209" start="4379">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48733" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="4404" id="138691-210" start="4394">Expression</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_49" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="4414" id="138691-211" start="4408">I-SceI</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10393" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4446" id="138691-212" start="4441">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13543" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4446" id="138691-213" start="4441">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230042" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4489" id="138691-214" start="4476">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110046" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4489" id="138691-215" start="4476">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_230001" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="4502" id="138691-216" start="4497">human</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_30596" type="identity">
+            <class id="UBERON:0001264" label="UBERON:0001264"/>
+            <span end="4513" id="138691-217" start="4503">pancreatic</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10395" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4524" id="138691-218" start="4520">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13545" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4524" id="138691-219" start="4520">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10397" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4552" id="138691-220" start="4547">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13547" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4552" id="138691-221" start="4547">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120144" type="identity">
+            <class id="SO_EXT:sequence_deletion_entity_or_process" label="SO_EXT:sequence_deletion_entity_or_process"/>
+            <span end="4569" id="138691-222" start="4561">deletion</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30283" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="4578" id="138691-223" start="4573">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_90895" type="identity">
+            <class id="SO_EXT:sequence_coding_function" label="SO_EXT:sequence_coding_function"/>
+            <span end="4603" id="138691-224" start="4598">codes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110158" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="4617" id="138691-225" start="4610">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300024" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="4617" id="138691-226" start="4610">protein</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120147" type="identity">
+            <class id="SO_EXT:sequence_truncation_process" label="SO_EXT:sequence_truncation_process"/>
+            <span end="4627" id="138691-227" start="4618">truncated</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18304" type="identity">
+            <class id="CHEBI_SO_EXT:amino_acid" label="CHEBI_SO_EXT:amino_acid"/>
+            <span end="4641" id="138691-228" start="4631">amino acid</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60087" type="identity">
+            <class id="CHEBI_SO_EXT:amino_acid" label="CHEBI_SO_EXT:amino_acid"/>
+            <span end="4641" id="138691-229" start="4631">amino acid</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_51" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="4714" id="138691-230" start="4708">I-SceI</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230044" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4736" id="138691-231" start="4723">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110048" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="4736" id="138691-232" start="4723">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30285" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="4803" id="138691-233" start="4798">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120149" type="identity">
+            <class id="SO_EXT:normal_or_wild_type_or_present" label="SO_EXT:normal_or_wild_type_or_present"/>
+            <span end="4804" id="138691-234" start="4803">+</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21134" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="4811" id="138691-235" start="4806">human</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10399" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4822" id="138691-236" start="4818">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13549" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4822" id="138691-237" start="4818">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25705" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="4906" id="138691-238" start="4895">genetically</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10401" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4925" id="138691-239" start="4920">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13551" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="4925" id="138691-240" start="4920">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30287" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="4947" id="138691-241" start="4942">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230046" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5079" id="138691-242" start="5064">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48739" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="5086" id="138691-243" start="5064">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120151" type="identity">
+            <class id="SO_EXT:sequence_alteration_entity_or_process" label="SO_EXT:sequence_alteration_entity_or_process"/>
+            <span end="5135" id="138691-244" start="5126">mutations</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30289" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5148" id="138691-245" start="5143">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230048" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5291" id="138691-246" start="5276">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48741" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="5298" id="138691-247" start="5276">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10403" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="5326" id="138691-248" start="5321">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13553" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="5326" id="138691-249" start="5321">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30291" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5375" id="138691-250" start="5370">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230050" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5421" id="138691-251" start="5408">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110054" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5421" id="138691-252" start="5408">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21138" type="identity">
+            <class id="NCBITaxon:10088" label="NCBITaxon:10088"/>
+            <span end="5432" id="138691-253" start="5427">mouse</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_30291" type="identity">
+            <class id="CL:0002322" label="CL:0002322"/>
+            <span end="5440" id="138691-254" start="5433">ES cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10405" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="5440" id="138691-255" start="5436">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48745" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="5460" id="138691-256" start="5451">expresses</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120153" type="identity">
+            <class id="SO_EXT:sequence_truncation_process" label="SO_EXT:sequence_truncation_process"/>
+            <span end="5475" id="138691-257" start="5466">truncated</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30293" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5481" id="138691-258" start="5476">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110160" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="5489" id="138691-259" start="5482">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300026" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="5489" id="138691-260" start="5482">protein</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230052" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5551" id="138691-261" start="5538">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110056" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="5551" id="138691-262" start="5538">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10407" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="5582" id="138691-263" start="5577">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13557" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="5582" id="138691-264" start="5577">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48749" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="5593" id="138691-265" start="5583">expressing</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28903" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5611" id="138691-266" start="5606">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48751" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="5794" id="138691-267" start="5787">express</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28925" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5812" id="138691-268" start="5807">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110162" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="5820" id="138691-269" start="5813">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300028" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="5820" id="138691-270" start="5813">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48753" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="5911" id="138691-271" start="5901">expressing</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28947" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="5929" id="138691-272" start="5924">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_110002" type="identity">
+            <class id="SO_EXT:sequence_recombinant_entity" label="SO_EXT:sequence_recombinant_entity"/>
+            <span end="5963" id="138691-273" start="5951">recombinants</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48755" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="5988" id="138691-274" start="5978">expressing</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120171" type="identity">
+            <class id="SO_EXT:sequence_truncation_process" label="SO_EXT:sequence_truncation_process"/>
+            <span end="6003" id="138691-275" start="5994">truncated</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28969" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6009" id="138691-276" start="6004">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10409" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6214" id="138691-277" start="6209">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13559" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6214" id="138691-278" start="6209">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120357" type="identity">
+            <class id="SO_EXT:sequence_alteration_entity_or_process" label="SO_EXT:sequence_alteration_entity_or_process"/>
+            <span end="6242" id="138691-279" start="6234">mutation</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230054" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="6288" id="138691-280" start="6273">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48757" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="6295" id="138691-281" start="6273">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21142" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="6336" id="138691-282" start="6331">human</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10411" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6341" id="138691-283" start="6337">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13561" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6341" id="138691-284" start="6337">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_28991" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6370" id="138691-285" start="6365">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230056" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="6456" id="138691-286" start="6443">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110060" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="6456" id="138691-287" start="6443">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30295" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6478" id="138691-288" start="6473">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21146" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="6626" id="138691-289" start="6621">human</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_53" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6702" id="138691-290" start="6697">Brca2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_101391" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6716" id="138691-291" start="6711">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_30006" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6716" id="138691-292" start="6711">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30297" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6726" id="138691-293" start="6721">Brca2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120359" type="identity">
+            <class id="SO_EXT:normal_or_wild_type_or_present" label="SO_EXT:normal_or_wild_type_or_present"/>
+            <span end="6727" id="138691-294" start="6726">+</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120361" type="identity">
+            <class id="SO_EXT:normal_or_wild_type_or_present" label="SO_EXT:normal_or_wild_type_or_present"/>
+            <span end="6729" id="138691-295" start="6728">+</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_30293" type="identity">
+            <class id="CL:0002322" label="CL:0002322"/>
+            <span end="6738" id="138691-296" start="6730">ES cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10413" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="6738" id="138691-297" start="6733">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_55" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6791" id="138691-298" start="6786">Brca2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_210005" type="identity">
+            <class id="SO_EXT:sequence_nullness" label="SO_EXT:sequence_nullness"/>
+            <span end="6814" id="138691-299" start="6810">null</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41561" type="identity">
+            <class id="SO_EXT:0001023" label="SO_EXT:0001023"/>
+            <span end="6821" id="138691-300" start="6815">allele</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29013" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6893" id="138691-301" start="6888">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230058" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="6919" id="138691-302" start="6906">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110062" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="6919" id="138691-303" start="6906">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29035" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="6977" id="138691-304" start="6972">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230060" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="7031" id="138691-305" start="7016">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48763" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="7038" id="138691-306" start="7016">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21150" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="7052" id="138691-307" start="7047">human</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21154" type="identity">
+            <class id="NCBITaxon:10088" label="NCBITaxon:10088"/>
+            <span end="7062" id="138691-308" start="7057">mouse</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29055" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="7086" id="138691-309" start="7081">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29077" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="7092" id="138691-310" start="7087">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60015" type="identity">
+            <class id="GO_EXT:0000150" label="GO_EXT:0000150"/>
+            <span end="7241" id="138691-311" start="7219">homologous recombinase</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29099" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="7247" id="138691-312" start="7242">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18306" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="7261" id="138691-313" start="7254">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60090" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="7261" id="138691-314" start="7254">peptide</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120363" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="7304" id="138691-315" start="7297">repeats</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21158" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="7315" id="138691-316" start="7310">human</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29121" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="7321" id="138691-317" start="7316">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48765" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="7333" id="138691-318" start="7323">Expression</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120365" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="7356" id="138691-319" start="7350">repeat</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_25299" type="identity">
+            <class id="CHEBI_EXT:35222" label="CHEBI_EXT:35222"/>
+            <span end="7415" id="138691-320" start="7406">inhibitor</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18256" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="7422" id="138691-321" start="7419">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60037" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="7422" id="138691-322" start="7419">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48767" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="7429" id="138691-323" start="7419">DNA repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48769" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="7492" id="138691-324" start="7482">expression</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120367" type="identity">
+            <class id="SO_EXT:engineered_biological_sequence" label="SO_EXT:engineered_biological_sequence"/>
+            <span end="7506" id="138691-325" start="7496">constructs</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120369" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="7533" id="138691-326" start="7527">repeat</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10415" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7548" id="138691-327" start="7543">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13565" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7548" id="138691-328" start="7543">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10417" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7587" id="138691-329" start="7582">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13567" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7587" id="138691-330" start="7582">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10292" type="identity">
+            <class id="GO:0000086" label="GO:0000086"/>
+            <span end="7612" id="138691-331" start="7608">G2/M</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_30337" type="identity">
+            <class id="GO:0009294" label="GO:0009294"/>
+            <span end="7676" id="138691-332" start="7665">transfected</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10419" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7682" id="138691-333" start="7677">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13569" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="7682" id="138691-334" start="7677">cells</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_50" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="7705" id="138691-335" start="7698">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29143" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="7711" id="138691-336" start="7706">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48773" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="7854" id="138691-337" start="7844">expression</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120371" type="identity">
+            <class id="SO_EXT:sequence_repeat_unit_or_region" label="SO_EXT:sequence_repeat_unit_or_region"/>
+            <span end="7877" id="138691-338" start="7871">repeat</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18258" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="7882" id="138691-339" start="7879">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60039" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="7882" id="138691-340" start="7879">DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_70144" type="identity">
+            <class id="CHEMINF_GO_EXT:chemical_binding_or_bond_formation" label="CHEMINF_GO_EXT:chemical_binding_or_bond_formation"/>
+            <span end="7890" id="138691-341" start="7883">binding</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_330682" type="identity">
+            <class id="CHEBI:10545" label="CHEBI:10545"/>
+            <span end="7910" id="138691-342" start="7902">electron</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18308" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="7967" id="138691-343" start="7960">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60092" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="7967" id="138691-344" start="7960">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29165" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8004" id="138691-345" start="7999">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_101935" type="identity">
+            <class id="GO_EXT:oligomeric_macromolecular_complex" label="GO_EXT:oligomeric_macromolecular_complex"/>
+            <span end="8032" id="138691-346" start="8022">oligomeric</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18260" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8049" id="138691-347" start="8046">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60041" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8049" id="138691-348" start="8046">DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18310" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="8065" id="138691-349" start="8058">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60097" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="8065" id="138691-350" start="8058">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29187" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8104" id="138691-351" start="8099">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18262" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8108" id="138691-352" start="8105">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60043" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8108" id="138691-353" start="8105">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29231" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="8188" id="138691-354" start="8183">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110164" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8196" id="138691-355" start="8189">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300030" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8196" id="138691-356" start="8189">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_241896" type="identity">
+            <class id="GO_EXT:negative_regulator" label="GO_EXT:negative_regulator"/>
+            <span end="8230" id="138691-357" start="8212">negative regulator</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29209" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8253" id="138691-358" start="8248">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18264" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8257" id="138691-359" start="8254">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60045" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="8257" id="138691-360" start="8254">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29275" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="8415" id="138691-361" start="8410">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29253" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8430" id="138691-362" start="8425">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230062" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="8454" id="138691-363" start="8441">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110066" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="8454" id="138691-364" start="8441">recombination</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_BP_2016_02_16_Instance_27" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="8472" id="138691-365" start="8460">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29297" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8481" id="138691-366" start="8476">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10421" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8511" id="138691-367" start="8506">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13571" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8511" id="138691-368" start="8506">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada" id="organism_Instance_21162" type="identity">
+            <class id="NCBITaxon:9606" label="NCBITaxon:9606"/>
+            <span end="8527" id="138691-369" start="8522">human</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120173" type="identity">
+            <class id="SO_EXT:sequence_truncation_process" label="SO_EXT:sequence_truncation_process"/>
+            <span end="8635" id="138691-370" start="8626">truncated</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29319" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="8641" id="138691-371" start="8636">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110166" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8649" id="138691-372" start="8642">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300032" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8649" id="138691-373" start="8642">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48781" type="identity">
+            <class id="GO:0010467" label="GO:0010467"/>
+            <span end="8659" id="138691-374" start="8650">expressed</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10423" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8676" id="138691-375" start="8671">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13573" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8676" id="138691-376" start="8671">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_29" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="8693" id="138691-377" start="8684">localized</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25715" type="identity">
+            <class id="GO:0005737" label="GO:0005737"/>
+            <span end="8710" id="138691-378" start="8701">cytoplasm</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120175" type="identity">
+            <class id="SO_EXT:sequence_truncation_entity_or_process" label="SO_EXT:sequence_truncation_entity_or_process"/>
+            <span end="8756" id="138691-379" start="8746">truncation</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110168" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8764" id="138691-380" start="8757">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300034" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="8764" id="138691-381" start="8757">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25717" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="8780" id="138691-382" start="8773">nuclear</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120373" type="identity">
+            <class id="SO_EXT:0001528" label="SO_EXT:0001528"/>
+            <span end="8800" id="138691-383" start="8773">nuclear localization signal</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_31" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="8793" id="138691-384" start="8781">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10425" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8840" id="138691-385" start="8835">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_13575" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="8840" id="138691-386" start="8835">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25719" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="8867" id="138691-387" start="8860">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_33" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="8880" id="138691-388" start="8868">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29363" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8889" id="138691-389" start="8884">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29385" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="8925" id="138691-390" start="8920">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10294" type="identity">
+            <class id="GO_EXT:biological_movement_or_translocation_process" label="GO_EXT:biological_movement_or_translocation_process"/>
+            <span end="8945" id="138691-391" start="8938">carried</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25721" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="8960" id="138691-392" start="8953">nucleus</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_70146" type="identity">
+            <class id="CHEMINF_GO_EXT:chemical_binding_or_bond_formation" label="CHEMINF_GO_EXT:chemical_binding_or_bond_formation"/>
+            <span end="8971" id="138691-393" start="8964">binding</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29341" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="8977" id="138691-394" start="8972">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29407" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9004" id="138691-395" start="8999">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29429" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9042" id="138691-396" start="9037">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10304" type="identity">
+            <class id="GO_EXT:biological_movement_or_translocation_process" label="GO_EXT:biological_movement_or_translocation_process"/>
+            <span end="9064" id="138691-397" start="9055">transport</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_35" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="9085" id="138691-398" start="9073">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29451" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9094" id="138691-399" start="9089">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25723" type="identity">
+            <class id="GO:0005737" label="GO:0005737"/>
+            <span end="9111" id="138691-400" start="9102">cytoplasm</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_31053" type="identity">
+            <class id="GO:0051235" label="GO:0051235"/>
+            <span end="9125" id="138691-401" start="9116">sequester</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29473" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9131" id="138691-402" start="9126">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10306" type="identity">
+            <class id="GO_EXT:biological_movement_or_translocation_process" label="GO_EXT:biological_movement_or_translocation_process"/>
+            <span end="9170" id="138691-403" start="9161">transport</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_37" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="9232" id="138691-404" start="9220">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29495" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9241" id="138691-405" start="9236">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29517" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9281" id="138691-406" start="9276">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29539" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9332" id="138691-407" start="9327">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29583" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9387" id="138691-408" start="9382">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29561" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9393" id="138691-409" start="9388">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29627" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9461" id="138691-410" start="9456">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230064" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="9488" id="138691-411" start="9475">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110068" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="9488" id="138691-412" start="9475">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25725" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="9522" id="138691-413" start="9515">nuclear</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60019" type="identity">
+            <class id="GO_EXT:biological_mover_or_transporter" label="GO_EXT:biological_mover_or_transporter"/>
+            <span end="9534" id="138691-414" start="9523">transporter</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10308" type="identity">
+            <class id="GO_EXT:biological_mover_or_transporter" label="GO_EXT:biological_mover_or_transporter"/>
+            <span end="9534" id="138691-415" start="9523">transporter</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29605" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9543" id="138691-416" start="9538">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29671" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9634" id="138691-417" start="9629">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29649" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9640" id="138691-418" start="9635">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29693" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9670" id="138691-419" start="9665">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29737" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="9771" id="138691-420" start="9766">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29715" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9778" id="138691-421" start="9773">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10410" type="identity">
+            <class id="GO_EXT:biological_recruitment" label="GO_EXT:biological_recruitment"/>
+            <span end="9839" id="138691-422" start="9830">recruited</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48791" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="9864" id="138691-423" start="9858">repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_52" type="identity">
+            <class id="GO:1990391" label="GO:1990391"/>
+            <span end="9872" id="138691-424" start="9858">repair complex</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29757" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="9943" id="138691-425" start="9938">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_70148" type="identity">
+            <class id="CHEMINF_GO_EXT:chemical_binding_or_bond_formation" label="CHEMINF_GO_EXT:chemical_binding_or_bond_formation"/>
+            <span end="9964" id="138691-426" start="9957">binding</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18266" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="9997" id="138691-427" start="9980">single-strand DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60048" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="9997" id="138691-428" start="9980">single-strand DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18268" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10004" id="138691-429" start="9999">ssDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60050" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10004" id="138691-430" start="9999">ssDNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18270" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10028" id="138691-431" start="10011">double-strand DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60053" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10028" id="138691-432" start="10011">double-strand DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18272" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10035" id="138691-433" start="10030">dsDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60055" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10035" id="138691-434" start="10030">dsDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48793" type="identity">
+            <class id="GO:0065007" label="GO:0065007"/>
+            <span end="10083" id="138691-435" start="10073">regulatory</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29823" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10106" id="138691-436" start="10101">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29779" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10138" id="138691-437" start="10133">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18274" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10144" id="138691-438" start="10139">dsDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60057" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="10144" id="138691-439" start="10139">dsDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_31055" type="identity">
+            <class id="GO:0051235" label="GO:0051235"/>
+            <span end="10182" id="138691-440" start="10169">sequestration</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29801" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10191" id="138691-441" start="10186">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29845" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10268" id="138691-442" start="10263">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18276" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10274" id="138691-443" start="10269">ssDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60059" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10274" id="138691-444" start="10269">ssDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29867" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10326" id="138691-445" start="10321">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_70150" type="identity">
+            <class id="CHEMINF_GO_EXT:chemical_binding_or_bond_formation" label="CHEMINF_GO_EXT:chemical_binding_or_bond_formation"/>
+            <span end="10339" id="138691-446" start="10332">binding</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18278" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10363" id="138691-447" start="10358">ssDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60061" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="10363" id="138691-448" start="10358">ssDNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18280" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="10391" id="138691-449" start="10388">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60063" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="10391" id="138691-450" start="10388">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48795" type="identity">
+            <class id="GO:0006260" label="GO:0006260"/>
+            <span end="10403" id="138691-451" start="10388">DNA replication</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29999" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10410" id="138691-452" start="10405">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29889" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10433" id="138691-453" start="10428">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_28423" type="identity">
+            <class id="GO:0065003" label="GO:0065003"/>
+            <span end="10447" id="138691-454" start="10434">assembly into</span>
+            <span end="10480" id="138691-455" start="10471">complexes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230066" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="10463" id="138691-456" start="10448">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48797" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="10470" id="138691-457" start="10448">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_54" type="identity">
+            <class id="GO:1990391" label="GO:1990391"/>
+            <span end="10480" id="138691-458" start="10464">repair complexes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_160046" type="identity">
+            <class id="GO_EXT:negative_regulation" label="GO_EXT:negative_regulation"/>
+            <span end="10506" id="138691-459" start="10487">negative regulatory</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29911" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10540" id="138691-460" start="10535">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30021" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10546" id="138691-461" start="10541">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29933" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10640" id="138691-462" start="10635">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18312" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="10726" id="138691-463" start="10719">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60099" type="identity">
+            <class id="CHEBI_SO_EXT:peptide_or_peptide_region" label="CHEBI_SO_EXT:peptide_or_peptide_region"/>
+            <span end="10726" id="138691-464" start="10719">peptide</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29955" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10747" id="138691-465" start="10742">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30043" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10753" id="138691-466" start="10748">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110170" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="10809" id="138691-467" start="10802">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300036" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="10809" id="138691-468" start="10802">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_29977" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10839" id="138691-469" start="10834">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30059" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10845" id="138691-470" start="10840">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30079" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="10897" id="138691-471" start="10892">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30087" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10916" id="138691-472" start="10911">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230068" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="10942" id="138691-473" start="10927">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48803" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="10949" id="138691-474" start="10927">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30089" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="10989" id="138691-475" start="10984">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110172" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="11034" id="138691-476" start="11026">proteins</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300038" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="11034" id="138691-477" start="11026">proteins</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30091" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11059" id="138691-478" start="11054">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30093" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11102" id="138691-479" start="11097">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18282" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="11118" id="138691-480" start="11115">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60065" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="11118" id="138691-481" start="11115">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30095" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11151" id="138691-482" start="11146">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25235" type="identity">
+            <class id="SO_EXT:0000854" label="SO_EXT:0000854"/>
+            <span end="11160" id="138691-483" start="11152">paralogs</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30105" type="identity">
+            <class id="PR_EXT:000017505" label="PR_EXT:000017505"/>
+            <span end="11191" id="138691-484" start="11186">XRCC2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30107" type="identity">
+            <class id="PR_EXT:000017506" label="PR_EXT:000017506"/>
+            <span end="11198" id="138691-485" start="11193">XRCC3</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30109" type="identity">
+            <class id="PR_EXT:000013676" label="PR_EXT:000013676"/>
+            <span end="11206" id="138691-486" start="11200">RAD51B</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30111" type="identity">
+            <class id="PR_EXT:000013675" label="PR_EXT:000013675"/>
+            <span end="11214" id="138691-487" start="11208">RAD51C</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30113" type="identity">
+            <class id="PR_EXT:000013677" label="PR_EXT:000013677"/>
+            <span end="11225" id="138691-488" start="11219">RAD51D</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25731" type="identity">
+            <class id="GO:0032991" label="GO:0032991"/>
+            <span end="11252" id="138691-489" start="11245">complex</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30097" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11281" id="138691-490" start="11276">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30081" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="11302" id="138691-491" start="11297">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30099" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11329" id="138691-492" start="11324">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_25237" type="identity">
+            <class id="SO_EXT:0000854" label="SO_EXT:0000854"/>
+            <span end="11338" id="138691-493" start="11330">paralogs</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30101" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11357" id="138691-494" start="11352">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30083" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="11443" id="138691-495" start="11438">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_60106" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="11453" id="138691-496" start="11444">localizes</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_56" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="11482" id="138691-497" start="11475">nuclear</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30103" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11498" id="138691-498" start="11493">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30085" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="11547" id="138691-499" start="11542">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_28425" type="identity">
+            <class id="GO:0065003" label="GO:0065003"/>
+            <span end="11584" id="138691-500" start="11573">assembly of</span>
+            <span end="11610" id="138691-501" start="11603">complex</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230070" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="11602" id="138691-502" start="11589">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110074" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="11602" id="138691-503" start="11589">recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25733" type="identity">
+            <class id="GO:0032991" label="GO:0032991"/>
+            <span end="11610" id="138691-504" start="11603">complex</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30131" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="11700" id="138691-505" start="11695">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30115" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11706" id="138691-506" start="11701">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30133" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="11770" id="138691-507" start="11765">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30117" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11804" id="138691-508" start="11799">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30119" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="11867" id="138691-509" start="11862">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18284" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="11883" id="138691-510" start="11880">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60067" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="11883" id="138691-511" start="11880">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_876" type="identity">
+            <class id="GO_EXT:reaction_or_response" label="GO_EXT:reaction_or_response"/>
+            <span end="11918" id="138691-512" start="11910">response</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30135" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12013" id="138691-513" start="12008">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30121" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="12023" id="138691-514" start="12018">RAD51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230072" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="12046" id="138691-515" start="12031">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48825" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="12053" id="138691-516" start="12031">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30137" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12133" id="138691-517" start="12128">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10310" type="identity">
+            <class id="GO_EXT:biological_movement_or_translocation_process" label="GO_EXT:biological_movement_or_translocation_process"/>
+            <span end="12160" id="138691-518" start="12148">transporting</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30123" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="12166" id="138691-519" start="12161">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25735" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="12181" id="138691-520" start="12174">nucleus</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25737" type="identity">
+            <class id="GO:0005634" label="GO:0005634"/>
+            <span end="12227" id="138691-521" start="12220">nuclear</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120375" type="identity">
+            <class id="SO_EXT:0001528" label="SO_EXT:0001528"/>
+            <span end="12247" id="138691-522" start="12220">nuclear localization signal</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_41" type="identity">
+            <class id="GO_PATO_EXT:biological_localization_process_or_quality" label="GO_PATO_EXT:biological_localization_process_or_quality"/>
+            <span end="12240" id="138691-523" start="12228">localization</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30125" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="12256" id="138691-524" start="12251">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30127" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="12282" id="138691-525" start="12277">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30299" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12326" id="138691-526" start="12321">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120377" type="identity">
+            <class id="SO_EXT:sequence_alteration_entity_or_process" label="SO_EXT:sequence_alteration_entity_or_process"/>
+            <span end="12335" id="138691-527" start="12327">mutation</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30139" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12419" id="138691-528" start="12414">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30129" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="12444" id="138691-529" start="12439">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30141" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12450" id="138691-530" start="12445">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30143" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12525" id="138691-531" start="12520">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230074" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="12544" id="138691-532" start="12529">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48827" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="12551" id="138691-533" start="12529">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30145" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12624" id="138691-534" start="12619">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30147" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="12679" id="138691-535" start="12674">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18286" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="12748" id="138691-536" start="12743">dsDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60069" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="12748" id="138691-537" start="12743">dsDNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18288" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="12768" id="138691-538" start="12751">double-strand DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60071" type="identity">
+            <class id="CHEBI_SO_EXT:double_stranded_DNA" label="CHEBI_SO_EXT:double_stranded_DNA"/>
+            <span end="12768" id="138691-539" start="12751">double-strand DNA</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="UBERON_Instance_60144" type="identity">
+            <class id="UBERON:0000922" label="UBERON:0000922"/>
+            <span end="12784" id="138691-540" start="12775">embryonic</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_110174" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="12822" id="138691-541" start="12815">protein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_300040" type="identity">
+            <class id="CHEBI_PR_EXT:protein" label="CHEBI_PR_EXT:protein"/>
+            <span end="12822" id="138691-542" start="12815">protein</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18290" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="12829" id="138691-543" start="12824">ssDNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60073" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="12829" id="138691-544" start="12824">ssDNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18292" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="12849" id="138691-545" start="12832">single-strand DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60075" type="identity">
+            <class id="CHEBI_SO_EXT:single_stranded_DNA" label="CHEBI_SO_EXT:single_stranded_DNA"/>
+            <span end="12849" id="138691-546" start="12832">single-strand DNA</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230076" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="12895" id="138691-547" start="12882">Recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_110080" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="12895" id="138691-548" start="12882">Recombination</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_21864" type="identity">
+            <class id="GO_EXT:biological_direction_or_guidance" label="GO_EXT:biological_direction_or_guidance"/>
+            <span end="12942" id="138691-549" start="12934">directed</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10114" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="12949" id="138691-550" start="12943">repair</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_57" type="identity">
+            <class id="PR_EXT:P03882" label="PR_EXT:P03882"/>
+            <span end="12972" id="138691-551" start="12966">I-SceI</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_185065" type="identity">
+            <class id="SO_EXT:sequence_altered_entity_or_alteration_process" label="SO_EXT:sequence_altered_entity_or_alteration_process"/>
+            <span end="12995" id="138691-552" start="12989">mutant</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48831" type="identity">
+            <class id="GO:0006281" label="GO:0006281"/>
+            <span end="13062" id="138691-553" start="13054">repaired</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41579" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="13086" id="138691-554" start="13082">gene</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_43" type="identity">
+            <class id="GO:0035822" label="GO:0035822"/>
+            <span end="13097" id="138691-555" start="13082">gene conversion</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120177" type="identity">
+            <class id="SO_EXT:sequence_truncation_process" label="SO_EXT:sequence_truncation_process"/>
+            <span end="13118" id="138691-556" start="13109">truncated</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_221842" type="identity">
+            <class id="SO_EXT:sequence_copy_entity" label="SO_EXT:sequence_copy_entity"/>
+            <span end="13123" id="138691-557" start="13119">copy</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_120381" type="identity">
+            <class id="SO_EXT:biological_sequence" label="SO_EXT:biological_sequence"/>
+            <span end="13142" id="138691-558" start="13134">sequence</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_221844" type="identity">
+            <class id="SO_EXT:sequence_copy_entity" label="SO_EXT:sequence_copy_entity"/>
+            <span end="13209" id="138691-559" start="13205">copy</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41583" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="13225" id="138691-560" start="13221">gene</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41585" type="identity">
+            <class id="SO_EXT:0000704" label="SO_EXT:0000704"/>
+            <span end="13255" id="138691-561" start="13251">gene</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_45" type="identity">
+            <class id="GO:0035822" label="GO:0035822"/>
+            <span end="13266" id="138691-562" start="13251">gene conversion</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_MF_2016_02_16_Instance_60023" type="identity">
+            <class id="GO:0097617" label="GO:0097617"/>
+            <span end="13311" id="138691-563" start="13302">annealing</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30149" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13358" id="138691-564" start="13353">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30163" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13389" id="138691-565" start="13384">Rad51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18294" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13405" id="138691-566" start="13402">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60077" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13405" id="138691-567" start="13402">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25739" type="identity">
+            <class id="GO_SO_EXT:chromosome" label="GO_SO_EXT:chromosome"/>
+            <span end="13425" id="138691-568" start="13414">Chromosomal</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="SO_2017_06_11_Instance_41589" type="identity">
+            <class id="SO_EXT:0000954" label="SO_EXT:0000954"/>
+            <span end="13429" id="138691-569" start="13414">Chromosomal DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60079" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13429" id="138691-570" start="13426">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30165" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13472" id="138691-571" start="13467">Rad51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30151" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13499" id="138691-572" start="13494">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18298" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13549" id="138691-573" start="13546">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60081" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13549" id="138691-574" start="13546">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30153" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13569" id="138691-575" start="13564">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30167" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13575" id="138691-576" start="13570">Rad51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30169" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13617" id="138691-577" start="13612">RAD51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30155" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13623" id="138691-578" start="13618">BRCA2</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18300" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13646" id="138691-579" start="13643">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60083" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="13646" id="138691-580" start="13643">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30171" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13691" id="138691-581" start="13686">Rad51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10412" type="identity">
+            <class id="GO_EXT:biological_recruitment" label="GO_EXT:biological_recruitment"/>
+            <span end="13704" id="138691-582" start="13695">recruited</span>
+        </annotation>
+        <annotation annotator="Michael Bada" id="MOP_Instance_40018" type="identity">
+            <class id="MOP:0000629" label="MOP:0000629"/>
+            <span end="13742" id="138691-583" start="13731">polymerizes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60102" type="identity">
+            <class id="CHEBI_EXT:nucleoprotein" label="CHEBI_EXT:nucleoprotein"/>
+            <span end="13761" id="138691-584" start="13748">nucleoprotein</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30157" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13793" id="138691-585" start="13788">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_28427" type="identity">
+            <class id="GO:0065003" label="GO:0065003"/>
+            <span end="13825" id="138691-586" start="13814">assembly of</span>
+            <span end="13846" id="138691-587" start="13837">complexes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_25741" type="identity">
+            <class id="GO:0032991" label="GO:0032991"/>
+            <span end="13846" id="138691-588" start="13837">complexes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30173" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="13912" id="138691-589" start="13907">Rad51</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_31057" type="identity">
+            <class id="GO:0051235" label="GO:0051235"/>
+            <span end="13935" id="138691-590" start="13924">sequestered</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30159" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="13971" id="138691-591" start="13966">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10427" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="13986" id="138691-592" start="13982">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_22291" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="13986" id="138691-593" start="13982">cell</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30175" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="14000" id="138691-594" start="13995">Rad51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_backup_Instance_18302" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="14028" id="138691-595" start="14025">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CHEBI_2015_08_26_Instance_60085" type="identity">
+            <class id="CHEBI_SO_EXT:DNA" label="CHEBI_SO_EXT:DNA"/>
+            <span end="14028" id="138691-596" start="14025">DNA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_with_nested_annotations_Instance_10414" type="identity">
+            <class id="GO_EXT:biological_recruitment" label="GO_EXT:biological_recruitment"/>
+            <span end="14083" id="138691-597" start="14074">recruited</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_49" type="identity">
+            <class id="GO_EXT:positive_regulation" label="GO_EXT:positive_regulation"/>
+            <span end="14127" id="138691-598" start="14108">Positive regulation</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30161" type="identity">
+            <class id="PR_EXT:000004804" label="PR_EXT:000004804"/>
+            <span end="14134" id="138691-599" start="14129">BRCA2</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30177" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="14171" id="138691-600" start="14166">Rad51</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="SO_2017_06_11_Instance_230078" type="identity">
+            <class id="GO_SO_EXT:sequence_rearrangement_process" label="GO_SO_EXT:sequence_rearrangement_process"/>
+            <span end="14215" id="138691-601" start="14200">recombinational</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_BP_2016_02_16_Instance_48839" type="identity">
+            <class id="GO:0000725" label="GO:0000725"/>
+            <span end="14222" id="138691-602" start="14200">recombinational repair</span>
+        </annotation>
+        <annotation annotator="Unknown Annotator" id="GO_CC_2016_02_16_Instance_58" type="identity">
+            <class id="GO:1990391" label="GO:1990391"/>
+            <span end="14232" id="138691-603" start="14216">repair complexes</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_60" type="identity">
+            <class id="PR_EXT:BRCA" label="PR_EXT:BRCA"/>
+            <span end="14260" id="138691-604" start="14256">BRCA</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="GO_CC_2016_02_16_test_Instance_10429" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="14276" id="138691-605" start="14271">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado Anschutz Medical Campus" id="CL_basic_2014_02_21_Instance_22293" type="identity">
+            <class id="CL_GO_EXT:cell" label="CL_GO_EXT:cell"/>
+            <span end="14276" id="138691-606" start="14271">cells</span>
+        </annotation>
+        <annotation annotator="Mike Bada, University of Colorado School of Medicine" id="PR_reasoned_2017_04_17_Instance_30179" type="identity">
+            <class id="PR_EXT:000013672" label="PR_EXT:000013672"/>
+            <span end="14283" id="138691-607" start="14278">Rad51</span>
+        </annotation>
+        <graph-space id="Old Knowtator Relations"/>
+    </document>
+</knowtator-project>

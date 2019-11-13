@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<article>
+<articleinfo>
+<bibliomisc>MEDLINE:99118181</bibliomisc>
+</articleinfo>
+<title>
+<sentence><w c="NN">Inhibition</w> <w c="IN">of</w> <cons lex="NF-kappa_B_activation" sem="G#other_name"><cons lex="NF-kappa_B" sem="G#protein_complex"><w c="NN">NF-kappa</w> <w c="NN">B</w></cons> <w c="NN">activation</w></cons> <w c="FW">in</w> <w c="FW">vitro</w> <w c="CC">and</w> <w c="FW">in</w> <w c="FW">vivo</w><w c=":">:</w> <w c="NN">role</w> <w c="IN">of</w> <cons lex="26S_proteasome" sem="G#protein_complex"><w c="NN">26S</w> <w c="NN">proteasome</w></cons><w c=".">.</w></sentence>
+</title>
+<abstract>
+<sentence><w c="PRP">It</w> <w c="VBZ">is</w> <w c="VBG">becoming</w> <w c="RB">increasingly</w> <w c="JJ">apparent</w> <w c="IN">that</w> <cons lex="NF-kappa_B" sem="G#protein_complex"><w c="NN">NF-kappa</w> <w c="NN">B</w></cons> <w c="VBZ">plays</w> <w c="DT">a</w> <w c="JJ">critical</w> <w c="NN">role</w> <w c="IN">in</w> <w c="VBG">regulating</w> <w c="DT">the</w> <cons lex="inflammatory_response" sem="G#other_name"><w c="JJ">inflammatory</w> <w c="NN">response</w></cons><w c=".">.</w></sentence>
+<sentence><w c="NNS">Data</w> <w c="VBN">obtained</w> <w c="IN">from</w> <w c="NNS">studies</w> <w c="IN">in</w> <w c="PRP$">our</w> <w c="NNS">laboratories</w> <w c="VBP">demonstrate</w> <w c="IN">that</w> <w c="DT">the</w> <w c="NN">proteasome</w> <w c="VBZ">plays</w> <w c="DT">an</w> <w c="JJ">important</w> <w c="NN">role</w> <w c="IN">in</w> <w c="DT">the</w> <cons lex="inflammatory_cascade" sem="G#other_name"><w c="JJ">inflammatory</w> <w c="NN">cascade</w></cons> <w c="IN">by</w> <w c="VBG">regulating</w> <w c="DT">the</w> <w c="NN">activation</w> <w c="IN">of</w> <cons lex="NF-kappa_B" sem="G#protein_complex"><w c="NN">NF-kappa</w> <w c="NN">B</w></cons><w c=".">.</w></sentence>
+<sentence><w c="RB">Indeed</w><w c=",">,</w> <w c="DT">the</w> <w c="NN">availability</w> <w c="IN">of</w> <w c="JJ">selective</w> <w c="CC">and</w> <cons lex="orally_active_proteasome_inhibitor" sem="G#other_organic_compound"><w c="RB">orally</w> <w c="JJ">active</w> <w c="NN">proteasome</w> <w c="NNS">inhibitors</w></cons> <w c="MD">should</w> <w c="VB">prove</w> <w c="JJ">useful</w> <w c="IN">in</w> <w c="VBG">delineating</w> <w c="DT">the</w> <w c="NNS">roles</w> <w c="IN">of</w> <w c="DT">the</w> <cons lex="proteasome" sem="G#cell_component"><w c="NN">proteasome</w></cons> <w c="CC">and</w> <cons lex="NF-kappa_B" sem="G#protein_complex"><w c="NN">NF-kappa</w> <w c="NN">B</w></cons> <w c="IN">in</w> <w c="JJ">other</w> <cons lex="pathophysiological_condition" sem="G#other_name"><w c="JJ">pathophysiological</w> <w c="NNS">conditions</w></cons> <w c="JJ">such</w> <w c="IN">as</w> <cons lex="cancer" sem="G#other_name"><w c="NN">cancer</w></cons> <w c="CC">and</w> <cons lex="heart_disease" sem="G#other_name"><w c="NN">heart</w> <w c="NN">disease</w></cons><w c=".">.</w></sentence>
+</abstract>
+</article>

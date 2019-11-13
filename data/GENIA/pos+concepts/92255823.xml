@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<article>
+<articleinfo>
+<bibliomisc>MEDLINE:92255823</bibliomisc>
+</articleinfo>
+<title>
+<sentence><w c="DT">The</w> <w c="NN">mechanism</w> <w c="IN">of</w> <w c="NN">action</w> <w c="IN">of</w> <cons lex="cyclosporin_A" sem="G#other_organic_compound"><w c="NN">cyclosporin</w> <w c="NN">A</w></cons> <w c="CC">and</w> <cons lex="FK506" sem="G#other_organic_compound"><w c="NN">FK506</w></cons><w c=".">.</w></sentence>
+</title>
+<abstract>
+<sentence><w c="NN">CsA</w> <w c="CC">and</w> <cons lex="FK506" sem="G#other_organic_compound"><w c="NN">FK506</w></cons> <w c="VBP">are</w> <w c="JJ">powerful</w> <w c="NNS">suppressors</w> <w c="IN">of</w> <w c="DT">the</w> <cons lex="immune_system" sem="G#body_part"><w c="JJ">immune</w> <w c="NN">system</w></cons><w c=",">,</w> <w c="RBS">most</w> <w c="RB">notably</w> <w c="IN">of</w> <cons lex="T_cell" sem="G#cell_type"><w c="NN">T</w> <w c="NNS">cells</w></cons><w c=".">.</w></sentence>
+<sentence><w c="PRP">They</w> <w c="VBP">act</w> <w c="IN">at</w> <w c="DT">a</w> <w c="NN">point</w> <w c="IN">in</w> <w c="NN">activation</w> <w c="WDT">that</w> <w c="VBZ">lies</w> <w c="IN">between</w> <w c="NN">receptor</w> <w c="NN">ligation</w> <w c="CC">and</w> <w c="DT">the</w> <cons lex="transcription" sem="G#other_name"><w c="NN">transcription</w></cons> <w c="IN">of</w> <cons lex="early_gene" sem="G#DNA_family_or_group"><w c="JJ">early</w> <w c="NNS">genes</w></cons><w c=".">.</w></sentence>
+<sentence><w c="RB">Here</w><w c=",">,</w> <w c="NNP">Stuart</w> <w c="NNP">Schreiber</w> <w c="CC">and</w> <w c="NNP">Gerald</w> <w c="NNP">Crabtree</w> <w c="VBP">review</w> <w c="JJ">recent</w> <w c="NNS">findings</w> <w c="WDT">that</w> <w c="VBP">indicate</w> <cons lex="CsA" sem="G#other_organic_compound"><w c="NN">CsA</w></cons> <w c="CC">and</w> <cons lex="FK506" sem="G#other_organic_compound"><w c="NN">FK506</w></cons> <w c="VBP">operate</w> <w c="IN">as</w> <cons lex="prodrug" sem="G#other_name"><w c="NNS">prodrugs</w></cons><w c=":">:</w> <w c="PRP">they</w> <w c="VBP">bind</w> <cons lex="endogenous_intracellular_receptor" sem="G#protein_family_or_group"><w c="JJ">endogenous</w> <w c="JJ">intracellular</w> <w c="NNS">receptors</w></cons><w c=",">,</w> <w c="DT">the</w> <cons lex="immunophilin" sem="G#protein_family_or_group"><w c="NNS">immunophilins</w></cons><w c=",">,</w> <w c="CC">and</w> <w c="DT">the</w> <w c="VBG">resulting</w> <w c="NN">complex</w> <w c="VBZ">targets</w> <w c="DT">the</w> <cons lex="protein_phosphatase" sem="G#protein_family_or_group"><w c="NN">protein</w> <w c="NN">phosphatase</w><w c=",">,</w></cons> <cons lex="calcineurin" sem="G#protein_family_or_group"><w c="NN">calcineurin</w></cons><w c=",">,</w> <w c="TO">to</w> <w c="VB">exert</w> <w c="DT">the</w> <cons lex="immunosuppressive_effect" sem="G#other_name"><w c="JJ">immunosuppressive</w> <w c="NN">effect</w></cons><w c=".">.</w></sentence>
+</abstract>
+</article>
