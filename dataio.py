@@ -114,101 +114,164 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/',
 
     doc = Document.from_file(folder_path + doc_id + '.txt')
 
-    if 'structural' in annotation_types:
-        # make beautiful soup from xml
-        path_to_xml = 'data/CRAFT/part-of-speech/' + doc_id + '.xml'
-        raw_xml = open(path_to_xml).read()
-        pos_bs = BeautifulSoup(raw_xml, 'xml')
+    # make soup from POS XML
+    path_to_xml = 'data/CRAFT/part-of-speech/' + doc_id + '.xml'
+    raw_xml = open(path_to_xml).read()
+    pos_bs = BeautifulSoup(raw_xml, 'xml')
 
-        # add sentence and token annotations
-        sentences = []
-        tokens = []
-        for tag in pos_bs.find_all('annotation'):
+    # add sentence and token annotations; sents are recognized by their labels
+    sentences = []
+    tokens = []
+
+    # just run over all annotations and get the relevant info
+    for tag in pos_bs.find_all('annotation'):
+        span = (int(tag.span['start']), int(tag.span['end']))
+        pos_tag = tag.find('class')['label']
+        if pos_tag == 'sentence':
+            sentence = Sentence(doc, span)
+            sentences.append(sentence)
+        else:
+            token = Token(doc, span, pos_tag)
+            tokens.append(token)
+
+    doc.add_annotations('Sentence', sentences)
+    doc.add_annotations('Token', tokens)
+
+    # make beautiful soup from concept XML
+    path_to_xml = 'data/CRAFT/concepts/' + doc_id + '.xml'
+    raw_xml = open(path_to_xml).read()
+    concept_bs = BeautifulSoup(raw_xml, 'xml')
+
+    # add sentence and token annotations
+    concepts = []
+
+    # just run over all annotations and get the relevant info
+    for tag in concept_bs.find_all('annotation'):
+        spans = tag.find_all('span')
+
+        # if the concept is discontinuous, handle it differently: has more spans
+        if len(spans) > 1:
+            spans = [(int(span['start']), int(span['end']))
+                     for span in spans]
+            label = tag.find('class')['label']
+            concept = DiscontinuousConcept(doc, spans, label)
+            concepts.append(concept)
+        else:
             span = (int(tag.span['start']), int(tag.span['end']))
-            pos_tag = tag.find('class')['label']
-            if pos_tag == 'sentence':
-                sentence = Sentence(doc, span)
-                sentences.append(sentence)
-            else:
-                token = Token(doc, span, pos_tag)
-                tokens.append(token)
+            label = tag.find('class')['label']
+            concept = Concept(doc, span, label)
+            concepts.append(concept)
 
-        doc.add_annotations('Sentence', sentences)
-        doc.add_annotations('Token', tokens)
-
-    if 'concept' in annotation_types:
-        # make beautiful soup from xml
-        path_to_xml = 'data/CRAFT/concepts/' + doc_id + '.xml'
-        raw_xml = open(path_to_xml).read()
-        concept_bs = BeautifulSoup(raw_xml, 'xml')
-
-        # add sentence and token annotations
-        concepts = []
-        for tag in concept_bs.find_all('annotation'):
-            spans = tag.find_all('span')
-            if len(spans) > 1:
-                spans = [(int(span['start']), int(span['end']))
-                         for span in spans]
-                label = tag.find('class')['label']
-                concept = DiscontinuousConcept(doc, spans, label)
-                concepts.append(concept)
-            else:
-                span = (int(tag.span['start']), int(tag.span['end']))
-                label = tag.find('class')['label']
-                concept = Concept(doc, span, label)
-                concepts.append(concept)
-
-        doc.add_annotations('Concept', concepts)
+    doc.add_annotations('Concept', concepts)
 
     return doc
 
 
 def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
                         annotation_types=('structural', 'concept')):
+    """Load a GENIA document from XML."""
 
+    # create xml soup
     xml_file = open(folder_path + doc_id + '.xml')
     soup = BeautifulSoup(xml_file.read(), 'xml')
 
+    # doc text is made up of retrievable strings between tags in title+abstract
     doc_text = ''.join(soup.title.strings) + ''.join(soup.abstract.strings)
+    # some double line breaks cause trouble in the offsets: correct to single
     doc_text = doc_text.strip().replace('\n\n', '\n')
     doc = Document(doc_id, doc_text)
 
-    if 'structural' in annotation_types:
-        sent_offset = 0
-        sentences = []
-        tokens = []
-        for sent in soup.find_all('sentence'):
-            raw_sent = ''.join(sent.strings)
-            sent_span = (sent_offset, sent_offset + len(raw_sent))
-            sentence = Sentence(doc, sent_span)
-            sentences.append(sentence)
-            extra_offset = len(raw_sent) + 1
+    sent_offset = 0  # keeps track of how far in we are in the doc text
+    sentences = []
+    tokens = []
+    concepts = []
 
-            token_offset = 0
-            for w in sent.find_all('w'):
-                raw_token = w.string
-                spaces = raw_sent.find(raw_token)
-                token_offset += spaces
-                token_span = (sent_offset + token_offset,
-                        sent_offset + token_offset + len(raw_token))
-                raw_sent = raw_sent[spaces + len(raw_token):]
-                token_offset += len(raw_token)
-                pos = w['c']
-                token = Token(doc, token_span, pos)
-                tokens.append(token)
+    # loop over sentences, extract the sentence and tokens + concepts within
+    for sent in soup.find_all('sentence'):
 
-            sent_offset += extra_offset
+        raw_sent = ''.join(sent.strings)  # also strings within tags
+        sent_span = (sent_offset, sent_offset + len(raw_sent))
+        sentence = Sentence(doc, sent_span)
+        sentences.append(sentence)
 
+        # loop over tokens within the sentence, cut off the processed part of
+        # the sentence along the way; else, find methods will give incorrect
+        # indices for the token spans
+        token_offset = 0
+        edible_sent = raw_sent  # because it gets eaten through the loop
+
+        for w in sent.find_all('w'):  # tokens are in <w> tags
+            raw_token = w.string  # consists of only one string
+
+            spaces = edible_sent.find(raw_token)  # find start index to take
+            token_offset += spaces                # spaces into account
+
+            # make the span based on the current offsets
+            token_span = (sent_offset + token_offset,
+                          sent_offset + token_offset + len(raw_token))
+
+            # chop of the token part of the current sentence
+            edible_sent = edible_sent[spaces + len(raw_token):]
+            token_offset += len(raw_token)  # update token offset for the next
+
+            # finalise the token annotation and add it
+            pos = w['c']
+            token = Token(doc, token_span, pos)
+            tokens.append(token)
+
+        # loop over concepts within the sentence similar to the tokens loop
+        # concepts can be embedded, though, and must be handled differently
+        edible_sent = raw_sent  # because it gets eaten through the loop
+        concept_offset = 0
+        last_end = 0  # keeps track of the current chunk of concepts we're in
+
+        for cons in sent.find_all('cons'):
+            concept_string = ''.join(cons.strings)  # can consist of several
+            start = edible_sent.find(concept_string)  # find the start index
+
+            # apparently, not all have a "sem" attribute
+            try:
+                label = cons['sem']
+            except KeyError:
+                label = ''
+
+            # make the span based on offsets and length of concept
+            concept_span = (sent_offset + concept_offset + start,
+                            sent_offset + concept_offset + start
+                            + len(concept_string))
+
+            # add the concept
+            concept = Concept(doc, concept_span, label)
+            concepts.append(concept)
+
+            # if this concept appears after the previous longest concept,
+            # chop off the sentence up until that point
+            if start > last_end:
+                concept_offset += last_end  # need to remember the offset
+                edible_sent = edible_sent[last_end:]  # chop off
+                last_end = 0  # we'll update that in a bit
+
+            # keep track of the longest concept in the current chunk
+            if len(concept_string) > last_end:
+                last_end = start + len(concept_string)
+
+
+
+
+
+
+        # update before moving on to the next; remember the line break
+        sent_offset += len(raw_sent) + 1
+
+        # add all annotations
         doc.add_annotations('Sentence', sentences)
         doc.add_annotations('Token', tokens)
-
-
-
+        doc.add_annotations('Concept', concepts)
 
     return doc
 
 
-test = load_genia_document('90110496')
+test = load_genia_document('90124644')
 
 
 
