@@ -1,5 +1,8 @@
-from bs4 import BeautifulSoup
+import itertools
+
+from bs4 import BeautifulSoup, Tag
 import os
+import re
 
 
 class Document:
@@ -221,44 +224,87 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
         # loop over concepts within the sentence similar to the tokens loop
         # concepts can be embedded, though, and must be handled differently
+        # there's some crazy recursive patterns somewhere, but it works
         edible_sent = raw_sent  # because it gets eaten through the loop
         concept_offset = 0
         last_end = 0  # keeps track of the current chunk of concepts we're in
 
         for cons in sent.find_all('cons'):
-            concept_string = ''.join(cons.strings)  # can consist of several
-            start = edible_sent.find(concept_string)  # find the start index
 
-            # apparently, not all have a "sem" attribute
+            def resolve_spans(cons_tag: Tag):
+                """Resolves the spans of a given <cons> tag by running
+                recursively through them. Due to complex constructions, the
+                retrieved span options are flattened in the end."""
+
+                concept_string = ''.join(cons_tag.strings)  # can consist of several
+                start = edible_sent.find(concept_string)  # find the start index
+
+                # if it doesn't have "sem" attribute, it's not a concept itself
+                try:
+                    label_ = cons_tag['sem']
+                except KeyError:
+                    label_ = ''
+
+                if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
+                    children_tags = [c for c in cons_tag.children
+                                     if isinstance(c, Tag)]
+                    cc_index = -1
+                    for i, child in enumerate(children_tags):
+                        if ''.join(child.stripped_strings) in {'and', 'or'}:
+                            cc_index = i
+                            break
+
+                    common_before = [resolve_spans(t)
+                                     for t in children_tags[:cc_index-1]]
+                    first = resolve_spans(children_tags[cc_index-1])
+                    second = resolve_spans(children_tags[cc_index+1])
+                    common_after = [resolve_spans(t)
+                                    for t in children_tags[cc_index+2:]]
+
+                    def flatten(li):
+                        return sum(([x] if not isinstance(x, list)
+                                    else flatten(x)
+                                    for x in li), [])
+
+                    return [flatten(list(option))
+                            for option in itertools.product(*common_before,
+                                                            first + second,
+                                                            *common_after)
+                            ]
+
+                else:
+                    # make the span based on offsets and length of concept
+                    return [(sent_offset + concept_offset + start,
+                             sent_offset + concept_offset + start
+                             + len(concept_string))]
+
+            concept_spans = resolve_spans(cons)
             try:
                 label = cons['sem']
             except KeyError:
-                label = ''
+                continue
 
-            # make the span based on offsets and length of concept
-            concept_span = (sent_offset + concept_offset + start,
-                            sent_offset + concept_offset + start
-                            + len(concept_string))
+            for concept_span in concept_spans:
+                if isinstance(concept_span, list):
+                    concept = DiscontinuousConcept(doc, concept_span, label)
+                else:
+                    concept = Concept(doc, concept_span, label)
 
-            # add the concept
-            concept = Concept(doc, concept_span, label)
-            concepts.append(concept)
+                concepts.append(concept)
+
+            cons_string = ''.join(cons.strings)  # can consist of several
+            cons_start = edible_sent.find(cons_string)  # find the start index
 
             # if this concept appears after the previous longest concept,
             # chop off the sentence up until that point
-            if start > last_end:
+            if cons_start > last_end:
                 concept_offset += last_end  # need to remember the offset
                 edible_sent = edible_sent[last_end:]  # chop off
                 last_end = 0  # we'll update that in a bit
 
             # keep track of the longest concept in the current chunk
-            if len(concept_string) > last_end:
-                last_end = start + len(concept_string)
-
-
-
-
-
+            if len(cons_string) > last_end:
+                last_end = cons_start + len(cons_string)
 
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
@@ -271,7 +317,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
     return doc
 
 
-test = load_genia_document('90124644')
+test = load_genia_document('92043714')
 
 
 
