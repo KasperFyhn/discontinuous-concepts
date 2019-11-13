@@ -1,8 +1,9 @@
+import glob
 import itertools
-
 from bs4 import BeautifulSoup, Tag
 import os
-import re
+import multiprocessing as mp
+from tqdm import tqdm
 
 
 class Document:
@@ -40,6 +41,9 @@ class Document:
 
     def __str__(self):
         return self._text
+
+    def __repr__(self):
+        return f'DOC:{self.id}'
 
 
 class Annotation:
@@ -112,20 +116,21 @@ class DiscontinuousConcept(Concept):
         return "'" + self.get_concept() + "'" + str(self.spans)
 
 
-def load_craft_document(doc_id, folder_path='data/CRAFT/txt/',
-                        annotation_types=('structural', 'concept')):
+def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
 
     doc = Document.from_file(folder_path + doc_id + '.txt')
 
+    if only_text:
+        return doc
+
+    # add sentence and token annotations; sents are recognized by their labels
     # make soup from POS XML
     path_to_xml = 'data/CRAFT/part-of-speech/' + doc_id + '.xml'
     raw_xml = open(path_to_xml).read()
     pos_bs = BeautifulSoup(raw_xml, 'xml')
 
-    # add sentence and token annotations; sents are recognized by their labels
     sentences = []
     tokens = []
-
     # just run over all annotations and get the relevant info
     for tag in pos_bs.find_all('annotation'):
         span = (int(tag.span['start']), int(tag.span['end']))
@@ -137,17 +142,12 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/',
             token = Token(doc, span, pos_tag)
             tokens.append(token)
 
-    doc.add_annotations('Sentence', sentences)
-    doc.add_annotations('Token', tokens)
-
-    # make beautiful soup from concept XML
+    # make beautiful soup from concept XML and add concept annotations
     path_to_xml = 'data/CRAFT/concepts/' + doc_id + '.xml'
     raw_xml = open(path_to_xml).read()
     concept_bs = BeautifulSoup(raw_xml, 'xml')
 
-    # add sentence and token annotations
     concepts = []
-
     # just run over all annotations and get the relevant info
     for tag in concept_bs.find_all('annotation'):
         spans = tag.find_all('span')
@@ -165,13 +165,27 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/',
             concept = Concept(doc, span, label)
             concepts.append(concept)
 
+    doc.add_annotations('Sentence', sentences)
+    doc.add_annotations('Token', tokens)
     doc.add_annotations('Concept', concepts)
 
     return doc
 
 
+def load_craft_corpus(path='./data/CRAFT/txt/'):
+
+    ids = [os.path.basename(name[:-4]) for name in glob.glob(path + '*')]
+    loaded_docs = []
+    print('Loading CRAFT corpus ...')
+    for doc in tqdm(mp.Pool().imap_unordered(load_craft_document, ids),
+                    total=len(ids)):
+        loaded_docs.append(doc)
+
+    return loaded_docs
+
+
 def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
-                        annotation_types=('structural', 'concept')):
+                        only_text=False):
     """Load a GENIA document from XML."""
 
     # create xml soup
@@ -184,11 +198,13 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
     doc_text = doc_text.strip().replace('\n\n', '\n')
     doc = Document(doc_id, doc_text)
 
+    if only_text:
+        return doc
+
     sent_offset = 0  # keeps track of how far in we are in the doc text
     sentences = []
     tokens = []
     concepts = []
-
     # loop over sentences, extract the sentence and tokens + concepts within
     for sent in soup.find_all('sentence'):
 
@@ -263,8 +279,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
                     def flatten(li):
                         return sum(([x] if not isinstance(x, list)
-                                    else flatten(x)
-                                    for x in li), [])
+                                    else flatten(x) for x in li), [])
 
                     return [flatten(list(option))
                             for option in itertools.product(*common_before,
@@ -272,7 +287,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
                                                             *common_after)
                             ]
 
-                else:
+                else:  # single concept
                     # make the span based on offsets and length of concept
                     return [(sent_offset + concept_offset + start,
                              sent_offset + concept_offset + start
@@ -284,14 +299,27 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
             except KeyError:
                 continue
 
+            # make concepts out of the retrieved spans
             for concept_span in concept_spans:
-                if isinstance(concept_span, list):
-                    concept = DiscontinuousConcept(doc, concept_span, label)
+                if isinstance(concept_span, list):  # discontinuous concept
+                    # first, merge adjacent spans
+                    merged_spans = [concept_span.pop(0)]
+                    for s in concept_span:
+                        if s[0] - merged_spans[-1][1] < 2:
+                            merged_spans[-1] = (merged_spans[-1][0], s[1])
+                        else:
+                            merged_spans.append(s)
+                    if len(merged_spans) == 1:  # might not be discont. at all
+                        concept = Concept(doc, merged_spans[0], label)
+                    else:
+                        concept = DiscontinuousConcept(doc, merged_spans, label)
                 else:
                     concept = Concept(doc, concept_span, label)
 
                 concepts.append(concept)
 
+            # make sure to update how far we are in the sentence based on the
+            # longest "outer" concept (despite the recursion!)
             cons_string = ''.join(cons.strings)  # can consist of several
             cons_start = edible_sent.find(cons_string)  # find the start index
 
@@ -317,8 +345,17 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
     return doc
 
 
-test = load_genia_document('92043714')
+def load_genia_corpus(path='data/GENIA/pos+concepts/'):
+
+    ids = [os.path.basename(name[:-4]) for name in glob.glob(path + '*')]
+    loaded_docs = []
+    print('Loading GENIA corpus ...')
+    for doc in tqdm(mp.Pool().imap_unordered(load_genia_document, ids),
+                    total=len(ids)):
+        loaded_docs.append(doc)
+
+    return loaded_docs
 
 
-
-
+genia = load_genia_corpus()
+craft = load_craft_corpus()
