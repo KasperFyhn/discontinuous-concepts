@@ -1,5 +1,7 @@
 import glob
 import itertools
+import sys
+
 from bs4 import BeautifulSoup, Tag
 import os
 import multiprocessing as mp
@@ -117,6 +119,8 @@ class DiscontinuousConcept(Concept):
 
 
 def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
+    """Loads in the CRAFT document with the given ID and returns it as a
+    Document object with annotations."""
 
     doc = Document.from_file(folder_path + doc_id + '.txt')
 
@@ -186,7 +190,8 @@ def load_craft_corpus(path='./data/CRAFT/txt/'):
 
 def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
                         only_text=False):
-    """Load a GENIA document from XML."""
+    """Loads in the GENIA document with the given ID and returns it as a
+    Document object with annotations."""
 
     # create xml soup
     xml_file = open(folder_path + doc_id + '.xml')
@@ -247,12 +252,28 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
         for cons in sent.find_all('cons'):
 
+            # make sure to update how far we are in the sentence based on the
+            # longest "outer" concept (despite the recursion!)
+            cons_string = ''.join(cons.strings)  # can consist of several
+            cons_start = edible_sent.find(cons_string)  # find the start index
+
+            # if this concept appears after the previous longest concept,
+            # chop off the sentence up until that point
+            if cons_start > last_end:
+                concept_offset += last_end  # need to remember the offset
+                edible_sent = edible_sent[last_end:]  # chop off
+                last_end = 0  # we'll update that in a bit
+
+            # keep track of the longest concept in the current chunk
+            if len(cons_string) > last_end:
+                last_end = cons_start + len(cons_string)
+
             def resolve_spans(cons_tag: Tag):
                 """Resolves the spans of a given <cons> tag by running
                 recursively through them. Due to complex constructions, the
                 retrieved span options are flattened in the end."""
 
-                concept_string = ''.join(cons_tag.strings)  # can consist of several
+                concept_string = ''.join(cons_tag.strings)
                 start = edible_sent.find(concept_string)  # find the start index
 
                 # if it doesn't have "sem" attribute, it's not a concept itself
@@ -318,21 +339,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
                 concepts.append(concept)
 
-            # make sure to update how far we are in the sentence based on the
-            # longest "outer" concept (despite the recursion!)
-            cons_string = ''.join(cons.strings)  # can consist of several
-            cons_start = edible_sent.find(cons_string)  # find the start index
 
-            # if this concept appears after the previous longest concept,
-            # chop off the sentence up until that point
-            if cons_start > last_end:
-                concept_offset += last_end  # need to remember the offset
-                edible_sent = edible_sent[last_end:]  # chop off
-                last_end = 0  # we'll update that in a bit
-
-            # keep track of the longest concept in the current chunk
-            if len(cons_string) > last_end:
-                last_end = cons_start + len(cons_string)
 
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
@@ -357,5 +364,3 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
     return loaded_docs
 
 
-genia = load_genia_corpus()
-craft = load_craft_corpus()
