@@ -3,7 +3,7 @@ import dataio
 import os
 from colorama import Style, Back, Fore
 
-if False:  # DEBUG MODE
+if True:  # DEBUG MODE
     print('Running debug with: GENIA 90208323 Concept')
     sys.argv.append('GENIA')
     sys.argv.append('90208323')
@@ -47,7 +47,7 @@ except IndexError:
     WITH_POS_TAGS = False
 
 annotations = doc.get_annotations(sys.argv[3])
-current_index = 0
+current_index = -1
 
 while True:
     current_annotation = annotations[current_index]
@@ -59,7 +59,8 @@ while True:
     para_left = DOC_TEXT.rfind('\n', 0, spans[0][0])
     para_left = para_left if para_left > 0 else 0
     para_right = DOC_TEXT.find('\n', spans[-1][1])
-    para_right = para_right if para_right < len(DOC_TEXT) else len(DOC_TEXT)
+    para_right = para_right if para_left < para_right < len(DOC_TEXT)\
+        else len(DOC_TEXT)
 
     print_text = ''
     at_char = para_left
