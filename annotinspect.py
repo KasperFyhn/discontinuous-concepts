@@ -47,7 +47,7 @@ except IndexError:
     WITH_POS_TAGS = False
 
 annotations = doc.get_annotations(sys.argv[3])
-current_index = -1
+current_index = 0
 
 while True:
     current_annotation = annotations[current_index]
