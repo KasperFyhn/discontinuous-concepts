@@ -47,7 +47,7 @@ try:
 except IndexError:
     WITH_POS_TAGS = False
 
-annotations = doc.get_annotations_of_type(sys.argv[3])
+annotations = doc.get_annotations(sys.argv[3])
 if not annotations:
     exit()
 current_index = 0

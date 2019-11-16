@@ -2,11 +2,11 @@ import glob
 import itertools
 import re
 import sys
-import colorama
 from bs4 import BeautifulSoup, Tag
 import os
 import multiprocessing as mp
 from tqdm import tqdm
+from collections import defaultdict
 
 
 class Document:
@@ -15,7 +15,7 @@ class Document:
     def __init__(self, doc_id: str, raw_text: str):
         self.id = doc_id
         self._text = raw_text
-        self._annotations = {}
+        self._annotations = defaultdict(list)
 
     @classmethod
     def from_file(cls, path):
@@ -29,17 +29,12 @@ class Document:
             print('Something went wrong in decoding', os.path.basename(path))
             print(type(e), e)
 
-    def add_annotations(self, annotation_key, annotations: list):
-        self._annotations[annotation_key] = annotations
+    def add_annotation(self, annotation):
 
-    def get_annotations(self, annotation_key):
-        try:
-            return self._annotations[annotation_key]
-        except KeyError:
-            print('There are no annotations list with key "' + annotation_key
-                  + '" in document', self.id)
+        key = type(annotation)
+        self._annotations[key].append(annotation)
 
-    def get_annotations_of_type(self, annotation_type):
+    def get_annotations(self, annotation_type):
         if isinstance(annotation_type, str):
             try:
                 annotation_type = getattr(sys.modules[__name__],
@@ -47,8 +42,9 @@ class Document:
             except AttributeError:
                 print('No annotation type of that name!')
                 return None
-        return [a for annotation_list in self._annotations.values()
-                for a in annotation_list if isinstance(a, annotation_type)]
+        return sorted((a for anno_list in self._annotations.values()
+                       for a in anno_list if isinstance(a, annotation_type)),
+                      key=lambda x: x.span)
 
     def get_text(self):
         return self._text
@@ -89,7 +85,8 @@ class Annotation:
         return build_string
 
     def __repr__(self):
-        return "'" + self.get_covered_text() + "'" + str(self.span)
+        return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
+               + str(self.span) + ')'
 
 
 class Sentence(Annotation):
@@ -127,7 +124,8 @@ class DiscontinuousConcept(Concept):
         return ' '.join(self.document.get_text()[s[0]:s[1]] for s in self.spans)
 
     def __repr__(self):
-        return "'" + self.get_concept() + "'" + str(self.spans)
+        return self.__class__.__name__ + "('" + self.get_concept() + "'"\
+               + str(self.spans) + ')'
 
 
 class Constituent(Annotation):
@@ -141,6 +139,13 @@ class Constituent(Annotation):
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.label
+
+    def __str__(self, depth=1):
+        return self.__repr__() + '\n' + '\t'*depth \
+               + ('\n' + '\t'*depth).join(
+            c.__str__(depth=depth+1) if isinstance(c, Constituent) else str(c)
+            for c in self.constituents
+        )
 
 
 def _flatten(li):
@@ -163,25 +168,22 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
     raw_xml = open(path_to_xml).read()
     pos_bs = BeautifulSoup(raw_xml, 'xml')
 
-    sentences = []
-    tokens = []
     # just run over all annotations and get the relevant info
     for tag in pos_bs.find_all('annotation'):
         span = (int(tag.span['start']), int(tag.span['end']))
         pos_tag = tag.find('class')['label']
         if pos_tag == 'sentence':
             sentence = Sentence(doc, span)
-            sentences.append(sentence)
+            doc.add_annotation(sentence)
         else:
             token = Token(doc, span, pos_tag)
-            tokens.append(token)
+            doc.add_annotation(token)
 
     # make beautiful soup from concept XML and add concept annotations
     path_to_xml = 'data/CRAFT/concepts/' + doc_id + '.xml'
     raw_xml = open(path_to_xml).read()
     concept_bs = BeautifulSoup(raw_xml, 'xml')
 
-    concepts = []
     # just run over all annotations and get the relevant info
     for tag in concept_bs.find_all('annotation'):
         spans = tag.find_all('span')
@@ -192,34 +194,34 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
                      for span in spans]
             label = tag.find('class')['label']
             concept = DiscontinuousConcept(doc, spans, label)
-            concepts.append(concept)
         else:
             span = (int(tag.span['start']), int(tag.span['end']))
             label = tag.find('class')['label']
             concept = Concept(doc, span, label)
-            concepts.append(concept)
+
+        doc.add_annotation(concept)
 
     # parse the appropriate .tree file
     path_to_tree = 'data/CRAFT/treebank/' + doc_id + '.tree'
     raw_tree = open(path_to_tree).read()
     section_trees = raw_tree.split('\n')
-    tokens_stack = tokens.copy()
-    constituents = []
-    for tree, sentence in zip(section_trees, sentences):
+    tokens_stack = doc.get_annotations(Token)
+    for tree, sentence in zip(section_trees, doc.get_annotations(Sentence)):
 
         def get_constituents(sub_tree, stack):
 
             if re.match(r'\s?\(\S* [^(]*\)\s?', sub_tree):
                 if '-NONE-' in sub_tree:
-                    empty_span = (tokens[0].span[0], tokens[0].span[0])
+                    empty_span = (tokens_stack[0].span[0],
+                                  tokens_stack[0].span[0])
                     return Token(doc, empty_span, '-NONE-')
                 else:
                     return tokens_stack.pop(0)
 
             else:
-                open_parentheses = list(re.finditer(r'^\s?\((\S*) .*', sub_tree))
+                open_parentheses = re.finditer(r'^\s?\((\S*) .*', sub_tree)
+                open_paren = next(open_parentheses)
                 next_sub_trees = []
-                open_paren = open_parentheses[0]
                 stack.append(open_paren)
                 # find the closing parentheses
                 balance = -1
@@ -242,15 +244,11 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
                     end = nst[1]
                     sub_cons += [get_constituents(sub_tree[start:end], stack)]
 
-                return Constituent(doc, sub_cons, stack.pop().groups()[0])
+                const = Constituent(doc, sub_cons, stack.pop().groups()[0])
+                doc.add_annotation(const)
+                return const
 
-        constituents.append(get_constituents(tree, []))
-
-
-    doc.add_annotations('Sentence', sentences)
-    doc.add_annotations('Token', tokens)
-    doc.add_annotations('Constituent', _flatten(constituents)) # TODO: FIX!!!
-    doc.add_annotations('Concept', concepts)
+        get_constituents(tree, [])  # they are added to the doc in the function
 
     return doc
 
@@ -286,16 +284,13 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
         return doc
 
     sent_offset = 0  # keeps track of how far in we are in the doc text
-    sentences = []
-    tokens = []
-    concepts = []
     # loop over sentences, extract the sentence and tokens + concepts within
     for sent in soup.find_all('sentence'):
 
         raw_sent = ''.join(sent.strings)  # also strings within tags
         sent_span = (sent_offset, sent_offset + len(raw_sent))
         sentence = Sentence(doc, sent_span)
-        sentences.append(sentence)
+        doc.add_annotation(sentence)
 
         # loop over tokens within the sentence, cut off the processed part of
         # the sentence along the way; else, find methods will give incorrect
@@ -320,7 +315,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
             # finalise the token annotation and add it
             pos = w['c']
             token = Token(doc, token_span, pos)
-            tokens.append(token)
+            doc.add_annotation(token)
 
         # loop over concepts within the sentence similar to the tokens loop
         # concepts can be embedded, though, and must be handled differently
@@ -412,15 +407,10 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
                 else:
                     concept = Concept(doc, concept_span, label)
 
-                concepts.append(concept)
+                doc.add_annotation(concept)
 
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
-
-        # add all annotations
-        doc.add_annotations('Sentence', sentences)
-        doc.add_annotations('Token', tokens)
-        doc.add_annotations('Concept', concepts)
 
     return doc
 
@@ -436,4 +426,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
     return loaded_docs
 
-test = load_craft_document('11319941')
+# test_craft = load_craft_document('11319941')
+# test_genia = load_genia_document('92043714')
