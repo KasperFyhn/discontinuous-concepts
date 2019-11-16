@@ -3,7 +3,8 @@ import dataio
 import os
 from colorama import Style, Back, Fore
 
-if True:  # DEBUG MODE
+DEBUG = False
+if DEBUG:  # DEBUG MODE
     print('Running debug with: GENIA 90208323 Concept')
     sys.argv.append('GENIA')
     sys.argv.append('90208323')
@@ -11,7 +12,7 @@ if True:  # DEBUG MODE
     sys.argv.append('POS')
 
 assert len(sys.argv) > 3, ("The script should be run with arguments: "
-                           + "CORPUS DOC_ID ANNOTATION TYPE [POS]")
+                           + "CORPUS DOC_ID ANNOTATION TYPE [pos]")
 
 
 def get_doc_text_chunk(start, end, with_pos_tags=False):
@@ -46,7 +47,9 @@ try:
 except IndexError:
     WITH_POS_TAGS = False
 
-annotations = doc.get_annotations(sys.argv[3])
+annotations = doc.get_annotations_of_type(sys.argv[3])
+if not annotations:
+    exit()
 current_index = 0
 
 while True:
@@ -101,7 +104,7 @@ while True:
     os.system('clear')
     print(print_text)
     print(f'\n{COLOR_BEGIN}{current_annotation}{COLOR_END}')
-    choice = input('Just Enter for next; b for previous; q to quit: ')
+    choice = input('Enter = next; b = previous; q to quit: ')
     if choice == '':
         current_index += 1
         if current_index > len(annotations) - 1:

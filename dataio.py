@@ -1,7 +1,8 @@
 import glob
 import itertools
+import re
 import sys
-
+import colorama
 from bs4 import BeautifulSoup, Tag
 import os
 import multiprocessing as mp
@@ -28,15 +29,26 @@ class Document:
             print('Something went wrong in decoding', os.path.basename(path))
             print(type(e), e)
 
-    def add_annotations(self, annotation_type, annotations: list):
-        self._annotations[annotation_type] = annotations
+    def add_annotations(self, annotation_key, annotations: list):
+        self._annotations[annotation_key] = annotations
 
-    def get_annotations(self, annotation_type):
+    def get_annotations(self, annotation_key):
         try:
-            return self._annotations[annotation_type]
+            return self._annotations[annotation_key]
         except KeyError:
-            print('There are no annotations of type "' + annotation_type
+            print('There are no annotations list with key "' + annotation_key
                   + '" in document', self.id)
+
+    def get_annotations_of_type(self, annotation_type):
+        if isinstance(annotation_type, str):
+            try:
+                annotation_type = getattr(sys.modules[__name__],
+                                          annotation_type)
+            except AttributeError:
+                print('No annotation type of that name!')
+                return None
+        return [a for annotation_list in self._annotations.values()
+                for a in annotation_list if isinstance(a, annotation_type)]
 
     def get_text(self):
         return self._text
@@ -72,7 +84,7 @@ class Annotation:
             end = len(self.document.get_text())
         build_string = \
             self.document.get_text()[start:self.span[0]-1] \
-            + '    ' + self.get_covered_text() + '    '\
+            + "     " + self.get_covered_text() + "     " \
             + self.document.get_text()[self.span[1]:end]
         return build_string
 
@@ -91,7 +103,7 @@ class Token(Annotation):
         self.pos = pos_tag
 
     def __repr__(self):
-        return super().__repr__() + '/' + self.pos
+        return super().__repr__() + '\\' + self.pos
 
 
 class Concept(Annotation):
@@ -116,6 +128,24 @@ class DiscontinuousConcept(Concept):
 
     def __repr__(self):
         return "'" + self.get_concept() + "'" + str(self.spans)
+
+
+class Constituent(Annotation):
+
+    def __init__(self, document, constituents, label):
+        super().__init__(document, (constituents[0].span[0],
+                                    constituents[-1].span[1])
+                         )
+        self.constituents = constituents
+        self.label = label
+
+    def __repr__(self):
+        return super().__repr__() + '\\' + self.label
+
+
+def _flatten(li):
+    return sum(([x] if not isinstance(x, list)
+                else _flatten(x) for x in li), [])
 
 
 def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
@@ -169,8 +199,57 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
             concept = Concept(doc, span, label)
             concepts.append(concept)
 
+    # parse the appropriate .tree file
+    path_to_tree = 'data/CRAFT/treebank/' + doc_id + '.tree'
+    raw_tree = open(path_to_tree).read()
+    section_trees = raw_tree.split('\n')
+    tokens_stack = tokens.copy()
+    constituents = []
+    for tree, sentence in zip(section_trees, sentences):
+
+        def get_constituents(sub_tree, stack):
+
+            if re.match(r'\s?\(\S* [^(]*\)\s?', sub_tree):
+                if '-NONE-' in sub_tree:
+                    empty_span = (tokens[0].span[0], tokens[0].span[0])
+                    return Token(doc, empty_span, '-NONE-')
+                else:
+                    return tokens_stack.pop(0)
+
+            else:
+                open_parentheses = list(re.finditer(r'^\s?\((\S*) .*', sub_tree))
+                next_sub_trees = []
+                open_paren = open_parentheses[0]
+                stack.append(open_paren)
+                # find the closing parentheses
+                balance = -1
+                last_sub_start = 0
+                for i, c in enumerate(sub_tree):
+                    if c == '(':
+                        balance += 1
+                        if balance == 1:
+                            last_sub_start = i
+                    elif c == ')':
+                        balance -= 1
+                        if balance == 0:
+                            next_sub_trees.append((last_sub_start, i+1))
+                    if balance < 0:
+                        break
+
+                sub_cons = []
+                for nst in next_sub_trees:
+                    start = nst[0]
+                    end = nst[1]
+                    sub_cons += [get_constituents(sub_tree[start:end], stack)]
+
+                return Constituent(doc, sub_cons, stack.pop().groups()[0])
+
+        constituents.append(get_constituents(tree, []))
+
+
     doc.add_annotations('Sentence', sentences)
     doc.add_annotations('Token', tokens)
+    doc.add_annotations('Constituent', _flatten(constituents)) # TODO: FIX!!!
     doc.add_annotations('Concept', concepts)
 
     return doc
@@ -298,11 +377,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
                     common_after = [resolve_spans(t)
                                     for t in children_tags[cc_index+2:]]
 
-                    def flatten(li):
-                        return sum(([x] if not isinstance(x, list)
-                                    else flatten(x) for x in li), [])
-
-                    return [flatten(list(option))
+                    return [_flatten(list(option))
                             for option in itertools.product(*common_before,
                                                             first + second,
                                                             *common_after)
@@ -339,8 +414,6 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
                 concepts.append(concept)
 
-
-
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
 
@@ -363,4 +436,4 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
     return loaded_docs
 
-
+test = load_craft_document('11319941')
