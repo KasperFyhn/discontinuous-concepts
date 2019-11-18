@@ -2,7 +2,8 @@ import glob
 import itertools
 import re
 import sys
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
+import bs4
 import os
 import multiprocessing as mp
 from tqdm import tqdm
@@ -265,13 +266,17 @@ def load_craft_corpus(path='./data/CRAFT/txt/'):
     return loaded_docs
 
 
-def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
+with open('data/GENIA/MEDLINE-to-PMID') as f:
+    _MEDLINE_TO_PMID = eval(f.read())
+
+
+def load_genia_document(doc_id, folder_path='data/GENIA/',
                         only_text=False):
     """Loads in the GENIA document with the given ID and returns it as a
     Document object with annotations."""
 
     # create xml soup
-    xml_file = open(folder_path + doc_id + '.xml')
+    xml_file = open(folder_path + 'pos+concepts/' + doc_id + '.xml')
     soup = BeautifulSoup(xml_file.read(), 'xml')
 
     # doc text is made up of retrievable strings between tags in title+abstract
@@ -297,6 +302,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
         # indices for the token spans
         token_offset = 0
         edible_sent = raw_sent  # because it gets eaten through the loop
+        prefixes = []
 
         for w in sent.find_all('w'):  # tokens are in <w> tags
             raw_token = w.string  # consists of only one string
@@ -315,6 +321,16 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
             # finalise the token annotation and add it
             pos = w['c']
             token = Token(doc, token_span, pos)
+
+            # handle prefixes which have been tokenized as one
+            if pos == '*':
+                prefixes.append(token)
+                continue
+            if prefixes:
+                token.span = (prefixes[0].span[0],
+                              token.span[1])
+                prefixes = []
+
             doc.add_annotation(token)
 
         # loop over concepts within the sentence similar to the tokens loop
@@ -342,7 +358,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
             if len(cons_string) > last_end:
                 last_end = cons_start + len(cons_string)
 
-            def resolve_spans(cons_tag: Tag):
+            def resolve_spans(cons_tag: bs4.Tag):
                 """Resolves the spans of a given <cons> tag by running
                 recursively through them. Due to complex constructions, the
                 retrieved span options are flattened in the end."""
@@ -358,7 +374,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
 
                 if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
                     children_tags = [c for c in cons_tag.children
-                                     if isinstance(c, Tag)]
+                                     if isinstance(c, bs4.Tag)]
                     cc_index = -1
                     for i, child in enumerate(children_tags):
                         if ''.join(child.stripped_strings) in {'and', 'or'}:
@@ -412,6 +428,45 @@ def load_genia_document(doc_id, folder_path='data/GENIA/pos+concepts/',
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
 
+    # treebank annotations are found elsewhere. Handle these similar to before
+    # create xml soup
+    pmid = _MEDLINE_TO_PMID[doc_id]
+    xml_file = open(folder_path + 'treebank/' + pmid + '.xml')
+    soup = BeautifulSoup(xml_file.read(), 'xml')
+
+    tokens_stack = doc.get_annotations(Token)
+
+    for sentence in soup.find_all('sentence'):
+
+        def get_constituents(sub_tree, stack):
+            if sub_tree.name == 'tok':
+                return tokens_stack.pop(0)
+            else:
+                try:
+                    stack.append(sub_tree['cat'])
+                except KeyError:
+                    stack.append(sub_tree.name)
+
+                sub_cons = []
+                for nst in sub_tree.children:
+                    if isinstance(nst, bs4.NavigableString):
+                        continue
+                    sub_cons += [get_constituents(nst, stack)]
+
+                if not sub_cons:
+                    empty_span = (tokens_stack[0].span[0],
+                                  tokens_stack[0].span[0])
+                    empty_token = Token(doc, empty_span, '-NONE-')
+                    sub_cons.append(empty_token)
+
+                const = Constituent(doc, sub_cons, stack.pop())
+                doc.add_annotation(const)
+
+                return const
+
+        tree = sentence
+        get_constituents(tree, [])  # they are added to the doc in the function
+
     return doc
 
 
@@ -426,5 +481,6 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
     return loaded_docs
 
+
 # test_craft = load_craft_document('11319941')
-# test_genia = load_genia_document('92043714')
+test_genia = load_genia_document('92043714')
