@@ -407,22 +407,28 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                 if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
                     children_tags = [c for c in cons_tag.children
                                      if isinstance(c, bs4.Tag)]
-                    cc_index = -1
+                    cc_indexes = []
+                    coord_words_indexes = []
                     for i, child in enumerate(children_tags):
-                        if ''.join(child.stripped_strings) in {'and', 'or'}:
-                            cc_index = i
-                            break
+                        if ''.join(child.stripped_strings) in {'and', 'or',
+                                                               ','}:
+                            cc_indexes.append(i)
+                        else:
+                            coord_words_indexes.append(i)
+                    coord_words_indexes = [i for i in coord_words_indexes
+                                           if (i - 1) in cc_indexes
+                                           or (i + 1) in cc_indexes]
 
                     common_before = [resolve_spans(t)
-                                     for t in children_tags[:cc_index-1]]
-                    first = resolve_spans(children_tags[cc_index-1])
-                    second = resolve_spans(children_tags[cc_index+1])
+                                     for t in children_tags[:cc_indexes[0]-1]]
+                    coordinated_words = [resolve_spans(children_tags[index])
+                                         for index in coord_words_indexes]
                     common_after = [resolve_spans(t)
-                                    for t in children_tags[cc_index+2:]]
+                                    for t in children_tags[cc_indexes[-1]+2:]]
 
                     return [_flatten(list(option))
                             for option in itertools.product(*common_before,
-                                                            first + second,
+                                                            coordinated_words,
                                                             *common_after)
                             ]
 
@@ -551,5 +557,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-# test_genia = load_genia_document('99069282')
+test_genia = load_genia_document('99061768')
 # test_genia_corpus = load_genia_corpus()
