@@ -35,6 +35,39 @@ class Document:
         key = type(annotation)
         self._annotations[key].append(annotation)
 
+    def get_annotations_at(self, span, annotation_type=None):
+        if not annotation_type:
+            annotation_type = Annotation
+
+        if isinstance(annotation_type, str):
+            try:
+                annotation_type = getattr(sys.modules[__name__],
+                                          annotation_type)
+            except AttributeError:
+                print('No annotation type of that name!')
+                return None
+
+        if not annotation_type == Constituent:
+            return [a for a in self.get_annotations(annotation_type)
+                    if span[0] <= a.span[0] <= span[1]
+                    or span[0] <= a.span[1] <= span[1]]
+        else:
+            # Constituent annotations are handled differently because they are
+            # embedded; instead, return the one closest to the given span
+            potential = [a for a in self.get_annotations(annotation_type)
+                         if span[0] <= a.span[0] <= span[1]
+                         or span[0] <= a.span[1] <= span[1]]
+            start = span[0]
+            end = span[1]
+            closest = None
+            closest_dist = None
+            for p in potential:
+                dist = abs(p.span[0] - start) + abs(p.span[1] - end)
+                if not closest_dist or dist < closest_dist:
+                    closest = p
+                    closest_dist = dist
+            return [closest]
+
     def get_annotations(self, annotation_type):
         if isinstance(annotation_type, str):
             try:
@@ -483,4 +516,4 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 
 # test_craft = load_craft_document('11319941')
-test_genia = load_genia_document('92043714')
+# test_genia = load_genia_document('92043714')

@@ -11,8 +11,10 @@ if DEBUG:  # DEBUG MODE
     sys.argv.append('Concept')
     sys.argv.append('POS')
 
-assert len(sys.argv) > 3, ("The script should be run with arguments: "
-                           + "CORPUS DOC_ID ANNOTATION TYPE [pos]")
+assert len(sys.argv) > 3, (
+        "The script should be run with arguments: "
+        + "CORPUS DOC_ID ANNOTATION_TYPE [SECOND_TYPE] [pos]"
+)
 
 
 def get_doc_text_chunk(start, end, with_pos_tags=False):
@@ -39,6 +41,10 @@ elif sys.argv[1].lower() == 'craft':
     doc = dataio.load_craft_document(sys.argv[2])
 DOC_TEXT = doc.get_text()
 
+annotations = doc.get_annotations(sys.argv[3])
+if not annotations:
+    exit()
+
 try:
     if sys.argv[4].lower() == 'pos':
         WITH_POS_TAGS = True
@@ -47,9 +53,14 @@ try:
 except IndexError:
     WITH_POS_TAGS = False
 
-annotations = doc.get_annotations(sys.argv[3])
-if not annotations:
-    exit()
+try:
+    if sys.argv[4].lower() != 'pos':
+        secondary_type = sys.argv[4]
+    else:
+        secondary_type = None
+except IndexError:
+    secondary_type = None
+
 current_index = 0
 
 while True:
@@ -104,7 +115,12 @@ while True:
     os.system('clear')
     print(print_text)
     print(f'\n{COLOR_BEGIN}{current_annotation}{COLOR_END}')
-    choice = input('Enter = next; b = previous; q to quit: ')
+    if secondary_type:
+        annotations_at_this = doc.get_annotations_at(current_annotation.span,
+                                                     secondary_type)
+        for anno in annotations_at_this:
+            print(anno)
+    choice = input('\nEnter = next; b = previous; q to quit: ')
     if choice == '':
         current_index += 1
         if current_index > len(annotations) - 1:
