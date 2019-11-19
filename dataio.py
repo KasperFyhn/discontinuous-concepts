@@ -63,7 +63,7 @@ class Document:
             closest_dist = None
             for p in potential:
                 dist = abs(p.span[0] - start) + abs(p.span[1] - end)
-                if not closest_dist or dist < closest_dist:
+                if not closest or dist < closest_dist:
                     closest = p
                     closest_dist = dist
             return [closest]
@@ -117,6 +117,12 @@ class Annotation:
             + "     " + self.get_covered_text() + "     " \
             + self.document.get_text()[self.span[1]:end]
         return build_string
+
+    def merge_with(self, another_annotation):
+
+        another_annotation.span = (self.span[0], another_annotation.span[1])
+        del self
+        return another_annotation
 
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
@@ -301,6 +307,8 @@ def load_craft_corpus(path='./data/CRAFT/txt/'):
 
 with open('data/GENIA/MEDLINE-to-PMID') as f:
     _MEDLINE_TO_PMID = eval(f.read())
+with open('data/GENIA/treebank-quarantine') as f:
+    _QUARANTINE = eval(f.read())
 
 
 def load_genia_document(doc_id, folder_path='data/GENIA/',
@@ -315,7 +323,8 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
     # doc text is made up of retrievable strings between tags in title+abstract
     doc_text = ''.join(soup.title.strings) + ''.join(soup.abstract.strings)
     # some double line breaks cause trouble in the offsets: correct to single
-    doc_text = doc_text.strip().replace('\n\n', '\n')
+    # some stray spaces at the beginning or end of lines do the same
+    doc_text = doc_text.strip().replace('\n\n', '\n').replace('\n ', '\n')
     doc = Document(doc_id, doc_text)
 
     if only_text:
@@ -335,7 +344,6 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
         # indices for the token spans
         token_offset = 0
         edible_sent = raw_sent  # because it gets eaten through the loop
-        prefixes = []
 
         for w in sent.find_all('w'):  # tokens are in <w> tags
             raw_token = w.string  # consists of only one string
@@ -354,15 +362,6 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
             # finalise the token annotation and add it
             pos = w['c']
             token = Token(doc, token_span, pos)
-
-            # handle prefixes which have been tokenized as one
-            if pos == '*':
-                prefixes.append(token)
-                continue
-            if prefixes:
-                token.span = (prefixes[0].span[0],
-                              token.span[1])
-                prefixes = []
 
             doc.add_annotation(token)
 
@@ -468,12 +467,39 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
     soup = BeautifulSoup(xml_file.read(), 'xml')
 
     tokens_stack = doc.get_annotations(Token)
+    tokens_stack.reverse()
 
     for sentence in soup.find_all('sentence'):
 
         def get_constituents(sub_tree, stack):
             if sub_tree.name == 'tok':
-                return tokens_stack.pop(0)
+                if not tokens_stack:
+                    t = Token(doc, (0, 0), '-NONE-')
+                else:
+                    t = tokens_stack.pop()
+
+                # handle prefixes and other split token sequences
+                while sub_tree.string.replace(' ', '') != \
+                        t.get_covered_text().replace(' ', ''):
+                    sub_tree_str = sub_tree.string.replace(' ', '')
+                    token_str = t.get_covered_text().replace(' ', '')
+                    if sub_tree_str == '.':
+                        tokens_stack.append(t)
+                        empty_span = (t.span[0],
+                                      t.span[0])
+                        return Token(doc, empty_span, '-NONE-')
+                    elif token_str in sub_tree_str:
+                        t = t.merge_with(tokens_stack.pop())
+                    elif sub_tree_str in token_str:
+                        if not token_str.endswith(sub_tree_str):
+                            tokens_stack.append(t)
+                            empty_span = (t.span[0],
+                                          t.span[0])
+                            return Token(doc, empty_span, '-NONE-')
+                        else:
+                            return t
+
+                return t
             else:
                 try:
                     stack.append(sub_tree['cat'])
@@ -487,8 +513,8 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                     sub_cons += [get_constituents(nst, stack)]
 
                 if not sub_cons:
-                    empty_span = (tokens_stack[0].span[0],
-                                  tokens_stack[0].span[0])
+                    empty_span = (tokens_stack[-1].span[0],
+                                  tokens_stack[-1].span[0])
                     empty_token = Token(doc, empty_span, '-NONE-')
                     sub_cons.append(empty_token)
 
@@ -507,7 +533,15 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
     ids = [os.path.basename(name[:-4]) for name in glob.glob(path + '*')]
     loaded_docs = []
+
+    # some documents cause trouble; some are handled in the code, but not all
+    # these are listed in a quarantine file and will be skipped
+    for q in _QUARANTINE:
+        ids.remove(str(q))
+
     print('Loading GENIA corpus ...')
+    if _QUARANTINE:
+        print(f'Skipping {len(_QUARANTINE)} files put in quarantine.')
     for doc in tqdm(mp.Pool().imap_unordered(load_genia_document, ids),
                     total=len(ids)):
         loaded_docs.append(doc)
@@ -516,4 +550,6 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 
 # test_craft = load_craft_document('11319941')
-# test_genia = load_genia_document('92043714')
+# test_craft_corpus = load_craft_corpus()
+# test_genia = load_genia_document('99069282')
+# test_genia_corpus = load_genia_corpus()

@@ -7,8 +7,9 @@ DEBUG = False
 if DEBUG:  # DEBUG MODE
     print('Running debug with: GENIA 90208323 Concept')
     sys.argv.append('GENIA')
-    sys.argv.append('90208323')
+    sys.argv.append('*')
     sys.argv.append('Concept')
+    sys.argv.append('Constituent')
     sys.argv.append('POS')
 
 assert len(sys.argv) > 3, (
@@ -35,15 +36,22 @@ COLOR_BEGIN = Back.CYAN + Fore.BLACK
 COLOR_END = Style.RESET_ALL
 WINDOW = 2
 
-if sys.argv[1].lower() == 'genia':
-    doc = dataio.load_genia_document(sys.argv[2])
-elif sys.argv[1].lower() == 'craft':
-    doc = dataio.load_craft_document(sys.argv[2])
-DOC_TEXT = doc.get_text()
+# parse all CL arguments and set things accordingly
 
-annotations = doc.get_annotations(sys.argv[3])
-if not annotations:
-    exit()
+# determine which corpus to load from and set function accordingly
+if sys.argv[1].lower() == 'genia':
+    load_doc = dataio.load_genia_document
+elif sys.argv[1].lower() == 'craft':
+    load_doc = dataio.load_craft_document
+
+if sys.argv[2].isdigit():
+    docs = iter([load_doc(sys.argv[2])])
+elif sys.argv[2].startswith('[') and sys.argv[2].endswith(']'):
+    docs = iter(load_doc(d) for d in eval(sys.argv[2]))
+elif sys.argv[2] == 'ALL' and sys.argv[1].lower() == 'genia':
+    docs = iter(dataio.load_genia_corpus())
+elif sys.argv[2] == 'ALL' and sys.argv[1].lower() == 'craft':
+    docs = iter(dataio.load_craft_corpus())
 
 try:
     if sys.argv[4].lower() == 'pos':
@@ -61,9 +69,23 @@ try:
 except IndexError:
     secondary_type = None
 
+# get ready to run
+doc = next(docs)
+DOC_TEXT = doc.get_text()
+annotations = doc.get_annotations(sys.argv[3])
+
 current_index = 0
 
 while True:
+    if not annotations:
+        print(doc.id, 'has no annotations of the requested type!')
+        input('Moving on to next document.')
+        doc = next(docs)
+        DOC_TEXT = doc.get_text()
+        annotations = doc.get_annotations(sys.argv[3])
+        current_index = 0
+        continue
+
     current_annotation = annotations[current_index]
     if isinstance(current_annotation, dataio.DiscontinuousConcept):
         spans = current_annotation.spans
@@ -114,13 +136,15 @@ while True:
 
     os.system('clear')
     print(print_text)
-    print(f'\n{COLOR_BEGIN}{current_annotation}{COLOR_END}')
+    print('\n' + '='*50)
+    print(f'{COLOR_BEGIN}{current_annotation}{COLOR_END}')
     if secondary_type:
         annotations_at_this = doc.get_annotations_at(current_annotation.span,
                                                      secondary_type)
         for anno in annotations_at_this:
             print(anno)
-    choice = input('\nEnter = next; b = previous; q to quit: ')
+    print('\nDocument:', doc.id)
+    choice = input('Enter = next; b = previous; n = next doc; q to quit: ')
     if choice == '':
         current_index += 1
         if current_index > len(annotations) - 1:
@@ -129,6 +153,11 @@ while True:
         current_index -= 1
         if current_index < 0:
             current_index = 0
+    elif choice == 'n':
+        doc = next(docs)
+        DOC_TEXT = doc.get_text()
+        annotations = doc.get_annotations(sys.argv[3])
+        current_index = 0
     elif choice == 'q':
         break
 
