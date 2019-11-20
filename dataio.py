@@ -47,14 +47,13 @@ class Document:
 
         if not annotation_type == Constituent:
             return [a for a in self.get_annotations(annotation_type)
-                    if span[0] <= a.span[0] <= span[1]
-                    or span[0] <= a.span[1] <= span[1]]
+                    if span[0] <= a.span[0] < span[1]
+                    or span[0] < a.span[1] <= span[1]]
         else:
             # Constituent annotations are handled differently because they are
             # embedded; instead, return the one closest to the given span
             potential = [a for a in self.get_annotations(annotation_type)
-                         if span[0] <= a.span[0] <= span[1]
-                         or span[0] <= a.span[1] <= span[1]]
+                         if a.span[0] <= span[0] or span[1] < a.span[1]]
             start = span[0]
             end = span[1]
             closest = None
@@ -307,6 +306,7 @@ def load_craft_corpus(path='./data/CRAFT/txt/'):
     return loaded_docs
 
 
+os.chdir(os.path.dirname(__file__))
 with open('data/GENIA/MEDLINE-to-PMID') as map_file:
     _MEDLINE_TO_PMID = eval(map_file.read())
 with open('data/GENIA/genia-quarantine') as quarantine_file:
