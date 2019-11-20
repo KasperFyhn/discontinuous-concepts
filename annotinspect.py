@@ -143,7 +143,8 @@ while True:
                                                      secondary_type)
         for anno in annotations_at_this:
             print(anno)
-    print('\nDocument:', doc.id)
+    print('\nDocument:', doc.id,
+          f'\tShowing annotation {current_index+1} of {len(annotations)}')
     choice = input('Enter = next; b = previous; n = next doc; q to quit: ')
     if choice == '':
         current_index += 1

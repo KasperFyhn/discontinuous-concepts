@@ -19,16 +19,14 @@ class Document:
         self._annotations = defaultdict(list)
 
     @classmethod
-    def from_file(cls, path):
-        """Load a document from a path."""
+    def from_pickle(cls, path_in):
+        """Load a pickled Document object from a path."""
 
-        try:
-            with open(path) as f:
-                text_id = os.path.basename(path)[:-4]
-                return cls(text_id, f.read())
-        except UnicodeDecodeError as e:
-            print('Something went wrong in decoding', os.path.basename(path))
-            print(type(e), e)
+        pass
+
+    def pickle(self, path_out):
+
+        pass
 
     def add_annotation(self, annotation):
 
@@ -197,7 +195,11 @@ def load_craft_document(doc_id, folder_path='data/CRAFT/txt/', only_text=False):
     """Loads in the CRAFT document with the given ID and returns it as a
     Document object with annotations."""
 
-    doc = Document.from_file(folder_path + doc_id + '.txt')
+
+    path = folder_path + doc_id + '.txt'
+    doc_id = os.path.basename(path)[:-4]
+    with open(path) as craft_file:
+        doc = Document(doc_id, craft_file.read())
 
     if only_text:
         return doc
@@ -305,10 +307,10 @@ def load_craft_corpus(path='./data/CRAFT/txt/'):
     return loaded_docs
 
 
-with open('data/GENIA/MEDLINE-to-PMID') as f:
-    _MEDLINE_TO_PMID = eval(f.read())
-with open('data/GENIA/treebank-quarantine') as f:
-    _QUARANTINE = eval(f.read())
+with open('data/GENIA/MEDLINE-to-PMID') as map_file:
+    _MEDLINE_TO_PMID = eval(map_file.read())
+with open('data/GENIA/genia-quarantine') as quarantine_file:
+    _QUARANTINE = eval(quarantine_file.read())
 
 
 def load_genia_document(doc_id, folder_path='data/GENIA/',
@@ -410,8 +412,9 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                     cc_indexes = []
                     coord_words_indexes = []
                     for i, child in enumerate(children_tags):
-                        if ''.join(child.stripped_strings) in {'and', 'or',
-                                                               ','}:
+                        if (child.name == 'w' and child['c'] == 'CC')\
+                                or ''.join(child.stripped_strings) in {',',
+                                                                       '/'}:
                             cc_indexes.append(i)
                         else:
                             coord_words_indexes.append(i)
@@ -420,9 +423,10 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                                            or (i + 1) in cc_indexes]
 
                     common_before = [resolve_spans(t)
-                                     for t in children_tags[:cc_indexes[0]-1]]
-                    coordinated_words = [resolve_spans(children_tags[index])
-                                         for index in coord_words_indexes]
+                                     for t in children_tags[0:cc_indexes[0]-1]]
+                    coordinated_words = []
+                    for index in coord_words_indexes:
+                        coordinated_words += resolve_spans(children_tags[index])
                     common_after = [resolve_spans(t)
                                     for t in children_tags[cc_indexes[-1]+2:]]
 
@@ -557,5 +561,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-test_genia = load_genia_document('99061768')
+# test_genia = load_genia_document('95248083')
 # test_genia_corpus = load_genia_corpus()
