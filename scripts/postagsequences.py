@@ -4,7 +4,7 @@ from collections import Counter
 # RUN CONFIGURATIONS
 CORPUS = 'CRAFT'
 
-POS_TAG_MAP =  {
+POS_TAG_MAP = {
     '-LRB-': '(', '-RRB-': ')', 'HYPH': '-', '``': 'Ø',
     'JJR': 'JJ', 'JJS': 'JJ',
     'NNP': 'NN', 'NNS': 'NN',
@@ -13,8 +13,8 @@ POS_TAG_MAP =  {
 
 
 def make_pos_tag_sequence(sequence):
-     return ' '.join(POS_TAG_MAP[tag] if tag in POS_TAG_MAP else tag
-                     for tag in sequence)
+    return ' '.join(POS_TAG_MAP[tag] if tag in POS_TAG_MAP else tag
+                    for tag in sequence)
 
 
 if CORPUS.lower() == 'craft':

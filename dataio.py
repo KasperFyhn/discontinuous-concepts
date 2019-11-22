@@ -53,7 +53,7 @@ class Document:
             # Constituent annotations are handled differently because they are
             # embedded; instead, return the one closest to the given span
             potential = [a for a in self.get_annotations(annotation_type)
-                         if a.span[0] <= span[0] or span[1] < a.span[1]]
+                         if a.span[0] <= span[0] and span[1] <= a.span[1]]
             start = span[0]
             end = span[1]
             closest = None
