@@ -2,7 +2,7 @@ import dataio as dio
 from collections import Counter
 
 # RUN CONFIGURATIONS
-CORPUS = 'CRAFT'
+CORPUS = 'craft'
 
 POS_TAG_MAP = {
     '-LRB-': '(', '-RRB-': ')', 'HYPH': '-', '``': 'Ø',

@@ -387,6 +387,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                 concept_offset += last_end  # need to remember the offset
                 edible_sent = edible_sent[last_end:]  # chop off
                 last_end = 0  # we'll update that in a bit
+                cons_start = edible_sent.find(cons_string)  # from updated sent
 
             # keep track of the longest concept in the current chunk
             if len(cons_string) > last_end:
@@ -407,28 +408,39 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                     label_ = ''
 
                 if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
+                    # TODO: something goes wrong here with parentheses
+                    #  e.g. in DOC:97050805
                     children_tags = [c for c in cons_tag.children
                                      if isinstance(c, bs4.Tag)]
-                    cc_indexes = []
                     coord_words_indexes = []
+                    prev_cons = None
+                    need_second = False
                     for i, child in enumerate(children_tags):
-                        if (child.name == 'w' and child['c'] == 'CC')\
-                                or ''.join(child.stripped_strings) in {',',
-                                                                       '/'}:
-                            cc_indexes.append(i)
-                        else:
-                            coord_words_indexes.append(i)
-                    coord_words_indexes = [i for i in coord_words_indexes
-                                           if (i - 1) in cc_indexes
-                                           or (i + 1) in cc_indexes]
+                        if (child.name == 'w' and child['c'] == 'CC'
+                            and child.string not in {'both', 'neither'})\
+                                or ''.join(child.stripped_strings) in ',/':
+                            coord_words_indexes.append(prev_cons)
+                            need_second = True
+                        elif child.name == 'cons':
+                            prev_cons = i
+                            if need_second:
+                                coord_words_indexes.append(i)
+                                need_second = False
 
-                    common_before = [resolve_spans(t)
-                                     for t in children_tags[0:cc_indexes[0]-1]]
+                    # kill duplicates
+                    coord_words_indexes = sorted(set(coord_words_indexes))
+
+                    common_before = [
+                        resolve_spans(t)
+                        for t in children_tags[0:coord_words_indexes[0]]
+                    ]
                     coordinated_words = []
                     for index in coord_words_indexes:
                         coordinated_words += resolve_spans(children_tags[index])
-                    common_after = [resolve_spans(t)
-                                    for t in children_tags[cc_indexes[-1]+2:]]
+                    common_after = [
+                        resolve_spans(t)
+                        for t in children_tags[coord_words_indexes[-1]+1:]
+                    ]
 
                     return [_flatten(list(option))
                             for option in itertools.product(*common_before,
@@ -561,5 +573,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-# test_genia = load_genia_document('95248083')
+# test_genia = load_genia_document('97050805')
 # test_genia_corpus = load_genia_corpus()
