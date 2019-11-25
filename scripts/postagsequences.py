@@ -26,8 +26,7 @@ docs = load_docs()
 
 concepts_and_tokens = []
 
-for i, doc in enumerate(docs):
-    print(f'Processing document {i+1} of {len(docs)}', end='\r')
+for doc in docs:
     disc_concepts = doc.get_annotations(dio.DiscontinuousConcept)
 
     for dc in disc_concepts:

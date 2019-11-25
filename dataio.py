@@ -17,6 +17,8 @@ class Document:
         self.id = doc_id
         self._text = raw_text
         self._annotations = defaultdict(list)
+        self._span_starts = defaultdict(list)
+        self._span_ends = defaultdict(list)
 
     @classmethod
     def from_pickle(cls, path_in):
@@ -36,23 +38,30 @@ class Document:
                 continue
             self._annotations[key].append(annotation)
 
+        span_start = annotation.span[0]
+        self._span_starts[span_start].append(annotation)
+        span_end = annotation.span[1]
+        self._span_starts[span_end].append(annotation)
 
     def get_annotations_at(self, span, annotation_type=None):
         if not annotation_type:
-            annotation_type = Annotation
+            annotation_type = 'Annotation'
 
-        if not isinstance(annotation_type, str):
-            annotation_type = annotation_type.__name__
+        if isinstance(annotation_type, str):
+            try:
+                annotation_type = getattr(sys.modules[__name__],
+                                          annotation_type)
+            except AttributeError:
+                print('No annotation type of that name!')
+                return []
 
-        if not annotation_type == 'Constituent':
-            return [a for a in self.get_annotations(annotation_type)
-                    if span[0] <= a.span[0] < span[1]
-                    or span[0] < a.span[1] <= span[1]]
-        else:
-            # Constituent annotations are handled differently because they are
-            # embedded; instead, return the one closest to the given span
-            potential = [a for a in self.get_annotations(annotation_type)
-                         if a.span[0] <= span[0] and span[1] <= a.span[1]]
+        if annotation_type == Constituent:
+            max_index = len(self._text)
+            potential = [a for l in [self._span_starts[index]
+                                     for index in range(span[0]+1)]
+                                    + [self._span_ends[index]
+                                       for index in range(span[1], max_index)]
+                         for a in l if isinstance(a, annotation_type)]
             start = span[0]
             end = span[1]
             closest = None
@@ -64,23 +73,19 @@ class Document:
                     closest_dist = dist
             return [closest]
 
+        else:
+            return [a for l in [self._span_starts[index]
+                                for index in range(span[0], span[1])]
+                               + [self._span_ends[index]
+                                  for index in range(span[0], span[1])]
+                    for a in l if isinstance(a, annotation_type)]
+
     def get_annotations(self, annotation_type):
 
         if not isinstance(annotation_type, str):
             annotation_type = annotation_type.__name__
 
         return sorted(self._annotations[annotation_type], key=lambda x: x.span)
-
-        """if isinstance(annotation_type, str):
-            try:
-                annotation_type = getattr(sys.modules[__name__],
-                                          annotation_type)
-            except AttributeError:
-                print('No annotation type of that name!')
-                return None
-        return sorted((a for anno_list in self._annotations.values()
-                       for a in anno_list if isinstance(a, annotation_type)),
-                      key=lambda x: x.span)"""
 
     def get_text(self):
         return self._text
@@ -89,7 +94,7 @@ class Document:
         return self._text
 
     def __repr__(self):
-        return f'DOC:{self.id}'
+        return f'Document({self.id})'
 
 
 class Annotation:
@@ -576,5 +581,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-test_genia = load_genia_document('97050805')
+# test_genia = load_genia_document('97050805')
 # test_genia_corpus = load_genia_corpus()
