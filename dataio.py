@@ -57,11 +57,11 @@ class Document:
 
         if annotation_type == Constituent:
             max_index = len(self._text)
-            potential = [a for l in [self._span_starts[index]
+            potential = {a for l in [self._span_starts[index]
                                      for index in range(span[0]+1)]
                                     + [self._span_ends[index]
                                        for index in range(span[1], max_index)]
-                         for a in l if isinstance(a, annotation_type)]
+                         for a in l if isinstance(a, annotation_type)}
             start = span[0]
             end = span[1]
             closest = None
@@ -74,11 +74,14 @@ class Document:
             return [closest]
 
         else:
-            return [a for l in [self._span_starts[index]
-                                for index in range(span[0], span[1])]
-                               + [self._span_ends[index]
-                                  for index in range(span[0], span[1])]
-                    for a in l if isinstance(a, annotation_type)]
+            return sorted(
+                {a for l in [self._span_starts[index]
+                             for index in range(span[0], span[1])]
+                            + [self._span_ends[index]
+                               for index in range(span[0], span[1])]
+                 for a in l if isinstance(a, annotation_type)},
+                key=lambda x: x.span
+            )
 
     def get_annotations(self, annotation_type):
 
