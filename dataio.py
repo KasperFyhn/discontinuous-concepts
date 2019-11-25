@@ -30,22 +30,21 @@ class Document:
 
     def add_annotation(self, annotation):
 
-        key = type(annotation)
-        self._annotations[key].append(annotation)
+        for type_name in annotation.__class__.__mro__:
+            key = type_name.__name__
+            if key == 'object':
+                continue
+            self._annotations[key].append(annotation)
+
 
     def get_annotations_at(self, span, annotation_type=None):
         if not annotation_type:
             annotation_type = Annotation
 
-        if isinstance(annotation_type, str):
-            try:
-                annotation_type = getattr(sys.modules[__name__],
-                                          annotation_type)
-            except AttributeError:
-                print('No annotation type of that name!')
-                return None
+        if not isinstance(annotation_type, str):
+            annotation_type = annotation_type.__name__
 
-        if not annotation_type == Constituent:
+        if not annotation_type == 'Constituent':
             return [a for a in self.get_annotations(annotation_type)
                     if span[0] <= a.span[0] < span[1]
                     or span[0] < a.span[1] <= span[1]]
@@ -66,7 +65,13 @@ class Document:
             return [closest]
 
     def get_annotations(self, annotation_type):
-        if isinstance(annotation_type, str):
+
+        if not isinstance(annotation_type, str):
+            annotation_type = annotation_type.__name__
+
+        return sorted(self._annotations[annotation_type], key=lambda x: x.span)
+
+        """if isinstance(annotation_type, str):
             try:
                 annotation_type = getattr(sys.modules[__name__],
                                           annotation_type)
@@ -75,7 +80,7 @@ class Document:
                 return None
         return sorted((a for anno_list in self._annotations.values()
                        for a in anno_list if isinstance(a, annotation_type)),
-                      key=lambda x: x.span)
+                      key=lambda x: x.span)"""
 
     def get_text(self):
         return self._text
@@ -408,8 +413,6 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                     label_ = ''
 
                 if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
-                    # TODO: something goes wrong here with parentheses
-                    #  e.g. in DOC:97050805
                     children_tags = [c for c in cons_tag.children
                                      if isinstance(c, bs4.Tag)]
                     coord_words_indexes = []
@@ -488,7 +491,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
     xml_file = open(folder_path + 'treebank/' + pmid + '.xml')
     soup = BeautifulSoup(xml_file.read(), 'xml')
 
-    tokens_stack = doc.get_annotations(Token)
+    tokens_stack = doc.get_annotations('Token')
     tokens_stack.reverse()
 
     for sentence in soup.find_all('sentence'):
@@ -500,7 +503,7 @@ def load_genia_document(doc_id, folder_path='data/GENIA/',
                 else:
                     t = tokens_stack.pop()
 
-                # handle prefixes and other split token sequences
+                # handle prefixes, other split tokens and missing tokens
                 while sub_tree.string.replace(' ', '') != \
                         t.get_covered_text().replace(' ', ''):
                     sub_tree_str = sub_tree.string.replace(' ', '')
@@ -573,5 +576,5 @@ def load_genia_corpus(path='data/GENIA/pos+concepts/'):
 
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-# test_genia = load_genia_document('97050805')
+test_genia = load_genia_document('97050805')
 # test_genia_corpus = load_genia_corpus()
