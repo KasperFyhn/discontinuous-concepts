@@ -1,11 +1,13 @@
-import dataio as dio
+from data import dataio as dio
 from collections import Counter
 
 # RUN CONFIGURATIONS
-CORPUS = 'craft'
+CORPUS = 'genia'
+COLLAPSE = True
 
+# constants for use in make_pos_tag_sequence
 POS_TAG_MAP = {
-    '-LRB-': '(', '-RRB-': ')', 'HYPH': '-', '``': 'Ø',
+    '-LRB-': '(', '-RRB-': ')', 'HYPH': '-', '': 'Ø', '*': 'Pre-',
     'JJR': 'JJ', 'JJS': 'JJ',
     'NNP': 'NN', 'NNS': 'NN',
     'VBG': 'VB', 'VBN': 'VB', 'VBP': 'VB', 'VBZ': 'VB'
@@ -13,8 +15,22 @@ POS_TAG_MAP = {
 
 
 def make_pos_tag_sequence(sequence):
-    return ' '.join(POS_TAG_MAP[tag] if tag in POS_TAG_MAP else tag
-                    for tag in sequence)
+
+    if COLLAPSE:
+        short_sequence = []
+        for tag in sequence:
+            mapped_tag = POS_TAG_MAP[tag] if tag in POS_TAG_MAP else tag
+            if short_sequence and mapped_tag == short_sequence[-1]:
+                continue
+            elif short_sequence and short_sequence[-1] == ','\
+                    and mapped_tag == short_sequence[-2]:
+                continue
+            else:
+                short_sequence.append(mapped_tag)
+        return ' '.join(short_sequence)
+    else:
+        return ' '.join(POS_TAG_MAP[tag] if tag in POS_TAG_MAP else tag
+                        for tag in sequence)
 
 
 if CORPUS.lower() == 'craft':

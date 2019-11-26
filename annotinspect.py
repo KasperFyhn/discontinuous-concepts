@@ -1,13 +1,13 @@
 import sys
-import dataio
+from data import dataio
 import os
 from colorama import Style, Back, Fore
 
 DEBUG = False
 if DEBUG:  # DEBUG MODE
-    print('Running debug with: GENIA 90208323 Concept')
+    print('Running debug with: GENIA 90208323 Concept Constituent POS')
     sys.argv.append('GENIA')
-    sys.argv.append('*')
+    sys.argv.append('90208323')
     sys.argv.append('Concept')
     sys.argv.append('Constituent')
     sys.argv.append('POS')
@@ -78,7 +78,7 @@ current_index = 0
 
 while True:
     if not annotations:
-        print(doc.id, 'has no annotations of the requested type!')
+        print(doc.id, 'has no annotations.py of the requested type!')
         input('Moving on to next document.')
         doc = next(docs)
         DOC_TEXT = doc.get_text()
@@ -155,7 +155,10 @@ while True:
         if current_index < 0:
             current_index = 0
     elif choice == 'n':
-        doc = next(docs)
+        try:
+            doc = next(docs)
+        except StopIteration:
+            exit('No more documents')
         DOC_TEXT = doc.get_text()
         annotations = doc.get_annotations(sys.argv[3])
         current_index = 0
