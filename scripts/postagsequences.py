@@ -1,4 +1,4 @@
-from data import dataio as dio
+from datautils import dataio, annotations as anno
 from collections import Counter
 
 # RUN CONFIGURATIONS
@@ -34,26 +34,26 @@ def make_pos_tag_sequence(sequence):
 
 
 if CORPUS.lower() == 'craft':
-    load_docs = dio.load_craft_corpus
+    load_docs = dataio.load_craft_corpus
 elif CORPUS.lower() == 'genia':
-    load_docs = dio.load_genia_corpus
+    load_docs = dataio.load_genia_corpus
 
 docs = load_docs()
 
 concepts_and_tokens = []
 
 for doc in docs:
-    disc_concepts = doc.get_annotations(dio.DiscontinuousConcept)
+    disc_concepts = doc.get_annotations(anno.DiscontinuousConcept)
 
     for dc in disc_concepts:
         concept = dc.get_concept()
         full_span = dc.get_covered_text()
         concept_sequence = make_pos_tag_sequence(
             t.pos for span in dc.spans
-            for t in doc.get_annotations_at(span, dio.Token)
+            for t in doc.get_annotations_at(span, anno.Token)
         )
         full_sequence = make_pos_tag_sequence(
-            t.pos for t in doc.get_annotations_at(dc.span, dio.Token)
+            t.pos for t in doc.get_annotations_at(dc.span, anno.Token)
         )
         concepts_and_tokens.append(
             (concept, concept_sequence, full_span, full_sequence)

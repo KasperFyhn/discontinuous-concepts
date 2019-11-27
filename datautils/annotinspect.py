@@ -1,5 +1,5 @@
 import sys
-from data import dataio
+from datautils import dataio
 import os
 from colorama import Style, Back, Fore
 

@@ -6,8 +6,8 @@ import bs4
 import os
 import multiprocessing as mp
 from tqdm import tqdm
-from data.annotations import *
-from data.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA
+from datautils.annotations import *
+from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA
 
 
 def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
@@ -113,10 +113,18 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
     return doc
 
 
-def load_craft_corpus(path=PATH_TO_CRAFT):
+def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False):
     
     ids = [os.path.basename(name[:-4]) for name in glob.glob(path + 'txt/*')]
+
+    if text_only:
+        print('Loading CRAFT corpus without annotations ...')
+        return tqdm(
+            (load_craft_document(doc_id, only_text=True) for doc_id in ids),
+            total=len(ids))
+
     loaded_docs = []
+
     print('Loading CRAFT corpus ...')
     for doc in tqdm(mp.Pool().imap_unordered(load_craft_document, ids),
                     total=len(ids)):
@@ -374,11 +382,17 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     return doc
 
 
-def load_genia_corpus(path=PATH_TO_GENIA):
+def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
 
     ids = [os.path.basename(name[:-4])
            for name in glob.glob(os.path.join(path, 'pos+concepts', '*'))]
     loaded_docs = []
+
+    if text_only:
+        print('Loading GENIA corpus without annotations ...')
+        return tqdm(
+            (load_genia_document(doc_id, only_text=True) for doc_id in ids),
+            total=len(ids))
 
     # some documents cause trouble; some are handled in the code, but not all
     # these are listed in a quarantine file and will be skipped
