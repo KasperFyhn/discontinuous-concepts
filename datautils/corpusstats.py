@@ -1,16 +1,8 @@
-import timeit
-
 from tqdm import tqdm
 import multiprocessing as mp
-from datautils import dataio
+from datautils import dataio, annotations as anno
 from collections import Counter, defaultdict
 import nltk
-
-
-class CorpusStats:
-
-    def __init__(self):
-        pass
 
 
 class NgramCounter(Counter):
@@ -19,6 +11,13 @@ class NgramCounter(Counter):
         super().__init__()
         self.next = defaultdict(NgramCounter)
 
+    @staticmethod
+    def _counter(doc):
+        tokens = [t.get_covered_text() for t in doc.get_annotations(anno.Token)]
+        n_grams = get_n_grams(tokens)
+        c = Counter(n_grams)
+        return c
+
     @classmethod
     def from_n_grams(cls, n_grams):
         counter = cls()
@@ -26,10 +25,54 @@ class NgramCounter(Counter):
             counter.add_ngram(ngram)
         return counter
 
+    @classmethod
+    def from_documents(cls, docs, n_docs=None, multithreading=True):
+        if not n_docs:
+            try:
+                n_docs = len(docs)
+            except TypeError:
+                print('Number of documents is not known; set to 0.')
+                n_docs = 0
+
+        counter = cls()
+        if multithreading:
+            print('Counting n-grams in texts ...')
+            for c in tqdm(
+                    (c for c in mp.Pool().imap_unordered(cls._counter, docs)),
+                    total=n_docs):
+                for ngram, ngram_count in c.items():
+                    counter.add_ngram(ngram, ngram_count)
+        else:
+            for i, text in enumerate(docs):
+                print(f'Counting n-grams in docs: {i+1} of {n_docs}', end='\r')
+                counter.update_recursively(
+                    NgramCounter.from_n_grams(get_n_grams(text))
+                )
+            print()
+        return counter
+
+    def n_grams_of_length(self, n):
+
+        def _generate_ngrams(counter, prev):
+            for word in counter.keys():
+                n_gram = prev + [word]
+                if len(n_gram) == n:
+                    n_gram = tuple(n_gram)
+                    for _ in range(self.freq(n_gram)):
+                        yield tuple(n_gram)
+                else:
+                    yield from _generate_ngrams(counter.after(word), n_gram)
+
+        return _generate_ngrams(self, [])
+
+    def sum_all(self):
+        return sum(self.values())\
+               + sum(c.sum_all() for c in self.next.values())
+
     def after(self, n_gram):
         if isinstance(n_gram, str):
-            n_gram = n_gram.split()
-        if len(n_gram) == 1:
+            return self.next[n_gram]
+        elif isinstance(n_gram, tuple) and len(n_gram) == 1:
             return self.next[n_gram[0]]
         else:
             return self.next[n_gram[0]].after(n_gram[1:])
@@ -42,11 +85,10 @@ class NgramCounter(Counter):
 
     def freq(self, n_gram):
         if isinstance(n_gram, str):
-            n_gram = n_gram.split()
-        if len(n_gram) == 1:
+            return self[n_gram]
+        elif isinstance(n_gram, tuple) and len(n_gram) == 1:
             return self[n_gram[0]]
-        else:
-            return self.after(n_gram[0]).freq(n_gram[1:])
+        return self.after(n_gram[0]).freq(n_gram[1:])
 
     def update_recursively(self, another_counter):
         super().update(another_counter)
@@ -54,55 +96,33 @@ class NgramCounter(Counter):
             self.next[key].update(next_counter)
 
 
-def get_n_grams(text, max_n=5):
+class CorpusStats:
 
-    if isinstance(text, str):
-        text = text.split()
+    def __init__(self, documents, multithreading=True, n_docs=None,
+                 max_n_gram=5):
+        print('Initializing CorpusStats object ...')
+        self.ngram_counter = NgramCounter.from_documents(
+            documents, n_docs=n_docs, multithreading=multithreading
+        )
+        self._total_ngram_freqs = {
+            n: sum(1 for _ in self.ngram_counter.n_grams_of_length(n))
+            for n in range(1, max_n_gram + 5)
+        }
+
+    def raw_freq(self, n_gram):
+        return self.ngram_counter.freq(n_gram)
+
+    def freq(self, n_gram):
+        total = self._total_ngram_freqs[len(n_gram)]
+        return self.raw_freq(n_gram) / total
+
+
+def get_n_grams(tokens, max_n=5):
     n_grams = []
     for n in range(1, max_n + 1):
-        n_grams += list(nltk.ngrams(text, n))
-
+        n_grams += list(nltk.ngrams(tokens, n))
     return n_grams
 
 
-def _counter(text):
-    n_grams = get_n_grams(text)
-    c = Counter(n_grams)
-    return c
-
-
-def ngram_counter_of_corpus(texts, multithreading=False, n_texts=None):
-
-    master_counter = NgramCounter()
-    if not n_texts:
-        n_texts = len(texts)
-
-    if multithreading:
-        print('Counting n-grams in texts ...')
-        for c in tqdm((c for c in mp.Pool().imap_unordered(_counter, texts)),
-                      total=n_texts):
-            for ngram, ngram_count in c.items():
-                master_counter.add_ngram(ngram, ngram_count)
-
-        return master_counter
-    else:
-        for i, text in enumerate(texts):
-            print(f'Counting n-grams in texts: {i+1} of {n_texts}', end='\r')
-            master_counter.update_recursively(
-                NgramCounter.from_n_grams(get_n_grams(text))
-            )
-        print()
-
-    return master_counter
-
-
 corpus = dataio.load_genia_corpus()
-test = ngram_counter_of_corpus((d.get_text() for d in corpus),
-                               multithreading=True, n_texts=len(corpus))
-disc_concepts = Counter(c.get_concept()
-                        for doc in corpus
-                        for c in doc.get_annotations('DiscontinuousConcept'))
-
-for dc, count in disc_concepts.most_common(20):
-    print(f'{dc:25}{count:4}{test.freq(dc):4}')
-
+test = CorpusStats(corpus)
