@@ -120,7 +120,7 @@ while True:
     left_cut = left_cut if left_cut > 0 else 0
     right_cut = DOC_TEXT.find('\n', para_right + 1)
     right_cut = right_cut if left_cut < right_cut < len(DOC_TEXT) \
-        else len(print_text)
+        else len(DOC_TEXT)
     for i in range(WINDOW):
         left_cut = DOC_TEXT.rfind('\n', 0, left_cut)
         left_cut = left_cut if left_cut > 0 else 0
