@@ -78,7 +78,7 @@ current_index = 0
 
 while True:
     if not annotations:
-        print(doc.id, 'has no annotations.py of the requested type!')
+        print(doc.id, 'has no annotations of the requested type!')
         input('Moving on to next document.')
         doc = next(docs)
         DOC_TEXT = doc.get_text()

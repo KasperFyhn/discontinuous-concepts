@@ -44,7 +44,7 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
     raw_xml = open(path_to_xml).read()
     concept_bs = BeautifulSoup(raw_xml, 'xml')
 
-    # just run over all annotations.py and get the relevant info
+    # just run over all annotations and get the relevant info
     for tag in concept_bs.find_all('annotation'):
         spans = tag.find_all('span')
 

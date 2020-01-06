@@ -95,7 +95,7 @@ class Document:
 
 class Annotation:
     """Basic annotation class. Contains only reference to a document and the
-    span(s) of the annotations.py."""
+    span of the annotation."""
 
     def __init__(self, document: Document, span: tuple):
         self.document = document
