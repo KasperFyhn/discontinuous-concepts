@@ -37,7 +37,6 @@ COLOR_END = Style.RESET_ALL
 WINDOW = 2
 
 # parse all CL arguments and set things accordingly
-
 # determine which corpus to load from and set function accordingly
 if sys.argv[1].lower() == 'genia':
     load_doc = dataio.load_genia_document

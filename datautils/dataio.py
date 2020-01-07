@@ -396,12 +396,17 @@ def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
 
     # some documents cause trouble; some are handled in the code, but not all
     # these are listed in a quarantine file and will be skipped
+    skipped = 0
     for q in _QUARANTINE:
-        ids.remove(str(q))
+        try:
+            ids.remove(str(q))
+            skipped += 1
+        except ValueError:
+            continue
 
     print('Loading GENIA corpus ...')
     if _QUARANTINE:
-        print(f'Skipping {len(_QUARANTINE)} files put in quarantine.')
+        print(f'Skipping {skipped} files put in quarantine.')
     for doc in tqdm(mp.Pool().imap_unordered(load_genia_document, ids),
                     total=len(ids)):
         loaded_docs.append(doc)
