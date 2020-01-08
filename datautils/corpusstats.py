@@ -1,27 +1,14 @@
 import timeit
-from tqdm import tqdm
-import multiprocessing as mp
 from datautils import dataio, annotations as anno
 from collections import Counter, defaultdict
 import nltk
 
-WORD_TO_ID = {}
-ID_TO_WORD = {}
 
-
-class NgramCounter(Counter):
+class NgramCounter(defaultdict):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(int)
         self.next = defaultdict(NgramCounter)
-
-    @staticmethod
-    def ngram_to_ids(ngram):
-        return tuple(WORD_TO_ID[w] for w in ngram)
-
-    @staticmethod
-    def ids_to_ngram(ids):
-        return tuple(ID_TO_WORD[w] for w in ids)
 
     @staticmethod
     def make_ngrams(tokens, min_n=1, max_n=5):
@@ -104,7 +91,7 @@ class NgramCounter(Counter):
 
     def after(self, n_gram):
         """Return the NgramCounter after the given n-gram."""
-        if isinstance(n_gram, str):
+        if isinstance(n_gram, str) or isinstance(n_gram, int):
             return self.next[n_gram]
         elif isinstance(n_gram, tuple) and len(n_gram) == 1:
             return self.next[n_gram[0]]
@@ -113,7 +100,6 @@ class NgramCounter(Counter):
 
     def add_ngram(self, n_gram, count=1):
         """Add count(s) of the n-gram."""
-        # n_gram = NgramCounter.ngram_to_ids(n_gram)
         if len(n_gram) == 1:
             self[n_gram[0]] += count
         else:
@@ -159,15 +145,22 @@ class NgramCounter(Counter):
 
 class CorpusStats:
 
-    def __init__(self, documents, n_docs=None, max_n_gram=5):
+    def __init__(self, token_lists, n_docs=None, max_ngram=5):
         print('Initializing CorpusStats object ...')
-        self.ngram_counter = NgramCounter.from_documents(
-            documents, n_docs=n_docs, max_n=max_n_gram
-        )
-        self._total_ngram_freqs = {
+        self.word_to_id = defaultdict(self._IncrementingInteger().increment)
+        cryptic_tokens = ([self.word_to_id[w] for w in t_list]
+                          for t_list in token_lists)
+
+        self.ngram_counter = Counter()
+
+        for tokens in cryptic_tokens:
+            c = Counter(ngram for ngram in NgramCounter.make_ngrams(tokens))
+            self.ngram_counter.update(c)
+
+        """self._total_ngram_freqs = {
             n: self.ngram_counter.counts_of_length_n(n)
-            for n in range(1, max_n_gram + 1)
-        }
+            for n in range(1, max_ngram + 1)
+        }"""
 
     def raw_freq(self, n_gram):
         return self.ngram_counter.freq(n_gram)
@@ -175,6 +168,14 @@ class CorpusStats:
     def freq(self, n_gram):
         total = self._total_ngram_freqs[len(n_gram)]
         return self.raw_freq(n_gram) / total
+
+    class _IncrementingInteger:
+        def __init__(self, start_int=-1):
+            self.i = start_int
+
+        def increment(self):
+            self.i += 1
+            return self.i
 
 
 if __name__ == '__main__':
