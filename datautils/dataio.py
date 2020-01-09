@@ -394,14 +394,14 @@ def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
             (load_genia_document(doc_id, only_text=True) for doc_id in ids),
             total=len(ids))
 
-    # some documents cause trouble; some are handled in the code, but not all
-    # these are listed in a quarantine file and will be skipped
+    # some documents cause trouble; some are handled in the code, but not all.
+    # the rest are listed in a quarantine file and will be skipped
     skipped = 0
     for q in _QUARANTINE:
         try:
             ids.remove(str(q))
             skipped += 1
-        except ValueError:
+        except ValueError:  # if the file is not there (due to train/test split)
             continue
 
     print('Loading GENIA corpus ...')

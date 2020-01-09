@@ -1,3 +1,5 @@
+import os
+import re
 import sys
 from collections import defaultdict
 
@@ -12,15 +14,28 @@ class Document:
         self._span_starts = defaultdict(list)
         self._span_ends = defaultdict(list)
 
-    @classmethod
-    def from_pickle(cls, path_in):
-        """Load a pickled Document object from a path."""
+    def load_annotations_from_file(self, path_in):
+        """Load saved annotations to this Document from the given path.
+        (So far only supports: Annotation, Sentence, Token)"""
+        with open(path_in) as file_in:
+            lines = file_in.read().split('\n')[:-1]
+        for line in lines:
+            try:
+                anno = Annotation.from_short_repr(self, line)
+                self.add_annotation(anno)
+            except ValueError:
+                print('An annotation was not loaded! The error was caused by:')
+                print(line)
+                continue
 
-        pass
+    def save_annotations_to_file(self, path_to_folder):
+        """Save annotations in this Document to a file: [doc_id].anno.
+        (So far only supports: Annotation, Sentence, Token)"""
 
-    def pickle(self, path_out):
-
-        pass
+        with open(path_to_folder + self.id + '.anno', 'w+') as out_file:
+            for annotation in self.get_annotations(Annotation):
+                if type(annotation) in {Annotation, Sentence, Token}:
+                    print(annotation.short_repr(), file=out_file)
 
     def add_annotation(self, annotation):
 
@@ -33,9 +48,11 @@ class Document:
         span_start = annotation.span[0]
         self._span_starts[span_start].append(annotation)
         span_end = annotation.span[1]
-        self._span_starts[span_end].append(annotation)
+        self._span_ends[span_end].append(annotation)
 
     def get_annotations_at(self, span, annotation_type=None):
+        # TODO: does not retrieve e.g. a Sentence which spans out over both ends
+
         if not annotation_type:
             annotation_type = 'Annotation'
 
@@ -49,11 +66,11 @@ class Document:
 
         if annotation_type == Constituent:
             max_index = len(self._text)
-            potential = {a for l in [self._span_starts[index]
-                                     for index in range(span[0]+1)]
-                                    + [self._span_ends[index]
-                                       for index in range(span[1], max_index)]
-                         for a in l if isinstance(a, annotation_type)
+            potential = {a for li in [self._span_starts[index]
+                                      for index in range(span[0]+1)]
+                                     + [self._span_ends[index]
+                                        for index in range(span[1], max_index)]
+                         for a in li if isinstance(a, annotation_type)
                          and a.span[0] <= span[0] and span[1] <= a.span[1]}
             start = span[0]
             end = span[1]
@@ -68,11 +85,11 @@ class Document:
 
         else:
             return sorted(
-                {a for l in [self._span_starts[index]
-                             for index in range(span[0], span[1])]
-                            + [self._span_ends[index]
-                               for index in range(span[0], span[1])]
-                 for a in l if isinstance(a, annotation_type)},
+                {a for li in [self._span_starts[index]
+                              for index in range(span[0], span[1])]
+                             + [self._span_ends[index]
+                                for index in range(span[0], span[1])]
+                 for a in li if isinstance(a, annotation_type)},
                 key=lambda x: x.span
             )
 
@@ -100,6 +117,20 @@ class Annotation:
     def __init__(self, document: Document, span: tuple):
         self.document = document
         self.span = span
+
+    @staticmethod
+    def get_annotation_from_string(doc, string):
+        if not re.fullmatch(r"^[A-Z][a-z]+\('.*'.*\(\d+, \d+\).*\).*$", string):
+            raise ValueError('The string does not look like an annotation!')
+
+        anno_class = getattr(sys.modules[__name__], string.split('(')[0])
+        return anno_class.from_string(doc, string)
+
+    @classmethod
+    def from_string(cls, doc, string):
+        span = eval(re.findall(r"^[A-Z][a-z]+\('.*'.*(\(\d+, \d+\)).*\).*$",
+                               string)[0])
+        return cls(doc, span)
 
     def get_covered_text(self):
         """Returns the text covered by the annotation."""
@@ -131,6 +162,16 @@ class Annotation:
         return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
                + str(self.span) + ')'
 
+    def short_repr(self):
+        return self.__class__.__name__ + ':' + str([self.span])
+
+    @staticmethod
+    def from_short_repr(doc, short_repr: str):
+        first_colon = short_repr.find(':')
+        anno_class = getattr(sys.modules[__name__], short_repr[:first_colon])
+        args = eval(short_repr[first_colon+1:])
+        return anno_class(doc, *args)
+
 
 class Sentence(Annotation):
     pass
@@ -142,8 +183,19 @@ class Token(Annotation):
         super().__init__(document, span)
         self.pos = pos_tag
 
+    @classmethod
+    def from_string(cls, doc, string):
+        info = re.findall(r"^[A-Z][a-z]+\('.*'.*(\(\d+, \d+\)).*\)\\(.+)$",
+                          string)[0]
+        span = eval(info[0])
+        pos_tag = info[1]
+        return cls(doc, span, pos_tag)
+
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos
+
+    def short_repr(self):
+        return self.__class__.__name__ + ':' + str([self.span, self.pos])
 
 
 class Concept(Annotation):
