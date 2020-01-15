@@ -28,7 +28,7 @@ SAVE_DIR = datapaths.PATH_TO_PMC + 'annotations/'
 
 def process(path):
     # load text, remove license statement and make id
-    with open(path) as file:
+    with open(path, encoding='utf-8') as file:
         text = file.read().replace(LICENSE_STRING, '').strip()
     doc_id = os.path.basename(path)[:-4]
 
@@ -68,21 +68,22 @@ def process(path):
             doc.add_annotation(token_anno)
 
     # correct the text in the file
-    with open(path, 'w') as new_file:
+    with open(path, 'w', encoding='utf-8') as new_file:
         print(text, file=new_file)
 
     # save annotations from Document object
     doc.save_annotations_to_file(SAVE_DIR)
 
 
-# load doc paths
-doc_paths = glob.glob(datapaths.PATH_TO_PMC + '/PMC001XXXXXX.txt/**/*.txt',
-                      recursive=True)
+if __name__ == '__main__':
+    # load doc paths
+    doc_paths = glob.glob(datapaths.PATH_TO_PMC + '/PMC00*XXXXXX.txt/**/*.txt',
+                          recursive=True)
 
-# loop over doc paths and process the documents one by one (but in parallel)
-for doc_path in tqdm(mp.Pool().imap_unordered(process, doc_paths),
-                     total=len(doc_paths)):
-    continue
+    # loop over doc paths and process the documents one by one (but in parallel)
+    for doc_path in tqdm(mp.Pool().imap_unordered(process, doc_paths),
+                         total=len(doc_paths)):
+        continue
 
 
 
