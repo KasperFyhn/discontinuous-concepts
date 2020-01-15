@@ -7,7 +7,7 @@ import os
 import multiprocessing as mp
 from tqdm import tqdm
 from datautils.annotations import *
-from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA
+from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA, PATH_TO_PMC
 
 
 def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
@@ -390,9 +390,9 @@ def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
 
     if text_only:
         print('Loading GENIA corpus without annotations ...')
-        return tqdm(
+        return list(tqdm(
             (load_genia_document(doc_id, only_text=True) for doc_id in ids),
-            total=len(ids))
+            total=len(ids)))
 
     # some documents cause trouble; some are handled in the code, but not all.
     # the rest are listed in a quarantine file and will be skipped
@@ -414,7 +414,38 @@ def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
     return loaded_docs
 
 
+def load_pmc_document(doc_id, folder_path=PATH_TO_PMC, only_text=False):
+
+    # the documents are stored in nested folders,
+    # e.g. PMC/PMC001XXXXXX.txt/PMC0012XXXXX/PMC1249490.txt
+    # build this path based on the provided ID
+    first_folder = 'PMC00' + doc_id[3] + 'XXXXXX.txt/'
+    second_folder = 'PMC00' + doc_id[3:5] + 'XXXXX/'
+    full_path = folder_path + first_folder + second_folder + doc_id
+    if not full_path[-4:] == '.txt':
+        full_path += '.txt'
+    with open(full_path) as in_file:
+        doc = Document(doc_id, in_file.read())
+    if only_text:
+        return doc
+    else:
+        annotation_file = folder_path + 'annotations/' + doc_id + '.anno'
+        doc.load_annotations_from_file(annotation_file)
+        return doc
+
+
+def pmc_corpus_ids(path=PATH_TO_PMC):
+    doc_paths = glob.glob(path + '/PMC00*/**/*.txt', recursive=True)
+    doc_ids = [os.path.basename(p)[:-4] for p in doc_paths]
+    return doc_ids
+
+
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
 # test_genia = load_genia_document('97050805')
 # test_genia_corpus = load_genia_corpus()
+# test_pmc = load_pmc_document('PMC1249490')
+# test_pmc_corpus = pmc_corpus_ids()
+
+
+

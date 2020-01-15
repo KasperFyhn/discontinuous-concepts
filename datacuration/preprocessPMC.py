@@ -76,7 +76,7 @@ def process(path):
 
 
 # load doc paths
-doc_paths = glob.glob(datapaths.PATH_TO_PMC + '/PMC001XXXXXX.txt/**/*.txt',
+doc_paths = glob.glob(datapaths.PATH_TO_PMC + '/PMC00*XXXXXX.txt/**/*.txt',
                       recursive=True)
 
 # loop over doc paths and process the documents one by one (but in parallel)
