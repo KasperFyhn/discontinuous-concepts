@@ -5,7 +5,7 @@ from collections import defaultdict
 
 
 class Document:
-    """A representation of a document which contains raw text and annotations.py"""
+    """A representation of a document which contains raw text and annotations"""
 
     def __init__(self, doc_id: str, raw_text: str):
         self.id = doc_id
@@ -23,9 +23,10 @@ class Document:
             try:
                 anno = Annotation.from_short_repr(self, line)
                 self.add_annotation(anno)
-            except ValueError:
+            except Exception as e:
                 print('An annotation was not loaded! The error was caused by:')
                 print(line)
+                print(e)
                 continue
 
     def save_annotations_to_file(self, path_to_folder):
@@ -118,20 +119,6 @@ class Annotation:
         self.document = document
         self.span = span
 
-    @staticmethod
-    def get_annotation_from_string(doc, string):
-        if not re.fullmatch(r"^[A-Z][a-z]+\('.*'.*\(\d+, \d+\).*\).*$", string):
-            raise ValueError('The string does not look like an annotation!')
-
-        anno_class = getattr(sys.modules[__name__], string.split('(')[0])
-        return anno_class.from_string(doc, string)
-
-    @classmethod
-    def from_string(cls, doc, string):
-        span = eval(re.findall(r"^[A-Z][a-z]+\('.*'.*(\(\d+, \d+\)).*\).*$",
-                               string)[0])
-        return cls(doc, span)
-
     def get_covered_text(self):
         """Returns the text covered by the annotation."""
 
@@ -182,14 +169,6 @@ class Token(Annotation):
     def __init__(self, document: Document, span: tuple, pos_tag: str):
         super().__init__(document, span)
         self.pos = pos_tag
-
-    @classmethod
-    def from_string(cls, doc, string):
-        info = re.findall(r"^[A-Z][a-z]+\('.*'.*(\(\d+, \d+\)).*\)\\(.+)$",
-                          string)[0]
-        span = eval(info[0])
-        pos_tag = info[1]
-        return cls(doc, span, pos_tag)
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos

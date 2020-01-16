@@ -8,18 +8,18 @@ from datautils import datapaths
 # documents in treebank carry the latter.
 ################################################################################
 
-# load pos+concepts articles and normalize the title
+# load pos+concepts articles and normalize the titles
 pos_concepts = {}
-for file in glob.glob('./pos+concepts/*.xml'):
+for file in glob.glob(datapaths.PATH_TO_GENIA + '/pos+concepts/*.xml'):
     soup = BeautifulSoup(open(file).read(), 'xml')
     doc_id = soup.bibliomisc.string[8:]
     title = ''.join(word for word in soup.title.strings) \
         .strip().replace(' ', '').replace('\n', '')
     pos_concepts[title] = doc_id
 
-# load treebank artical and normalize the title
+# load treebank articles and normalize the titles
 treebank = {}
-for file in glob.glob('./treebank/*.xml'):
+for file in glob.glob(datapaths.PATH_TO_GENIA + '/treebank/*.xml'):
     soup = BeautifulSoup(open(file).read(), 'xml')
     doc_id = soup.PMID.string
     title = ''.join(word for word in soup.ArticleTitle.strings)\
