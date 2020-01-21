@@ -5,6 +5,7 @@ from datautils import datapaths
 import datautils.annotations as anno
 import glob
 import os
+import sys
 from tqdm import tqdm
 
 ################################################################################
@@ -15,7 +16,7 @@ from tqdm import tqdm
 ################################################################################
 
 # NOTE: make sure to open a server for CoreNLP API from a terminal before
-# running this script; else, it will crash
+# running this script; else, it will not run
 # cf. https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK
 
 
@@ -75,9 +76,13 @@ def process(path):
     doc.save_annotations_to_file(SAVE_DIR)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     # load doc paths
-    doc_paths = glob.glob(datapaths.PATH_TO_PMC + '/PMC00*XXXXXX.txt/**/*.txt',
+    if len(sys.argv) > 1:  # if a specific path is provided
+        path = sys.argv[1]
+    else:  # default: all txt folders in the PMC folder
+        path = datapaths.PATH_TO_PMC + '/PMC00*XXXXXX.txt/'
+    doc_paths = glob.glob(path + '**/*.txt',
                           recursive=True)
 
     # loop over doc paths and process the documents one by one (but in parallel)
