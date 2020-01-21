@@ -3,11 +3,20 @@ import os
 import tqdm
 from datautils import dataio
 import timeit
-import nltk
+import psutil
 from collections import Counter
+from corpusstats.stats import NgramCounter
 
+
+###############################################################################
+# This script creates n-gram count data from a given corpus.
+###############################################################################
 
 N_CORE = os.cpu_count()
+FREQUENCY_THRESHOLD = 5
+MIN_N = 1
+MAX_N = 5
+MAX_RAM_USAGE_PERCENT = 90
 
 
 def process(in_queue, out_queue):
@@ -29,16 +38,15 @@ def process(in_queue, out_queue):
         # load the doc and the corresponding annotations
         d = dataio.load_pmc_document(id_)
 
+        ngrams = []
         # loop over sentences and make n-grams within them
         for sentence in d.get_annotations('Sentence'):
             # get tokens from the sentence span and normalize them
-            tokens = [t.get_covered_text().lower()
+            tokens = [t.get_covered_text().lower() + '//' + t.pos
                       for t in d.get_annotations_at(sentence.span,
                                                     annotation_type='Token')]
             # make n-grams (1-5)
-            ngrams = []
-            for n in range(1, 6):
-                ngrams += list(nltk.ngrams(tokens, n))
+            ngrams += NgramCounter.make_ngrams(tokens, min_n=MIN_N, max_n=MAX_N)
 
         # count the n-grams and pass it on to the master counter
         c = Counter(ngrams)
@@ -47,7 +55,7 @@ def process(in_queue, out_queue):
 
 def counter(in_queue, out_queue, n_docs):
     """Master counter process:
-    1) retrieve Counter objects from the queue, passed on 'process' workers
+    1) retrieve Counter objects from the queue, passed on by 'process' workers
     2) update master Counter object with single doc Counter object
     3) when all docs have been counted and added together, pass the master
        Counter object on
@@ -59,23 +67,40 @@ def counter(in_queue, out_queue, n_docs):
     working_workers = N_CORE  # active workers
     while True:  # keep going until reaching the "stop sign", i.e. a None object
         next_counter = in_queue.get()  # get next counter
-
         if not next_counter:  # a None was drawn from the queue
             working_workers -= 1  # notify that a worker has sent a "stop sign"
             if working_workers == 0:  # when all workers are done
-                print()
-                print(f'Updated with doc {counted} of {n_docs}!')
-                print('Finished counting!')
-                out_queue.put(master)  # pass on master counter
                 break
-
         else:  # an actual counter was drawn
             master.update(next_counter)
             counted += 1
-            # print(f'Updated with doc {counted} of {n_docs}!', end='\r')
+            min_f = 2
+            # n-gram types are insanely many which clogs up memory; the ones
+            # with very few occurrences are not that interesting, though, and
+            # can be filtered away (at least, that's a working assumption)
+            while psutil.virtual_memory().percent > MAX_RAM_USAGE_PERCENT:
+                print()
+                print('Running out of memory. Filtering out most infrequent '
+                      'n-grams to clear out space.')
+                n_items_before = len(master)
+                master = Counter(
+                    {key: value for key, value in tqdm.tqdm(master.items())
+                     if value > min_f})
+                n_items_after = len(master)
+                print(f'Cleared out {n_items_before - n_items_after} n-grams '
+                        'with a frequency lower than', min_f)
+                min_f += 1  # if not enough, clear out even more
+
+    if not counted == n_docs:
+        print(f'Updated with {counted} of {n_docs} documents only!')
+    print('Filtering out infrequent n-grams')
+    master = Counter({key: value for key, value in tqdm.tqdm(master.items())
+                      if value > FREQUENCY_THRESHOLD})
+    out_queue.put(master)  # pass on master counter
 
 
 if __name__ == '__main__':
+    print('Initializing ...')
     start = timeit.default_timer()
     corpus = dataio.pmc_corpus_ids()
 
@@ -90,7 +115,8 @@ if __name__ == '__main__':
     )
     counter_process.start()
 
-    # intialize pool of "process" workers
+    # initialize pool of "process" workers
+    print('Counting n-grams in documents')
     pool = mp.Pool(initializer=process, initargs=(path_queue, counter_queue))
     for doc in tqdm.tqdm(corpus):  # give paths to workers
         path_queue.put(doc)
@@ -99,8 +125,20 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
 
-    # retrieve the master counter object
+    # retrieve the master counter object and turn it into an NgramCounter
     master_counter = final_counter_queue.get()
+    counter_process.join()
+    print('Converting master Counter to NgramCounter')
+    ngram_counter = NgramCounter()
+    n_types = len(master_counter)
+    master_counter = (kv for kv in master_counter.items())
+    for ngram, count in tqdm.tqdm(master_counter, total=n_types):
+        ngram_counter.add_ngram(ngram, count)
 
     end = timeit.default_timer()
-    print('Time elapsed:', round((end - start) / 60, 2), 'min')
+    secs = int(end - start)
+    mins = secs // 60
+    secs = secs % 60
+    hours = mins // 60
+    mins = mins % 60
+    print(f'Time elapsed: {hours}h {mins}m {secs}s')

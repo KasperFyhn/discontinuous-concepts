@@ -2,13 +2,17 @@ import timeit
 from datautils import dataio, annotations as anno
 from collections import Counter, defaultdict
 import nltk
+import math
 
 
-class NgramCounter(defaultdict):
+class NgramCounter(Counter):
 
-    def __init__(self):
-        super().__init__(int)
+    def __init__(self, ngrams=None):
+        super().__init__()
         self.next = defaultdict(NgramCounter)
+        if ngrams:
+            for ngram in ngrams:
+                self.add_ngram(ngram)
 
     @staticmethod
     def make_ngrams(tokens, min_n=1, max_n=5):
@@ -17,42 +21,6 @@ class NgramCounter(defaultdict):
         for n in range(min_n, max_n + 1):
             n_grams += list(nltk.ngrams(tokens, n))
         return n_grams
-
-    @classmethod
-    def from_ngrams(cls, n_grams):
-        """Make an NgramCounter object from a list or generator of n-grams."""
-        counter = cls()
-        for ngram in n_grams:
-            counter.add_ngram(ngram)
-        return counter
-
-    @classmethod
-    def from_token_lists(cls, token_lists, n_docs=None, min_n=1, max_n=5):
-        """Make an NgramCounter object from a list of token lists."""
-        if not n_docs:
-            try:
-                n_docs = len(token_lists)
-            except TypeError:
-                print('Number of documents is not known; set to 0.')
-                n_docs = 0
-
-        counter = cls()
-        for i, tokens in enumerate(token_lists):
-            print(f'Counting n-grams in docs: {i+1} of {n_docs}', end='\r')
-            for ngram in cls.make_ngrams(tokens, min_n, max_n):
-                counter.add_ngram(ngram)
-        print()
-        return counter
-
-    @classmethod
-    def from_documents(cls, docs, n_docs=None, min_n=1, max_n=5):
-        """Make an NgramCounter object from a list of documents."""
-
-        token_lists = [
-            [t.get_covered_text() for t in doc.get_annotations(anno.Token)]
-            for doc in docs
-                       ]
-        return cls.from_token_lists(token_lists, n_docs, min_n, max_n)
 
     def generate_ngrams(self, of_length=None, prev=None):
         """Generate n-grams from the NgramCounter's trie-like structure.
@@ -107,7 +75,7 @@ class NgramCounter(defaultdict):
 
     def freq(self, n_gram):
         """Return the count of the n-gram."""
-        if isinstance(n_gram, str):
+        if isinstance(n_gram, str) or isinstance(n_gram, int):
             return self[n_gram]
         elif isinstance(n_gram, tuple) and len(n_gram) == 1:
             return self[n_gram[0]]
@@ -143,44 +111,36 @@ class NgramCounter(defaultdict):
         return counter
 
 
-class CorpusStats:
+################################################################################
+# STATISTICAL MEASURES
+################################################################################
 
-    def __init__(self, token_lists, n_docs=None, max_ngram=5):
-        print('Initializing CorpusStats object ...')
-        self.word_to_id = defaultdict(self._IncrementingInteger().increment)
-        cryptic_tokens = ([self.word_to_id[w] for w in t_list]
-                          for t_list in token_lists)
+# LOG-LIKELIHOOD
 
-        self.ngram_counter = Counter()
+# see Dunning 1993
+# A_B, A_notB, notA_B, notA_notB = 110, 2442, 111, 29114
+# (A, B), (A, not B), (A, B) + (not A, B), (A, not B) + (not A, not B)
+# test1 = log_likelihood_ratio(A_B, A_notB, A_B + notA_B, A_notB + notA_notB)
+# (A, B), (not A, B), (A, B) + (A, not B), (not A, B) + (not A, not B)
+# test2 = log_likelihood_ratio(A_B, notA_B, A_B + A_notB, notA_B + notA_notB)
+# round(test1, 2) == round(test2, 2) == 270.72 >>> True
 
-        for tokens in cryptic_tokens:
-            c = Counter(ngram for ngram in NgramCounter.make_ngrams(tokens))
-            self.ngram_counter.update(c)
-
-        """self._total_ngram_freqs = {
-            n: self.ngram_counter.counts_of_length_n(n)
-            for n in range(1, max_ngram + 1)
-        }"""
-
-    def raw_freq(self, n_gram):
-        return self.ngram_counter.freq(n_gram)
-
-    def freq(self, n_gram):
-        total = self._total_ngram_freqs[len(n_gram)]
-        return self.raw_freq(n_gram) / total
-
-    class _IncrementingInteger:
-        def __init__(self, start_int=-1):
-            self.i = start_int
-
-        def increment(self):
-            self.i += 1
-            return self.i
+def log_likelihood(p, k, n, log_base=math.e):
+    """The binomial case of log-likelihood, calculated as in Dunning (1993)"""
+    return k * math.log(p, log_base) + (n - k) * math.log(1 - p, log_base)
 
 
-if __name__ == '__main__':
-    corpus = dataio.load_genia_corpus()
-    start = timeit.default_timer()
-    test = NgramCounter.from_documents(corpus)
-    end = timeit.default_timer()
-    print('Time elapsed:', end - start)
+def log_likelihood_ratio(k_1, k_2, n_1, n_2):
+    """The binomial case of the log-likelihood ratio (see Dunning 1993)."""
+    p_1 = k_1 / n_1
+    p_2 = k_2 / n_2
+    p = (k_1 + k_2) / (n_1 + n_2)
+    return 2 * (log_likelihood(p_1, k_1, n_1) + log_likelihood(p_2, k_2, n_2)
+                - log_likelihood(p, k_1, n_1) - log_likelihood(p, k_2, n_2))
+
+
+# MUTUAL INFORMATION
+
+
+
+

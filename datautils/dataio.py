@@ -429,7 +429,9 @@ def load_pmc_document(doc_id, folder_path=PATH_TO_PMC, only_text=False):
     if only_text:
         return doc
     else:
-        annotation_file = folder_path + 'annotations/' + doc_id + '.anno'
+        sub_folder = 'PMC' + doc_id[3] + '/'
+        annotation_file = folder_path + 'annotations/' + sub_folder\
+                          + doc_id + '.anno'
         doc.load_annotations_from_file(annotation_file)
         return doc
 
