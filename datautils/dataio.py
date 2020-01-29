@@ -115,7 +115,7 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
 
 def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False):
     
-    ids = [os.path.basename(name[:-4]) for name in glob.glob(path + 'txt/*')]
+    ids = craft_corpus_ids(path=path)
 
     if text_only:
         print('Loading CRAFT corpus without annotations ...')
@@ -131,6 +131,10 @@ def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False):
         loaded_docs.append(doc)
 
     return loaded_docs
+
+
+def craft_corpus_ids(path=PATH_TO_CRAFT):
+    return [os.path.basename(name[:-4]) for name in glob.glob(path + 'txt/*')]
 
 
 def _flatten(li):
@@ -382,6 +386,14 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     return doc
 
 
+def genia_corpus_ids(path=PATH_TO_GENIA, skip_quarantine=True):
+    ids = [os.path.basename(name[:-4])
+           for name in glob.glob(os.path.join(path, 'pos+concepts', '*'))]
+    if skip_quarantine:
+        ids = [id_ for id_ in ids if int(id_) not in _QUARANTINE]
+    return ids
+
+
 def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
 
     ids = [os.path.basename(name[:-4])
@@ -430,8 +442,8 @@ def load_pmc_document(doc_id, folder_path=PATH_TO_PMC, only_text=False):
         return doc
     else:
         sub_folder = 'PMC' + doc_id[3] + '/'
-        annotation_file = folder_path + 'annotations/' + sub_folder\
-                          + doc_id + '.anno'
+        annotation_file = os.path.join(folder_path, 'annotations/', sub_folder,
+                                       doc_id + '.anno')
         doc.load_annotations_from_file(annotation_file)
         return doc
 
