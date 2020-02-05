@@ -203,7 +203,7 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
 
             doc.add_annotation(token)
 
-        # loop over concepts within the sentence similar to the tokens loop
+        # loop over concepts within the sentence similar to the tokens loop.
         # concepts can be embedded, though, and must be handled differently
         # there's some crazy recursive patterns somewhere, but it works
         edible_sent = raw_sent  # because it gets eaten through the loop

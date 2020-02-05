@@ -133,10 +133,9 @@ class Annotation:
         end = self.span[1] + char_window
         if end > len(self.document.get_text()):
             end = len(self.document.get_text())
-        build_string = \
-            self.document.get_text()[start:self.span[0]-1] \
-            + "     " + self.get_covered_text() + "     " \
-            + self.document.get_text()[self.span[1]:end]
+        build_string = self.document.get_text()[start:self.span[0]]\
+                       + "     " + self.get_covered_text() + "     " \
+                       + self.document.get_text()[self.span[1]:end]
         return build_string
 
     def merge_with(self, another_annotation):
@@ -162,6 +161,16 @@ class Annotation:
 
 class Sentence(Annotation):
     pass
+
+
+POS_TAG_MAP = defaultdict(lambda: 'x')
+POS_TAG_MAP.update({
+    'NN': 'n', 'NNS': 'n', 'NNP': 'n', 'NNPS': 'n',
+    'JJ': 'a', 'JJR': 'a', 'JJS': 'a',
+    'VB': 'v', 'VBD': 'v', 'VBG': 'v', 'VBN': 'v', 'VBP': 'v', 'VBZ': 'v',
+    'RB': 'r', 'RBS': 'r', 'RBR': 'r',  # adv's
+    'CD': 'd', 'CC': 'c', 'POS': 'g', 'IN': 'p', 'DT': 't'
+})
 
 
 class Token(Annotation):

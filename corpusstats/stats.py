@@ -1,131 +1,10 @@
-import timeit
-from datautils import dataio, annotations as anno
-from collections import Counter, defaultdict
-import nltk
 import math
+import sys
+from nltk import WordNetLemmatizer
 import tqdm
-
-
-class NgramCounter(Counter):
-
-    def __init__(self, ngrams=None):
-        super().__init__()
-        self.next = defaultdict(NgramCounter)
-        if ngrams:
-            for ngram in ngrams:
-                self.add_ngram(ngram)
-
-    @staticmethod
-    def make_ngrams(tokens, min_n=1, max_n=5):
-        """Make n-grams from a list of tokens."""
-        n_grams = []
-        for n in range(min_n, max_n + 1):
-            n_grams += list(nltk.ngrams(tokens, n))
-        return n_grams
-
-    def after(self, n_gram: tuple):
-        """Return the NgramCounter after the given n-gram."""
-        if isinstance(n_gram, str) or isinstance(n_gram, int):
-            return self.next[n_gram]
-        elif isinstance(n_gram, tuple) and len(n_gram) == 1:
-            return self.next[n_gram[0]]
-        else:
-            return self.next[n_gram[0]].after(n_gram[1:])
-
-    def add_ngram(self, n_gram: tuple, count=1):
-        """Add count(s) of the n-gram."""
-        if len(n_gram) == 1:
-            self[n_gram[0]] += count
-        else:
-            self.after(n_gram[0]).add_ngram(n_gram[1:], count=count)
-
-    def freq(self, n_gram: tuple):
-        """Return the count of the n-gram."""
-        # str or int cases are from an earlier, more dynamic approach;
-        # should probably just be deleted
-        if isinstance(n_gram, str) or isinstance(n_gram, int):
-            return self[n_gram]
-        elif isinstance(n_gram, tuple) and len(n_gram) == 1:
-            return self[n_gram[0]]
-        return self.after(n_gram[0]).freq(n_gram[1:])
-
-    def generate_ngrams(self, of_length=None, prev=None):
-        """Generate n-grams from the NgramCounter's trie-like structure.
-        Optional arguments are a specified length and a specified
-        start-sequence which should only be used from its corresponding
-        sub-counter, e.g. counter.after(bigram).generate_ngrams(prev=bigram)."""
-        if not prev:
-            prev = []
-        elif isinstance(prev, str):
-            prev = [prev]
-        for word in self.keys():
-            n_gram = list(prev) + [word]
-            if not of_length or len(n_gram) == of_length:
-                yield tuple(n_gram)
-            if not of_length or len(n_gram) < of_length:
-                yield from self.after(word).generate_ngrams(of_length=of_length,
-                                                            prev=n_gram)
-
-    def total_counts(self, of_length):
-        """Sum of counts of n-grams of length n. NOTE: Counted on the go, so it
-        is a bit slow."""
-
-        def count_ngrams(counter, prev):
-            correct_length = len(prev) == of_length - 1
-            for word, count in counter.items():
-                n_gram = prev + [word]
-                if correct_length:
-                    yield count
-                else:
-                    yield from count_ngrams(counter.after(word), n_gram)
-
-        return sum(count_ngrams(self, []))
-
-    def most_common(self, of_length, n=None, prev=None):
-        ngrams = self.generate_ngrams(of_length=of_length, prev=prev)
-        return sorted(((ngram, self.freq(ngram)) for ngram in ngrams),
-                      key=lambda pair: pair[1], reverse=True)[:n]
-
-    def update_recursively(self, another_counter):
-        """"Trickle-down" update this counter with another NgramCounter object.
-        Use this instead of regular update."""
-        super().update(another_counter)
-        for key, next_counter in another_counter.next.items():
-            self.next[key].update(next_counter)
-
-    def log_likelihood_ratio(self, ngram1: tuple, ngram2: tuple):
-        k_1 = self.after(ngram1).freq(ngram2)
-        k_2 = sum(self.after(ng).freq(ngram2)
-                  for ng in self.generate_ngrams(len(ngram1))
-                  if not ng == ngram1)
-        n_1 = self.after(ngram1).total_counts(len(ngram2))
-        n_2 = sum(self.after(ng).total_counts(len(ngram2))
-                  for ng in self.generate_ngrams(len(ngram1))
-                  if not ng == ngram1)
-
-        return log_likelihood_ratio(k_1, k_2, n_1, n_2)
-
-    def save_to_file(self, path):
-        """Save this NgramCounter to a file, stored in a regular dict
-        structure."""
-        print('Saving NgramCounter object to', path, '...')
-        dictionary = {}
-        for ngram in self.generate_ngrams():
-            dictionary[ngram] = self.freq(ngram)
-        with open(path, 'w+') as out:
-            print(dictionary, file=out)
-
-    @classmethod
-    def from_file(cls, path):
-        """Load an NgramCounter from a file where n-grams and their counts are
-        stored in a regular dict structure."""
-        print('Loading NgramCounter object from', path, '...')
-        with open(path) as in_file:
-            dictionary = eval(in_file.read())
-        counter = cls()
-        for ngram, count in dictionary.items():
-            counter.add_ngram(ngram, count)
-        return counter
+import datautils.annotations as anno
+from corpusstats.ngramcounting import NgramCounter
+import corpusstats.ngramcounting as ngc
 
 
 ################################################################################
@@ -133,6 +12,9 @@ class NgramCounter(Counter):
 ################################################################################
 
 # LOG-LIKELIHOOD
+from datautils import dataio
+
+
 def log_likelihood(p, k, n, log_base=math.e):
     """The binomial case of log-likelihood, calculated as in Dunning (1993)"""
     return k * math.log(p, log_base) + (n - k) * math.log(1 - p, log_base)
@@ -145,6 +27,20 @@ def log_likelihood_ratio(k_1, k_2, n_1, n_2):
     p = (k_1 + k_2) / (n_1 + n_2)
     return 2 * (log_likelihood(p_1, k_1, n_1) + log_likelihood(p_2, k_2, n_2)
                 - log_likelihood(p, k_1, n_1) - log_likelihood(p, k_2, n_2))
+
+
+def log_likelihood_ratio_ngrams(ngram1: tuple, ngram2: tuple,
+                                counter: NgramCounter):
+    k_1 = counter.after(ngram1).freq(ngram2)
+    k_2 = sum(counter.after(ng).freq(ngram2)
+              for ng in counter.generate_ngrams(len(ngram1))
+              if not ng == ngram1)
+    n_1 = counter.after(ngram1).total_counts(len(ngram2))
+    n_2 = sum(counter.after(ng).total_counts(len(ngram2))
+              for ng in counter.generate_ngrams(len(ngram1))
+              if not ng == ngram1)
+
+    return log_likelihood_ratio(k_1, k_2, n_1, n_2)
 
 # see Dunning 1993
 # A_B, A_notB, notA_B, notA_notB = 110, 2442, 111, 29114
@@ -176,20 +72,21 @@ def calculate_c_values(candidate_terms: list, threshold: float,
     candidate_terms = sorted(candidate_terms, key=lambda x: len(x),
                              reverse=True)
     final_terms = {}
-    nested_ngrams = defaultdict(list)
+    nested_ngrams = {t: set() for t in candidate_terms}
     print('Calculating C-values')
     for t in tqdm.tqdm(candidate_terms):
         c = c_value(t, nested_ngrams, counter)
         if c >= threshold:
             final_terms[t] = c
             for ng in NgramCounter.make_ngrams(t, max_n=len(t)-1):
-                nested_ngrams[ng].append(t)
+                if ng in nested_ngrams:
+                    nested_ngrams[ng].add(t)
     return final_terms
 
 
 def c_value(term: tuple, nested_ngrams: dict, counter: NgramCounter):
     """Calculate C-value as in Frantzi et al. (2000)."""
-    if term not in nested_ngrams:
+    if not nested_ngrams[term]:
         return math.log2(len(term)) * counter.freq(term)
     else:
         nested_in = nested_ngrams[term]
@@ -200,7 +97,7 @@ def c_value(term: tuple, nested_ngrams: dict, counter: NgramCounter):
 
 def rectified_freq(ngram: tuple, nested_ngrams: dict, counter: NgramCounter):
     """Return the frequency of the ngram occurring as non-nested."""
-    if ngram not in nested_ngrams:
+    if not nested_ngrams[ngram]:
         return counter.freq(ngram)
     else:
         return counter.freq(ngram) - sum(
@@ -208,5 +105,64 @@ def rectified_freq(ngram: tuple, nested_ngrams: dict, counter: NgramCounter):
             for sg in nested_ngrams[ngram])
 
 
+# TF-IDF
+def calculate_tf_idf_values(candidate_terms: list, docs: list, n_docs=None):
+    term_frequency = {t: 0 for t in candidate_terms}
+    doc_frequency = {t: 0 for t in candidate_terms}
+    if not n_docs:
+        try:
+            n_docs = len(docs)
+        except Exception as e:
+            print('Could not get number of docs for TF-IDF calculations, thus '
+                  'making it impossible!')
+            raise e
+    print('Gathering numbers for TF-IDF calculations')
+    for d in tqdm.tqdm(docs, total=n_docs, file=sys.stdout):
+        doc_counter = ngc.count_ngrams_in_doc(d)
+        for t in candidate_terms:
+            count = doc_counter[t]
+            term_frequency[t] += count
+            if count:
+                doc_frequency[t] += 1
 
+    tf_idf_values = {t: tf_idf(term_frequency[t], doc_frequency[t], n_docs)
+                     for t in candidate_terms}
+    return tf_idf_values
+
+
+def tf_idf(tf, df, n_docs):
+    return tf * n_docs / (df + 1)
+
+
+# PERFORMANCE MEASURES
+def gold_standard_concepts(corpus):
+    lemmatizer = WordNetLemmatizer()
+    all_concepts = set()
+    for doc in corpus:
+        concepts = doc.get_annotations(anno.Concept)
+        for c in concepts:
+            # normalize to lemmaed version
+            if isinstance(c, anno.DiscontinuousConcept):
+                c_tokens = [t for span in c.spans
+                            for t in doc.get_annotations_at(span, anno.Token)]
+            else:
+                c_tokens = [t for t in doc.get_annotations_at(c.span,
+                                                              anno.Token)]
+            if not c_tokens:
+                print(c, doc)
+                print(c.get_context())
+                input()
+            lemmaed_concept = tuple(
+                lemmatizer.lemmatize(w.get_covered_text(), anno.POS_TAG_MAP[w])
+                if anno.POS_TAG_MAP[w] in 'anvr'
+                else lemmatizer.lemmatize(w.get_covered_text())
+                for w in c_tokens
+            )
+            all_concepts.add(lemmaed_concept)
+    return all_concepts
+
+
+ngrams = ngc.main('GENIA')
+genia = dataio.load_genia_corpus()
+gold = gold_standard_concepts(genia)
 
