@@ -51,6 +51,18 @@ class Document:
         span_end = annotation.span[1]
         self._span_ends[span_end].append(annotation)
 
+    def remove_annotation(self, annotation):
+        for type_name in annotation.__class__.__mro__:
+            key = type_name.__name__
+            if key == 'object':
+                continue
+            self._annotations[key].remove(annotation)
+
+        span_start = annotation.span[0]
+        self._span_starts[span_start].remove(annotation)
+        span_end = annotation.span[1]
+        self._span_ends[span_end].remove(annotation)
+
     def get_annotations_at(self, span, annotation_type=None):
         # TODO: does not retrieve e.g. a Sentence which spans out over both ends
 
@@ -87,9 +99,9 @@ class Document:
         else:
             return sorted(
                 {a for li in [self._span_starts[index]
-                              for index in range(span[0], span[1]-1)]
+                              for index in range(span[0], span[1])]
                              + [self._span_ends[index]
-                                for index in range(span[0]+1, span[1])]
+                                for index in range(span[0]+1, span[1]+1)]
                  for a in li if isinstance(a, annotation_type)},
                 key=lambda x: x.span
             )
@@ -139,9 +151,15 @@ class Annotation:
         return build_string
 
     def merge_with(self, another_annotation):
-
+        if self.document is not another_annotation.document:
+            raise ValueError(
+                'Cannot merge annotations from different documents!'
+            )
+        doc = self.document
+        doc.remove_annotation(self)
+        doc.remove_annotation(another_annotation)
         another_annotation.span = (self.span[0], another_annotation.span[1])
-        del self
+        doc.add_annotation(another_annotation)
         return another_annotation
 
     def __repr__(self):
@@ -178,6 +196,9 @@ class Token(Annotation):
     def __init__(self, document: Document, span: tuple, pos_tag: str):
         super().__init__(document, span)
         self.pos = pos_tag
+
+    def mapped_pos(self):
+        return POS_TAG_MAP[self.pos]
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos

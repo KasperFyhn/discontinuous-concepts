@@ -149,7 +149,7 @@ with open(PATH_TO_GENIA + 'genia-quarantine') as quarantine_file:
     _QUARANTINE = eval(quarantine_file.read())
 
 
-def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
+def load_genia_document_old(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     """Loads in the GENIA document with the given ID and returns it as a
     Document object with annotations.py."""
 
@@ -315,6 +315,220 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
 
         # update before moving on to the next; remember the line break
         sent_offset += len(raw_sent) + 1
+
+    # treebank annotations are found elsewhere. Handle these similar to before
+    # create xml soup
+    pmid = _MEDLINE_TO_PMID[doc_id]
+    xml_path = os.path.join(folder_path, 'treebank', pmid + '.xml')
+    xml_file = open(xml_path)
+    soup = BeautifulSoup(xml_file.read(), 'xml')
+
+    tokens_stack = doc.get_annotations('Token')
+    tokens_stack.reverse()
+
+    for sentence in soup.find_all('sentence'):
+
+        def get_constituents(sub_tree, stack):
+            if sub_tree.name == 'tok':
+                if not tokens_stack:
+                    t = Token(doc, (0, 0), '-NONE-')
+                else:
+                    t = tokens_stack.pop()
+
+                # handle prefixes, other split tokens and missing tokens
+                while sub_tree.string.replace(' ', '') != \
+                        t.get_covered_text().replace(' ', ''):
+                    sub_tree_str = sub_tree.string.replace(' ', '')
+                    token_str = t.get_covered_text().replace(' ', '')
+                    if sub_tree_str == '.':
+                        tokens_stack.append(t)
+                        empty_span = (t.span[0],
+                                      t.span[0])
+                        return Token(doc, empty_span, '-NONE-')
+                    elif token_str in sub_tree_str:
+                        t = t.merge_with(tokens_stack.pop())
+                    elif sub_tree_str in token_str:
+                        if not token_str.endswith(sub_tree_str):
+                            tokens_stack.append(t)
+                            empty_span = (t.span[0], t.span[0])
+                            return Token(doc, empty_span, '-NONE-')
+                        else:
+                            return t
+
+                return t
+            else:
+                try:
+                    stack.append(sub_tree['cat'])
+                except KeyError:
+                    stack.append(sub_tree.name)
+
+                sub_cons = []
+                for nst in sub_tree.children:
+                    if isinstance(nst, bs4.NavigableString):
+                        continue
+                    sub_cons += [get_constituents(nst, stack)]
+
+                if not sub_cons:
+                    empty_span = (tokens_stack[-1].span[0],
+                                  tokens_stack[-1].span[0])
+                    empty_token = Token(doc, empty_span, '-NONE-')
+                    sub_cons.append(empty_token)
+
+                const = Constituent(doc, sub_cons, stack.pop())
+                doc.add_annotation(const)
+
+                return const
+
+        tree = sentence
+        get_constituents(tree, [])  # they are added to the doc in the function
+
+    return doc
+
+
+def _resolve_child(tag, offset, doc):
+    """Handles children tags met in a sentence."""
+
+    # three types can be met: whitespace, w or cons
+    if not tag.name:  # whitespace
+        return len(tag)  # not an actual child
+
+    elif tag.name == 'w':  # token
+        # make span based on offset
+        token_length = len(tag.get_text())
+        token_span = (offset, offset + token_length)
+        pos = tag['c']
+        token = Token(doc, token_span, pos)
+        doc.add_annotation(token)
+
+        for c in tag.children:
+            offset += _resolve_child(c, offset, doc)
+
+        return token_length
+
+    elif tag.name == 'cons':  # concept
+
+        if tag.has_attr('sem'):
+            label = tag['sem']
+        else:
+            label = ''
+
+        if label:
+            concept_spans = _resolve_cons_spans(tag, offset)
+            # make concepts out of the retrieved spans
+            for concept_span in concept_spans:
+                if isinstance(concept_span, list):  # discontinuous concept
+                    # first, merge adjacent spans
+                    merged_spans = [concept_span.pop(0)]
+                    for s in concept_span:
+                        if s[0] - merged_spans[-1][1] < 2:
+                            merged_spans[-1] = (merged_spans[-1][0], s[1])
+                        else:
+                            merged_spans.append(s)
+                    if len(merged_spans) == 1:  # might not be discontinuous
+                        concept = Concept(doc, merged_spans[0], label)
+                    else:
+                        concept = DiscontinuousConcept(doc, merged_spans, label)
+                else:
+                    concept = Concept(doc, concept_span, label)
+                doc.add_annotation(concept)
+
+        for c in tag.children:
+            offset += _resolve_child(c, offset, doc)
+
+        return len(tag.get_text())
+
+
+def _resolve_cons_spans(cons_tag: bs4.Tag, offset):
+    """Resolves the span(s) of a given <cons> tag by running
+    recursively through its descendants. Due to complex
+    constructions, the span options are flattened in the end."""
+
+    try:
+        label_ = cons_tag['sem']
+    except:
+        label_ = ''
+
+    if 'AND' in label_ or 'OR' in label_:  # coordinated concepts!
+        children_tags = [c for c in cons_tag.children]
+        coord_words_indexes = set()
+        prev_cons_index = None
+        need_second = False
+        for i, child in enumerate(children_tags):
+            if not child.name:
+                continue
+            elif (child.name == 'w' and child['c'] == 'CC'
+                  and child.string not in {'both', 'neither'})\
+                    or child.get_text() in ',/':
+                coord_words_indexes.add(prev_cons_index)
+                need_second = True
+            elif child.name == 'cons':
+                prev_cons_index = i
+                if need_second:
+                    coord_words_indexes.add(prev_cons_index)
+                    need_second = False
+
+        common_before = []
+        coordinated_words = []
+        common_after = []
+
+        for i, t in enumerate(children_tags):
+            if not t.name:  # whitespace
+                offset += len(t)
+                continue
+            elif i < min(coord_words_indexes):
+                common_before.append(_resolve_cons_spans(t, offset))
+            elif i in coord_words_indexes:
+                coordinated_words += _resolve_cons_spans(t, offset)
+            elif i > max(coord_words_indexes):
+                common_after.append(_resolve_cons_spans(t, offset))
+            # update offset
+            offset += len(t.get_text())
+
+        return [_flatten(list(option))
+                for option in itertools.product(*common_before,
+                                                coordinated_words,
+                                                *common_after)
+                ]
+
+    else:  # single concept
+        # make the span based on offsets and length of concept
+        return [(offset, offset + len(cons_tag.get_text()))]
+
+
+
+def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
+    """Loads in the GENIA document with the given ID and returns it as a
+    Document object with annotations.py."""
+
+    # create xml soup
+    xml_path = os.path.join(folder_path, 'pos+concepts', doc_id + '.xml')
+    xml_file = open(xml_path)
+    soup = BeautifulSoup(xml_file.read(), 'xml')
+
+    # doc text is made up of retrievable strings between tags in title+abstract
+    doc_text = ''.join(soup.title.strings) + ''.join(soup.abstract.strings)
+    # some double line breaks cause trouble in the offsets: correct to single
+    # some stray spaces at the beginning or end of lines do the same
+    doc_text = doc_text.strip().replace('\n\n', '\n').replace('\n ', '\n')
+    doc = Document(doc_id, doc_text)
+
+    if only_text:
+        return doc
+
+    offset = 0  # keeps track of how far in we are in the doc text
+    # loop over sentences, extract the sentence and tokens + concepts within
+    for sent in soup.find_all('sentence'):
+
+        raw_sent = sent.get_text()  # also strings within tags
+        sent_span = (offset, offset + len(raw_sent))
+        sentence = Sentence(doc, sent_span)
+        doc.add_annotation(sentence)
+
+        for child in sent.children:
+            offset += _resolve_child(child, offset, doc)
+
+        # update before moving on to the next; remember the line break
+        offset += 1
 
     # treebank annotations are found elsewhere. Handle these similar to before
     # create xml soup

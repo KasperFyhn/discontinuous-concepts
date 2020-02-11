@@ -224,9 +224,7 @@ def gold_standard_concepts(corpus, allow_discontinuous=True):
             else:
                 c_tokens = [t for t in doc.get_annotations_at(c.span,
                                                               anno.Token)]
-            if not c_tokens:
-                # TODO: temporary fix due to some faulty gold concepts
-                continue
+
             lemmaed_concept = tuple(
                 lemmatizer.lemmatize(w.get_covered_text(), anno.POS_TAG_MAP[w])
                 if anno.POS_TAG_MAP[w] in 'anvr'
