@@ -123,12 +123,12 @@ def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False):
             (load_craft_document(doc_id, only_text=True) for doc_id in ids),
             total=len(ids))
 
-    loaded_docs = []
-
     print('Loading CRAFT corpus ...')
-    for doc in tqdm(mp.Pool().imap_unordered(load_craft_document, ids),
-                    total=len(ids)):
-        loaded_docs.append(doc)
+    loaded_docs = []
+    with mp.Pool() as pool:
+        for doc in tqdm(pool.imap_unordered(load_craft_document, ids),
+                        total=len(ids)):
+            loaded_docs.append(doc)
 
     return loaded_docs
 
@@ -394,11 +394,10 @@ def genia_corpus_ids(path=PATH_TO_GENIA, skip_quarantine=True):
     return ids
 
 
-def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
+def load_genia_corpus(path=PATH_TO_GENIA, text_only=False, as_generator=False):
 
     ids = [os.path.basename(name[:-4])
            for name in glob.glob(os.path.join(path, 'pos+concepts', '*'))]
-    loaded_docs = []
 
     if text_only:
         print('Loading GENIA corpus without annotations ...')
@@ -416,12 +415,17 @@ def load_genia_corpus(path=PATH_TO_GENIA, text_only=False):
         except ValueError:  # if the file is not there (due to train/test split)
             continue
 
+    if as_generator:
+        return (load_genia_document(doc_id) for doc_id in ids)
+
     print('Loading GENIA corpus ...')
+    loaded_docs = []
     if _QUARANTINE:
         print(f'Skipping {skipped} files put in quarantine.')
-    for doc in tqdm(mp.Pool().imap_unordered(load_genia_document, ids),
-                    total=len(ids)):
-        loaded_docs.append(doc)
+    with mp.Pool() as pool:
+        for doc in tqdm(pool.imap_unordered(load_genia_document, ids),
+                        total=len(ids)):
+            loaded_docs.append(doc)
 
     return loaded_docs
 

@@ -3,15 +3,10 @@ from collections import Counter
 
 # RUN CONFIGURATIONS
 CORPUS = 'genia'
-COLLAPSE = True
+COLLAPSE = False
 
 # constants for use in make_pos_tag_sequence
-POS_TAG_MAP = {
-    '-LRB-': '(', '-RRB-': ')', 'HYPH': '-', '': 'Ø', '*': 'Pre-',
-    'JJR': 'JJ', 'JJS': 'JJ',
-    'NNP': 'NN', 'NNS': 'NN',
-    'VBG': 'VB', 'VBN': 'VB', 'VBP': 'VB', 'VBZ': 'VB'
-}
+POS_TAG_MAP = anno.POS_TAG_MAP
 
 
 def make_pos_tag_sequence(sequence):

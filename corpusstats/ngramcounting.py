@@ -40,10 +40,11 @@ FILTERS = {
     'simple': re.compile('[an]+n'),
     'liberal': re.compile('[^x]*n')
 }
-FILTER = FILTERS['UNSILO']
+FILTER = None
 
 
-def main(corpus_name):
+def main(corpus_name, freq_threshold=None, min_n=None, max_n=None,
+         pos_tag_filter=None):
     """Main function of the module which returns an NgramCounter object of
     n-grams in the given corpus.
     A bit unconventionally, configuration parameters are made as "constant"
@@ -51,6 +52,19 @@ def main(corpus_name):
     are accessed globally from subprocesses. These are:
     FREQUENCY_THRESHOLD, MIN_N, MAX_N, FILTER=None (choose from FILTERS)."""
     print('Initializing ...')
+    # set configurations
+    if freq_threshold:
+        global FREQUENCY_THRESHOLD
+        FREQUENCY_THRESHOLD = freq_threshold
+    if min_n:
+        global MIN_N
+        MIN_N = min_n
+    if max_n:
+        global MAX_N
+        MAX_N = max_n
+    if pos_tag_filter:
+        global FILTER
+        FILTER = pos_tag_filter
     LEMMA('test')  # to initialize the lemmatizer
     start = timeit.default_timer()
     corpus_loader = _CORPUS_IDS[corpus_name.lower()]
@@ -108,6 +122,7 @@ class NgramCounter(Counter):
     def __init__(self, ngrams=None):
         super().__init__()
         self.next = defaultdict(NgramCounter)
+        self._total_counts = {}
         if ngrams:
             for ngram in ngrams:
                 self.add_ngram(ngram)
@@ -126,6 +141,7 @@ class NgramCounter(Counter):
             self[n_gram[0]] += count
         else:
             self.after(n_gram[0]).add_ngram(n_gram[1:], count=count)
+        self._total_counts = {}
 
     def after(self, n_gram: tuple):
         """Return the NgramCounter after the given n-gram."""
@@ -169,7 +185,11 @@ class NgramCounter(Counter):
     def total_counts(self, of_length):
         """Sum of counts of n-grams of length n. NOTE: Counted on the go, so it
         is a bit slow."""
-        return sum(self.freq(ng) for ng in self.generate_ngrams(of_length))
+        if of_length not in self._total_counts:
+            self._total_counts[of_length] = sum(
+                self.freq(ng)for ng in self.generate_ngrams(of_length)
+            )
+        return self._total_counts[of_length]
 
     def most_common(self, of_length, n=None, prev=None):
         ngrams = self.generate_ngrams(of_length=of_length, prev=prev)
@@ -206,9 +226,20 @@ class NgramCounter(Counter):
         return counter
 
 
-def count_ngrams_in_doc(d, pos_tag_filter=FILTER, min_n=MIN_N, max_n=MAX_N):
+allowed_pos = None
+
+
+def count_ngrams_in_doc(d, pos_tag_filter=None, min_n=None, max_n=None,
+                        collapse_illegal=True):
     """Return a regular Counter object of n-grams in document d, filtered using
     a pos tag filter."""
+    if not pos_tag_filter:
+        pos_tag_filter = FILTER
+    if not min_n:
+        min_n = MIN_N
+    if not max_n:
+        max_n = MAX_N
+
     all_ngrams = []
     # loop over sentences and make n-grams within them
     for sentence in d.get_annotations('Sentence'):
@@ -221,14 +252,31 @@ def count_ngrams_in_doc(d, pos_tag_filter=FILTER, min_n=MIN_N, max_n=MAX_N):
         # make n-grams (1-5)
         ngrams = NgramCounter.make_ngrams(lemmaed_tokens, min_n, max_n)
         for ng_with_pos in ngrams:
-            if FILTER:
+            if pos_tag_filter and len(ng_with_pos) > 1:
                 pos_tag_sequence = ''.join(w[1] for w in ng_with_pos)
+                # test if sequence is allowed
                 if not re.fullmatch(pos_tag_filter, pos_tag_sequence):
-                    continue
+                    if not collapse_illegal:
+                        continue  # just discard it
+                    else:
+                        global allowed_pos
+                        if not allowed_pos:
+                            allowed_pos = set(
+                                c for c in pos_tag_filter.pattern if c.isalpha()
+                            )
+                            print(allowed_pos)
+                        # if collapsing illegal n-grams, these fall under the
+                        # same n-gram length in the counting later on
+                        ng_with_pos = tuple(
+                            t if t[1] in allowed_pos or '*' in allowed_pos
+                            else ('COLLAPSED', 'none') for t in ng_with_pos
+                        )
+
+            # create actual n-gram
             ngram = tuple(w[0] for w in ng_with_pos)
             all_ngrams.append(ngram)
 
-    # count the n-grams and pass it on to the master counter
+    # count the n-grams and return
     c = Counter(all_ngrams)
     return c
 
@@ -282,16 +330,25 @@ def _counter(in_queue, out_queue, n_docs):
             # can be filtered away (at least, that's a working assumption)
             while psutil.virtual_memory().percent > MAX_RAM_USAGE_PERCENT:
                 print()
-                print('Running out of memory. Filtering out most infrequent '
+                print('Running out of memory. Collapsing most infrequent '
                       'n-grams to clear out space.')
                 n_items_before = len(master)
+                collapsed = Counter()
+                for key, value in tqdm.tqdm(master.items(), file=sys.stdout,
+                                            desc='Collapsing'):
+                    if value < min_f:
+                        collapse = ('COLLAPSED',) * len(key)
+                        collapsed[collapse] += value
                 master = Counter(
-                    {key: value for key, value in tqdm.tqdm(master.items(),
-                                                            file=sys.stdout)
-                     if value > min_f})
+                    {key: value for key, value in tqdm.tqdm(
+                        master.items(), file=sys.stdout, desc='Filtering')
+                     if not value < min_f})
+                master.update(collapsed)
                 n_items_after = len(master)
-                print(f'Cleared out {n_items_before - n_items_after} n-grams '
-                        'with a frequency lower than', min_f)
+                cleared = n_items_before - n_items_after
+                cleared_percent = round(cleared / n_items_before * 100)
+                print(f'Cleared out {cleared} ({cleared_percent}%) n-grams '
+                      'with a frequency lower than', min_f)
                 min_f += 1  # if not enough, clear out even more
 
     if not counted == n_docs:
@@ -304,4 +361,6 @@ def _counter(in_queue, out_queue, n_docs):
 
 
 if __name__ == '__main__':
-    final_counter = main('genia')
+    if len(sys.argv) < 2:
+        sys.argv.append('genia')
+    final_counter = main(sys.argv[1])

@@ -87,9 +87,9 @@ class Document:
         else:
             return sorted(
                 {a for li in [self._span_starts[index]
-                              for index in range(span[0], span[1])]
+                              for index in range(span[0], span[1]-1)]
                              + [self._span_ends[index]
-                                for index in range(span[0], span[1])]
+                                for index in range(span[0]+1, span[1])]
                  for a in li if isinstance(a, annotation_type)},
                 key=lambda x: x.span
             )
