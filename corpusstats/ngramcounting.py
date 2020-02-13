@@ -3,7 +3,7 @@ import os
 import re
 import sys
 import nltk
-from nltk.stem import WordNetLemmatizer
+from nltk import WordNetLemmatizer
 import tqdm
 from datautils import dataio, annotations
 import timeit
@@ -244,7 +244,7 @@ def count_ngrams_in_doc(d, pos_tag_filter=None, min_n=None, max_n=None,
     # loop over sentences and make n-grams within them
     for sentence in d.get_annotations('Sentence'):
         # get tokens with pos tags from the sentence span and normalize them
-        tokens = [(t.get_covered_text().lower(), POS_TAG_MAP[t.pos])
+        tokens = [(t.get_covered_text().lower().replace(' ', '_'), POS_TAG_MAP[t.pos])
                   for t in d.get_annotations_at(sentence.span, 'Token')]
         lemmaed_tokens = [(LEMMA(t[0]), t[1]) if t[1] not in 'anvr'
                           else (LEMMA(t[0], t[1]), t[1]) for t in tokens]

@@ -142,7 +142,6 @@ def _flatten(li):
                 else _flatten(x) for x in li), [])
 
 
-os.chdir(os.path.dirname(__file__))
 with open(PATH_TO_GENIA + 'MEDLINE-to-PMID') as map_file:
     _MEDLINE_TO_PMID = eval(map_file.read())
 with open(PATH_TO_GENIA + 'genia-quarantine') as quarantine_file:

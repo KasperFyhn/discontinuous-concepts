@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 _home = str(Path.home())
 PATH_TO_CRAFT = _home + '/Documents/CRAFT/'
