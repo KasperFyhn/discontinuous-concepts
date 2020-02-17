@@ -112,3 +112,8 @@ def load_model(name, model_spec_name=''):
     decoder = colibricore.ClassDecoder(class_file)
 
     return model, encoder, decoder
+
+
+if __name__ == '__main__':
+    model, encoder, decoder = load_model('genia', '_skip_min1')
+

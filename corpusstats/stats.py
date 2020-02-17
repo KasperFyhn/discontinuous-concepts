@@ -8,6 +8,7 @@ import corpusstats.ngramcounting as ngc
 import multiprocessing as mp
 import corpusstats.ngrammodel as ngm
 import colibricore as cc
+from typing import Union
 
 ################################################################################
 # CONVENIENCE CLASSES
@@ -15,10 +16,13 @@ import colibricore as cc
 
 
 class NgramModel:
-    """A wrapper of a Colibri Core n-gram model with its appropriate encoder
-    and decoder."""
+    """
+    A wrapper of a Colibri Core n-gram model with its appropriate encoder
+    and decoder.
+    """
 
-    def __init__(self, model: cc.UnindexedPatternModel,
+    def __init__(self, model: Union[cc.UnindexedPatternModel,
+                                    cc.IndexedPatternModel],
                  encoder: cc.ClassEncoder, decoder: cc.ClassDecoder):
         self.model = model
         self.encoder = encoder
@@ -55,7 +59,56 @@ class NgramModel:
     def total_counts(self, of_length):
         return self.model.totaloccurrencesingroup(n=of_length)
 
-    def contingency_table(self, ngram_a, ngram_b, smoothing=1, base=None):
+    @staticmethod
+    def _skipgram_combinations(obl_left, skips_left, previous=tuple()):
+        combos = []
+        if obl_left:
+            with_obl = previous + obl_left[:1]
+            if len(obl_left) == 1 and not skips_left:
+                combos.append(with_obl)
+            else:
+                for c in NgramModel._skipgram_combinations(
+                        obl_left[1:], skips_left, with_obl):
+                    combos.append(c)
+        if skips_left:
+            with_skip = previous + ('{*}',)
+            if skips_left == 1 and not obl_left:
+                combos.append(with_skip)
+            else:
+                for c in NgramModel._skipgram_combinations(
+                        obl_left, skips_left-1, with_skip):
+                    combos.append(c)
+
+        return combos
+
+    def skipgrams_with(self, ngram, min_skips=None, max_size=None):
+        if isinstance(ngram, cc.Pattern):
+            ngram = ngram.tostring(self.decoder)
+        if isinstance(ngram, str):
+            ngram = tuple(ngram.split())
+        if not min_skips:
+            min_skips = 1
+        if not max_size:
+            max_size = self.model.maxlength()
+        max_skips = max_size - len(ngram)
+        obligatory = ngram[1:-1]
+        skipgrams = []
+        for n_skips in range(min_skips, max_skips+1):
+            skipgrams += [
+                ngram[:1] + sg + ngram[-1:] for sg
+                in NgramModel._skipgram_combinations(obligatory, n_skips)
+            ]
+
+        return skipgrams
+
+    def contingency_table(self, ngram_a, ngram_b, smoothing=1):
+        """
+
+        :param ngram_a:
+        :param ngram_b:
+        :param smoothing:
+        :return:
+        """
         if isinstance(ngram_a, tuple):
             ngram_a = self.encoder.buildpattern(' '.join(ngram_a))
         elif isinstance(ngram_a, str):
@@ -64,13 +117,71 @@ class NgramModel:
             ngram_b = self.encoder.buildpattern(' '.join(ngram_b))
         elif isinstance(ngram_b, str):
             ngram_b = self.encoder.buildpattern(ngram_b)
-        if not base:
-            base = len(ngram_a)
+
+        base = len(ngram_a)
         n = self.model.totaloccurrencesingroup(n=base)
         a_b = self.model.occurrencecount(ngram_a + ngram_b) + smoothing
         a_not_b = self.model.occurrencecount(ngram_a) - a_b + smoothing * 2
         not_a_b = self.model.occurrencecount(ngram_b) - a_b + smoothing * 2
         not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
+
+        return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
+
+
+class IndexedNgramModel(NgramModel):
+
+    def __init__(self, model: cc.IndexedPatternModel, encoder: cc.ClassEncoder,
+                 decoder: cc.ClassDecoder):
+        super().__init__(model, encoder, decoder)
+
+    def left_neighbours(self, size):
+        return self.model.getleftneighbours(size=size)
+
+
+    def contingency_table(self, ngram_a, ngram_b, smoothing=1,
+                          based_on_lower_order=True, same_order_threshold=3):
+        """
+
+
+        :param ngram_a:
+        :param ngram_b:
+        :param smoothing:
+        :param based_on_lower_order:
+        If True (default), counts are based on len(a)-grams except for (a, b);
+        If False, all counts are based on len(a+b)-grams. NOTE: If set to false,
+        it is MUCH slower!
+        :param same_order_threshold:
+        :return:
+        """
+        if isinstance(ngram_a, tuple):
+            ngram_a = self.encoder.buildpattern(' '.join(ngram_a))
+        elif isinstance(ngram_a, str):
+            ngram_a = self.encoder.buildpattern(ngram_a)
+        if isinstance(ngram_b, tuple):
+            ngram_b = self.encoder.buildpattern(' '.join(ngram_b))
+        elif isinstance(ngram_b, str):
+            ngram_b = self.encoder.buildpattern(ngram_b)
+
+        if not based_on_lower_order:
+            base = len(ngram_a + ngram_b)
+            n = self.model.totaloccurrencesingroup(n=base)
+            a_b, a_not_b, not_a_b, not_a_not_b = (smoothing,) * 4
+            split = len(ngram_a)
+            cooc_ngram = ngram_a + ngram_b
+            for ngram, count in self.iterate(n, threshold=same_order_threshold):
+                if ngram == cooc_ngram: a_b += count
+                elif ngram[:split] == ngram_a: a_not_b += count
+                elif ngram[split:] == ngram_b: not_a_b += count
+                else: not_a_not_b += count
+
+        else:  # default
+            base = len(ngram_a)
+            n = self.model.totaloccurrencesingroup(n=base)
+            a_b = self.model.occurrencecount(ngram_a + ngram_b) + smoothing
+            a_not_b = self.model.occurrencecount(ngram_a) - a_b + smoothing * 2
+            not_a_b = self.model.occurrencecount(ngram_b) - a_b + smoothing * 2
+            not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
+
         return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
 
 
@@ -116,16 +227,15 @@ def calculate_ngram_log_likelihoods(ngram_pairs, model, smoothing=1):
 
 def ngram_log_likelihood(ngram1, ngram2, model, smoothing=1):
     table = model.contingency_table(ngram1, ngram2, smoothing)
-    k_1 = table.a_b
-    k_2 = table.a_not_b
-    n_1 = table.marginal_b()
-    n_2 = table.marginal_not_b()
-
-    return log_likelihood_ratio(k_1, k_2, n_1, n_2)
+    return log_likelihood_ratio(table)
 
 
-def log_likelihood_ratio(k_1, k_2, n_1, n_2):
+def log_likelihood_ratio(contingency_table):
     """The binomial case of the log-likelihood ratio (see Dunning 1993)."""
+    k_1 = contingency_table.a_b
+    k_2 = contingency_table.a_not_b
+    n_1 = contingency_table.marginal_b()
+    n_2 = contingency_table.marginal_not_b()
     p_1 = k_1 / n_1
     p_2 = k_2 / n_2
     p = (k_1 + k_2) / (n_1 + n_2)
@@ -177,10 +287,14 @@ def calculate_pointwise_mutual_information(ngram_pairs, model):
             for pair in ngram_pairs}
 
 
-def pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1):
-    p_x_and_y = model.prob(ngram_a + ngram_b, smoothing)
-    p_x = model.prob(ngram_a, smoothing)
-    p_y = model.prob(ngram_b, smoothing)
+def pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1,
+                                 extra_count=0):
+    p_x_and_y = (model.freq(ngram_a + ngram_b) + extra_count + smoothing)\
+                / model.total_counts(len(ngram_a + ngram_b))
+    p_x = (model.freq(ngram_a) + smoothing)\
+          / model.total_counts(len(ngram_a))
+    p_y = (model.freq(ngram_b) + smoothing)\
+          / model.total_counts(len(ngram_b))
     return math.log(p_x_and_y / (p_x * p_y))
 
 
@@ -312,3 +426,8 @@ def performance(predicted, expected):
     print('Precision:  ', round(precision, 3))
     print('Recall:     ', round(recall, 3))
     print('F1-measure: ', round(f1, 3))
+
+
+if __name__ == '__main__':
+    model = NgramModel.load_model('genia', '_skip_min1')
+

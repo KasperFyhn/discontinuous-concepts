@@ -6,8 +6,8 @@ import seaborn as sns
 from tqdm import tqdm
 
 CORPUS = 'genia'
-MODEL_SPEC = '_noskip_all'
-FREQ_THRESHOLD = 0
+MODEL_SPEC = '_skip_min1'
+FREQ_THRESHOLD = 3
 
 model = stats.NgramModel.load_model(CORPUS, MODEL_SPEC)
 
@@ -33,16 +33,25 @@ lls = []
 for bigram_pattern, count in tqdm(
         model.iterate(2, threshold=FREQ_THRESHOLD, encoded_patterns=True),
         desc='Making calculations of association measures'):
-    word_a = bigram_pattern[0]
-    word_b = bigram_pattern[1]
-    pmi = stats.pointwise_mutual_information(word_a, word_b, model)
-    pmis.append(pmi)
-    mi = stats.ngram_mutual_information(word_a, word_b, model)
-    mis.append(mi)
-    ll = stats.ngram_log_likelihood(word_a, word_b, model)
-    lls.append(ll)
     bigram = model.decode_pattern(bigram_pattern)
     bigrams.append(bigram)
+    word_a = bigram_pattern[0]
+    word_b = bigram_pattern[1]
+    if bigram in bigrams_in_dc:
+        extra_count = sum(model.freq(skipgram)
+                          for skipgram in model.skipgrams_with(bigram))
+        # extra_count = 0
+    else:
+        extra_count = 0
+    pmi = stats.pointwise_mutual_information(word_a, word_b, model, extra_count)
+    pmis.append(pmi)
+    contingency_table = model.contingency_table(word_a, word_b)
+    contingency_table.a_b += extra_count
+    mi = stats.mutual_information(contingency_table)
+    mis.append(mi)
+    ll = stats.log_likelihood_ratio(contingency_table)
+    lls.append(ll)
+
     freqs.append(count)
     is_concept_bigram.append(bigram in cont_concept_bigrams)
     in_dc.append(bigram in bigrams_in_dc)

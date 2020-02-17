@@ -3,3 +3,5 @@ __pycache__
 
 corpusstats/ngramdata/PMC*
 corpusstats/colibribug.py
+
+temp.py
