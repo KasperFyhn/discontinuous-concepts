@@ -27,6 +27,7 @@ class NgramModel:
         self.model = model
         self.encoder = encoder
         self.decoder = decoder
+        self._skip_counts = {}
 
     @classmethod
     def load_model(cls, name, model_spec_name=''):
@@ -43,12 +44,17 @@ class NgramModel:
             return ((p.tostring(self.decoder), c)
                     for p, c in self.model.filter(threshold, size=n))
 
-    def freq(self, ngram):
+    def freq(self, ngram, include_skipgrams=False):
         if isinstance(ngram, tuple):
             ngram = ' '.join(ngram)
         if isinstance(ngram, str):
             ngram = self.encoder.buildpattern(ngram)
-        return self.model.occurrencecount(ngram)
+        if not include_skipgrams:
+            return self.model.occurrencecount(ngram)
+        else:
+            skipgram_counts = sum(self.freq(sg)
+                                  for sg in self.skipgrams_with(ngram))
+            return self.model.occurrencecount(ngram) + skipgram_counts
 
     def prob(self, ngram, smoothing=1):
         if isinstance(ngram, str):
@@ -56,11 +62,25 @@ class NgramModel:
         return (self.freq(ngram) + smoothing)\
                / (self.total_counts(len(ngram)) + smoothing)
 
-    def total_counts(self, of_length):
-        return self.model.totaloccurrencesingroup(n=of_length)
+    def total_counts(self, of_length, skipgrams=False):
+        if not skipgrams:
+            return self.model.totaloccurrencesingroup(n=of_length)
+        else:
+            if of_length not in self._skip_counts:
+                skip_counts = 0
+                for p, c in self.model.filter(0, size=0,
+                                              category=cc.Category.SKIPGRAM):
+                    if len(p) - p.skipcount() == of_length:
+                        skip_counts += c
+                self._skip_counts[of_length] = skip_counts
+            else:
+                skip_counts = self._skip_counts[of_length]
+            return self.model.totaloccurrencesingroup(n=of_length) + skip_counts
 
     @staticmethod
-    def _skipgram_combinations(obl_left, skips_left, previous=tuple()):
+    def _skipgram_combinations(obl_left: list, skips_left: int, previous=None):
+        if not previous:
+            previous = []
         combos = []
         if obl_left:
             with_obl = previous + obl_left[:1]
@@ -71,7 +91,7 @@ class NgramModel:
                         obl_left[1:], skips_left, with_obl):
                     combos.append(c)
         if skips_left:
-            with_skip = previous + ('{*}',)
+            with_skip = previous + ['{*}']
             if skips_left == 1 and not obl_left:
                 combos.append(with_skip)
             else:
@@ -91,22 +111,22 @@ class NgramModel:
         if not max_size:
             max_size = self.model.maxlength()
         max_skips = max_size - len(ngram)
-        obligatory = ngram[1:-1]
+        obligatory = list(ngram[1:-1])
         skipgrams = []
         for n_skips in range(min_skips, max_skips+1):
             skipgrams += [
-                ngram[:1] + sg + ngram[-1:] for sg
+                ngram[:1] + tuple(sg) + ngram[-1:] for sg
                 in NgramModel._skipgram_combinations(obligatory, n_skips)
             ]
 
         return skipgrams
 
-    def contingency_table(self, ngram_a, ngram_b, smoothing=1):
+    def contingency_table(self, ngram_a, ngram_b, smoothing=1, skipgrams=False):
         """
-
         :param ngram_a:
         :param ngram_b:
         :param smoothing:
+        :param skipgrams:
         :return:
         """
         if isinstance(ngram_a, tuple):
@@ -119,10 +139,12 @@ class NgramModel:
             ngram_b = self.encoder.buildpattern(ngram_b)
 
         base = len(ngram_a)
-        n = self.model.totaloccurrencesingroup(n=base)
-        a_b = self.model.occurrencecount(ngram_a + ngram_b) + smoothing
-        a_not_b = self.model.occurrencecount(ngram_a) - a_b + smoothing * 2
-        not_a_b = self.model.occurrencecount(ngram_b) - a_b + smoothing * 2
+        n = self.total_counts(base, skipgrams)
+        a_b = self.freq(ngram_a + ngram_b, skipgrams) + smoothing
+        a_not_b = self.freq(ngram_a, skipgrams) - a_b + smoothing * 2
+        if a_not_b <= 0: a_not_b = smoothing
+        not_a_b = self.freq(ngram_b, skipgrams) - a_b + smoothing * 2
+        if not_a_b <= 0: not_a_b = smoothing
         not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
 
         return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
@@ -137,12 +159,9 @@ class IndexedNgramModel(NgramModel):
     def left_neighbours(self, size):
         return self.model.getleftneighbours(size=size)
 
-
     def contingency_table(self, ngram_a, ngram_b, smoothing=1,
                           based_on_lower_order=True, same_order_threshold=3):
         """
-
-
         :param ngram_a:
         :param ngram_b:
         :param smoothing:
@@ -188,14 +207,23 @@ class IndexedNgramModel(NgramModel):
 class ContingencyTable:
 
     def __init__(self, a_b, a_not_b, not_a_b, not_a_not_b):
+        for count in (a_b, a_not_b, not_a_b, not_a_not_b):
+            if count <= 0:
+                raise ValueError("ContingencyTables can't have negative counts")
         self.a_b = a_b
         self.a_not_b = a_not_b
         self.not_a_b = not_a_b
         self.not_a_not_b = not_a_not_b
-        self.n = self.a_b + self.a_not_b + self.not_a_b + self.not_a_not_b
 
-    def all_cells(self):
-        return [self.a_b, self.a_not_b, self.not_a_b, self.not_a_not_b]
+    def iterate(self):
+        return [(self.a_b, self.marginal_a(), self.marginal_b()),
+                (self.not_a_b, self.marginal_not_a(), self.marginal_b()),
+                (self.a_not_b, self.marginal_a(), self.marginal_not_b()),
+                (self.not_a_not_b, self.marginal_not_a(), self.marginal_not_b())
+                ]
+
+    def n(self):
+        return self.a_b + self.a_not_b + self.not_a_b + self.not_a_not_b
 
     def marginal_a(self):
         return self.a_b + self.a_not_b
@@ -216,16 +244,7 @@ class ContingencyTable:
 
 
 # LOG-LIKELIHOOD
-def calculate_ngram_log_likelihoods(ngram_pairs, model, smoothing=1):
-    ngram_lls = {}
-    print('Calculating log-likelihood for n-gram pairs')
-    for pair in tqdm(ngram_pairs, file=sys.stdout):
-        ng1, ng2 = pair
-        ngram_lls[pair] = ngram_log_likelihood(ng1, ng2, model, smoothing)
-    return ngram_lls
-
-
-def ngram_log_likelihood(ngram1, ngram2, model, smoothing=1):
+def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1):
     table = model.contingency_table(ngram1, ngram2, smoothing)
     return log_likelihood_ratio(table)
 
@@ -233,9 +252,9 @@ def ngram_log_likelihood(ngram1, ngram2, model, smoothing=1):
 def log_likelihood_ratio(contingency_table):
     """The binomial case of the log-likelihood ratio (see Dunning 1993)."""
     k_1 = contingency_table.a_b
-    k_2 = contingency_table.a_not_b
-    n_1 = contingency_table.marginal_b()
-    n_2 = contingency_table.marginal_not_b()
+    k_2 = contingency_table.not_a_b
+    n_1 = contingency_table.marginal_a()
+    n_2 = contingency_table.marginal_not_a()
     p_1 = k_1 / n_1
     p_2 = k_2 / n_2
     p = (k_1 + k_2) / (n_1 + n_2)
@@ -248,53 +267,48 @@ def log_likelihood(p, k, n, log_base=math.e):
     try:
         return k * math.log(p, log_base) + (n - k) * math.log(1 - p, log_base)
     except ValueError as e:
-        print('Log-likelihood calculations go wrong if p=1 or p=0. '
+        print('Log-likelihood calculations go wrong if p = 1 or p = 0. '
               'Try smoothing perhaps?')
         raise e
 
 # # see Dunning 1993
 # A_B, A_notB, notA_B, notA_notB = 110, 2442, 111, 29114
-# # (A, B), (A, not B), (A, B) + (not A, B), (A, not B) + (not A, not B)
-# test1 = log_likelihood_ratio(A_B, A_notB, A_B + notA_B, A_notB + notA_notB, 0)
-# # (A, B), (not A, B), (A, B) + (A, not B), (not A, B) + (not A, not B)
-# test2 = log_likelihood_ratio(A_B, notA_B, A_B + A_notB, notA_B + notA_notB, 0)
+# test1 = log_likelihood_ratio(ContingencyTable(A_B, notA_B, A_notB, notA_notB))
+# test2 = log_likelihood_ratio(ContingencyTable(A_B, A_notB, notA_B, notA_notB))
 # print(round(test1, 2) == round(test2, 2) == 270.72)
 
 
 # MUTUAL INFORMATION
-def calculate_mutual_information(ngram_pairs, model):
-    return {pair: ngram_mutual_information(pair[0], pair[1], model)
-            for pair in ngram_pairs}
-
-
 def ngram_mutual_information(ngram1, ngram2, model, smoothing=1):
     contingency_table = model.contingency_table(ngram1, ngram2, smoothing)
     return mutual_information(contingency_table)
 
 
 def mutual_information(contingency_table: ContingencyTable):
-    p_ngram1 = contingency_table.marginal_a() / contingency_table.n
-    p_ngram2 = contingency_table.marginal_b() / contingency_table.n
     mi = 0
-    for jc in contingency_table.all_cells():
-        joint_prob = jc / contingency_table.n
-        mi += joint_prob * math.log(joint_prob / (p_ngram1 * p_ngram2))
+    for jf, mf1, mf2 in contingency_table.iterate():
+        joint_prob = jf / contingency_table.n()
+        marginal_p1 = mf1 / contingency_table.n()
+        marginal_p2 = mf2 / contingency_table.n()
+        mi += joint_prob * math.log(joint_prob / (marginal_p1 * marginal_p2))
     return mi
 
 
-def calculate_pointwise_mutual_information(ngram_pairs, model):
-    return {pair: pointwise_mutual_information(pair[0], pair[1], model)
-            for pair in ngram_pairs}
-
-
-def pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1,
-                                 extra_count=0):
+def ngram_pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1,
+                                       extra_count=0):
     p_x_and_y = (model.freq(ngram_a + ngram_b) + extra_count + smoothing)\
-                / model.total_counts(len(ngram_a + ngram_b))
+                / model.total_counts(len(ngram_a))
     p_x = (model.freq(ngram_a) + smoothing)\
           / model.total_counts(len(ngram_a))
     p_y = (model.freq(ngram_b) + smoothing)\
           / model.total_counts(len(ngram_b))
+    return math.log(p_x_and_y / (p_x * p_y))
+
+
+def pointwise_mutual_information(contingency_table: ContingencyTable):
+    p_x_and_y = contingency_table.a_b / contingency_table.n()
+    p_x = contingency_table.marginal_a() / contingency_table.n()
+    p_y = contingency_table.marginal_b() / contingency_table.n()
     return math.log(p_x_and_y / (p_x * p_y))
 
 
@@ -306,21 +320,19 @@ def calculate_c_values(candidate_terms: list, threshold: float,
     for further calculations, but be included in the returned dict with a value
     of -1."""
     # make sure that the candidate terms list is sorted
-    print('Sorting candidate terms for C-value calculation ...')
+    print('Calculating C-values')
     candidate_terms = sorted(candidate_terms, key=lambda x: len(x),
                              reverse=True)
     final_terms = {}
     nested_ngrams = {t: set() for t in candidate_terms}
-    print('Calculating C-values')
     for t in tqdm(candidate_terms, file=sys.stdout):
         c = c_value(t, nested_ngrams, counter)
+        final_terms[t] = c
         if c >= threshold:
-            final_terms[t] = c
             for ng in NgramCounter.make_ngrams(t, max_n=len(t)-1):
                 if ng in nested_ngrams:
                     nested_ngrams[ng].add(t)
-        else:
-            final_terms[t] = -1
+
     return final_terms
 
 
@@ -352,7 +364,7 @@ def calculate_tf_idf_values(candidate_terms, docs, counter, n_docs=None):
     if not n_docs:
         try:
             n_docs = len(docs)
-        except Exception as e:
+        except TypeError as e:
             print('Could not get number of docs for TF-IDF calculations, thus '
                   'making it impossible!')
             raise e
@@ -376,13 +388,13 @@ def tf_idf(tf, df, n_docs):
 
 # PERFORMANCE MEASURES
 def gold_standard_concepts(corpus, allow_discontinuous=True):
-    print('Retrieving gold standard concepts ...')
+    print('Retrieving gold standard concepts ...', end=' ', flush=True)
     lemmatize = WordNetLemmatizer().lemmatize
     all_concepts = set()
+    skipped = set()
     for doc in corpus:
         concepts = doc.get_annotations(anno.Concept)
         for c in concepts:
-            # normalize to lemmaed version
             if allow_discontinuous and isinstance(c, anno.DiscontinuousConcept):
                 c_tokens = [t for span in c.spans
                             for t in doc.get_annotations_at(span, anno.Token)]
@@ -391,15 +403,22 @@ def gold_standard_concepts(corpus, allow_discontinuous=True):
             else:
                 c_tokens = [t for t in doc.get_annotations_at(c.span,
                                                               anno.Token)]
-
+            # concept span does not equal token span, e.g. if only
+            # part of a token constitutes a concept
+            if len(c_tokens) == 0 or \
+                not (c.span[0] == c_tokens[0].span[0]
+                     and c.span[1] == c_tokens[-1].span[1]):
+                skipped.add(c.get_covered_text())
+                continue
+            #  normalize to lemmaed version
             lemmaed_concept = tuple(
                 lemmatize(w.get_covered_text().lower().replace(' ', '_'),
                           pos=w.mapped_pos()) if w.mapped_pos() in 'anvr'
                 else lemmatize(w.get_covered_text().lower().replace(' ', '_'))
                 for w in c_tokens
             )
-            normalized_concept = tuple(w.lower() for w in lemmaed_concept)
-            all_concepts.add(normalized_concept)
+            all_concepts.add(lemmaed_concept)
+    print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries.')
     return all_concepts
 
 
@@ -429,5 +448,5 @@ def performance(predicted, expected):
 
 
 if __name__ == '__main__':
-    model = NgramModel.load_model('genia', '_skip_min1')
+    ngram_model = NgramModel.load_model('genia', '_skip_min1')
 

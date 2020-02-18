@@ -3,28 +3,23 @@ import re
 import nltk
 import sys
 from corpusstats import ngramcounting, stats
-from datautils import dataio, datapaths
+from datautils import dataio as dio
 from tqdm import tqdm
 
-CORPUS_NAME = 'pmc'
+CORPUS = 'genia'
+MODEL_SPEC = '_noskip_all'
 FREQ_THRESHOLD = 5
-LEN_THRESHOLD = 4
-C_THRESHOLD = 3
+LEN_THRESHOLD = 5
+C_THRESHOLD = 2
 
 
-if CORPUS_NAME.lower() == 'genia':
-    corpus = dataio.load_genia_corpus()
-elif CORPUS_NAME.lower() == 'craft':
-    corpus = dataio.load_craft_corpus()
-else:
-    corpus = None
+load_corpus = dio.load_genia_corpus if CORPUS.lower() == 'genia' \
+    else dio.load_craft_corpus if CORPUS.lower() == 'craft'\
+    else dio.load_genia_corpus
+corpus = load_corpus()
+gold = stats.gold_standard_concepts(corpus)
 
+model = stats.NgramModel.load_model(CORPUS, MODEL_SPEC)
 
-if corpus:
-    gold = stats.gold_standard_concepts(corpus)
-    bigram_lls = stats.calculate_ngram_log_likelihoods(
-        set(((subgram[0],), (subgram[1],)) for ngram in gold
-            for subgram in nltk.bigrams(ngram)), ngrams
-    )
-    c_values = stats.calculate_c_values(gold, C_THRESHOLD, ngrams)
-    tf_idfs = stats.calculate_tf_idf_values(gold, corpus, ngrams)
+c_values = stats.calculate_c_values(gold, C_THRESHOLD, model)
+tf_idfs = stats.calculate_tf_idf_values(gold, corpus, model)
