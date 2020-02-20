@@ -4,6 +4,7 @@ import re
 from bs4 import BeautifulSoup
 import bs4
 import os
+from nltk.corpus import brown
 import multiprocessing as mp
 from tqdm import tqdm
 from datautils.annotations import *
@@ -446,15 +447,56 @@ def pmc_corpus_ids(path=PATH_TO_PMC):
     return doc_ids
 
 
+def load_brown_doc(doc_id, only_text=False):
+    sentences = [[tuple(t.split('/')) for t in s.strip().split()]
+                 for s in brown.open(doc_id).read().split('\n') if s != '']
+    text = '\n'.join(' '.join(t[0] for t in sent) for sent in sentences)
+    doc = Document(doc_id, text)
+    if only_text:
+        return doc
+    offset = 0
+    for sent in sentences:
+        if not sent:
+            # for some reason, an empty string makes it through in doc ca19.
+            # this block handles that
+            offset += 1
+            continue
+        sent_begin = offset
+        for t in sent:
+            token_length = len(t[0])
+            pos = t[1]
+            doc.add_annotation(
+                Token(doc, (offset, offset + token_length), pos.upper())
+            )
+            offset += token_length + 1
+        sent_end = offset - 1
+        doc.add_annotation(Sentence(doc, (sent_begin, sent_end)))
+
+    return doc
+
+
+def brown_corpus_ids():
+    return brown.fileids()
+
+
+def load_brown_corpus(text_only=False, as_generator=False):
+    if as_generator:
+        return (load_brown_doc(doc_id, only_text=text_only)
+                for doc_id in brown_corpus_ids())
+    else:
+        print('Loading Brown corpus ...')
+        return [load_brown_doc(doc_id, only_text=text_only)
+                for doc_id in brown_corpus_ids()]
+
+
+
 # test_craft = load_craft_document('11319941')
 # test_craft_corpus = load_craft_corpus()
-test_genia = load_genia_document('98038749')
-# for id_ in genia_corpus_ids():
-#     print(id_)
-#     load_genia_document(id_)
+# test_genia = load_genia_document('98038749')
 # test_genia_corpus = load_genia_corpus()
 # test_pmc = load_pmc_document('PMC1249490')
 # test_pmc_corpus = pmc_corpus_ids()
+# test_brown_corpus = load_brown_corpus()
 
 
 

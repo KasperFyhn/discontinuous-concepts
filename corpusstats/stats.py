@@ -52,8 +52,7 @@ class NgramModel:
         if not include_skipgrams:
             return self.model.occurrencecount(ngram)
         else:
-            skipgram_counts = sum(self.freq(sg)
-                                  for sg in self.skipgrams_with(ngram))
+            skipgram_counts = sum(self.skipgrams_with(ngram).values())
             return self.model.occurrencecount(ngram) + skipgram_counts
 
     def prob(self, ngram, smoothing=1):
@@ -118,8 +117,9 @@ class NgramModel:
                 ngram[:1] + tuple(sg) + ngram[-1:] for sg
                 in NgramModel._skipgram_combinations(obligatory, n_skips)
             ]
-
-        return skipgrams
+        skipgrams_in_model = {sg: self.freq(sg) for sg in skipgrams
+                              if self.freq(sg) > 0}
+        return skipgrams_in_model
 
     def contingency_table(self, ngram_a, ngram_b, smoothing=1, skipgrams=False):
         """
@@ -138,8 +138,7 @@ class NgramModel:
         elif isinstance(ngram_b, str):
             ngram_b = self.encoder.buildpattern(ngram_b)
 
-        base = len(ngram_a)
-        n = self.total_counts(base, skipgrams)
+        n = self.total_counts(1)  # TODO: re-evaluate this decision!
         a_b = self.freq(ngram_a + ngram_b, skipgrams) + smoothing
         a_not_b = self.freq(ngram_a, skipgrams) - a_b + smoothing * 2
         if a_not_b <= 0: a_not_b = smoothing
@@ -314,11 +313,17 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
 
 # C-VALUE
 def calculate_c_values(candidate_terms: list, threshold: float,
-                       counter: NgramCounter):
-    """Return a dict of terms and their C-values, calculated as in Frantzi et
+                       model: NgramModel, skipgrams=False):
+    """
+    Return a dict of terms and their C-values, calculated as in Frantzi et
     al. (2000). If a term's C-value is below the threshold, it will not be used
-    for further calculations, but be included in the returned dict with a value
-    of -1."""
+    for further calculations, but be included in the returned dict.
+    :param candidate_terms: list of tuples containing candidate terms
+    :param threshold: C-value treshold; can be a floating point number
+    :param model: NgramModel-like object with a .freq(ngram) method
+    :param skipgrams: Whether to include skipgram counts or not
+    :return: dict of candidate terms and their C-value
+    """
     # make sure that the candidate terms list is sorted
     print('Calculating C-values')
     candidate_terms = sorted(candidate_terms, key=lambda x: len(x),
@@ -326,7 +331,7 @@ def calculate_c_values(candidate_terms: list, threshold: float,
     final_terms = {}
     nested_ngrams = {t: set() for t in candidate_terms}
     for t in tqdm(candidate_terms, file=sys.stdout):
-        c = c_value(t, nested_ngrams, counter)
+        c = c_value(t, nested_ngrams, model, skipgrams=skipgrams)
         final_terms[t] = c
         if c >= threshold:
             for ng in NgramCounter.make_ngrams(t, max_n=len(t)-1):
@@ -336,24 +341,24 @@ def calculate_c_values(candidate_terms: list, threshold: float,
     return final_terms
 
 
-def c_value(term: tuple, nested_ngrams: dict, counter: NgramCounter):
+def c_value(term: tuple, nested_ngrams: dict, model, skipgrams=False):
     """Calculate C-value as in Frantzi et al. (2000)."""
     if not nested_ngrams[term]:
-        return math.log2(len(term)) * counter.freq(term)
+        return math.log2(len(term)) * model.freq(term, skipgrams)
     else:
         nested_in = nested_ngrams[term]
-        return math.log2(len(term)) * (counter.freq(term) - sum(
-            rectified_freq(s, nested_ngrams, counter) for s in nested_in
-        ) / len(nested_in))
+        return math.log2(len(term)) * (model.freq(term, skipgrams) - sum(
+            rectified_freq(s, nested_ngrams, model, skipgrams)
+            for s in nested_in) / len(nested_in))
 
 
-def rectified_freq(ngram: tuple, nested_ngrams: dict, counter: NgramCounter):
+def rectified_freq(ngram: tuple, nested_ngrams: dict, model, skipgrams=False):
     """Return the frequency of the ngram occurring as non-nested."""
     if not nested_ngrams[ngram]:
-        return counter.freq(ngram)
+        return model.freq(ngram, skipgrams)
     else:
-        return counter.freq(ngram) - sum(
-            rectified_freq(sg, nested_ngrams, counter)
+        return model.freq(ngram) - sum(
+            rectified_freq(sg, nested_ngrams, model, skipgrams)
             for sg in nested_ngrams[ngram])
 
 

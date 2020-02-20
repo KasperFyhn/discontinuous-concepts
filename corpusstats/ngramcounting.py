@@ -35,11 +35,13 @@ _CORPUS_IDS = {'craft': dataio.craft_corpus_ids,
 # filtering
 POS_TAG_MAP = annotations.POS_TAG_MAP
 LEMMA = WordNetLemmatizer().lemmatize
-FILTERS = {
-    'UNSILO': re.compile('([na]|(ng)|(vn))+n'),
-    'simple': re.compile('[an]+n'),
-    'liberal': re.compile('[^x]*n')
-}
+
+
+class FILTERS:
+    UNSILO = re.compile('([na]|(ng)|(vn))+n')
+    simple = re.compile('[an]+n')
+    liberal = re.compile('[^x]*n')
+
 FILTER = None
 
 
