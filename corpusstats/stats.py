@@ -2,13 +2,14 @@ import math
 import sys
 from nltk import WordNetLemmatizer
 from tqdm import tqdm
-import datautils.annotations as anno
+from datautils import annotations as anno, dataio
 from corpusstats.ngramcounting import NgramCounter
 import corpusstats.ngramcounting as ngc
 import multiprocessing as mp
 import corpusstats.ngrammodel as ngm
 import colibricore as cc
 from typing import Union
+
 
 ################################################################################
 # CONVENIENCE CLASSES
@@ -58,7 +59,7 @@ class NgramModel:
     def prob(self, ngram, smoothing=1):
         if isinstance(ngram, str):
             ngram = tuple(ngram.split())
-        return (self.freq(ngram) + smoothing)\
+        return (self.freq(ngram) + smoothing) \
                / (self.total_counts(len(ngram)) + smoothing)
 
     def total_counts(self, of_length, skipgrams=False):
@@ -95,7 +96,7 @@ class NgramModel:
                 combos.append(with_skip)
             else:
                 for c in NgramModel._skipgram_combinations(
-                        obl_left, skips_left-1, with_skip):
+                        obl_left, skips_left - 1, with_skip):
                     combos.append(c)
 
         return combos
@@ -270,6 +271,7 @@ def log_likelihood(p, k, n, log_base=math.e):
               'Try smoothing perhaps?')
         raise e
 
+
 # # see Dunning 1993
 # A_B, A_notB, notA_B, notA_notB = 110, 2442, 111, 29114
 # test1 = log_likelihood_ratio(ContingencyTable(A_B, notA_B, A_notB, notA_notB))
@@ -295,11 +297,11 @@ def mutual_information(contingency_table: ContingencyTable):
 
 def ngram_pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1,
                                        extra_count=0):
-    p_x_and_y = (model.freq(ngram_a + ngram_b) + extra_count + smoothing)\
+    p_x_and_y = (model.freq(ngram_a + ngram_b) + extra_count + smoothing) \
                 / model.total_counts(len(ngram_a))
-    p_x = (model.freq(ngram_a) + smoothing)\
+    p_x = (model.freq(ngram_a) + smoothing) \
           / model.total_counts(len(ngram_a))
-    p_y = (model.freq(ngram_b) + smoothing)\
+    p_y = (model.freq(ngram_b) + smoothing) \
           / model.total_counts(len(ngram_b))
     return math.log(p_x_and_y / (p_x * p_y))
 
@@ -391,6 +393,34 @@ def tf_idf(tf, df, n_docs):
     return tf * n_docs / (df + 1)
 
 
+# WEIRDNESS and GLOSSEX
+_brown_model = None  # used by weirdness()
+
+
+def weirdness(term, target_model, reference_model=_brown_model, smoothing=1):
+    """
+    Returns Weirdness measure as calculated in Ahmad et al. (1999)
+    :param term: the term; can be multi-word term.
+    :param target_model: NgramModel for the target corpus.
+    :param reference_model: NgramModel for the reference corpus. Default is the
+    Brown corpus from NLTK.
+    :param smoothing: smoothing of counts; if set to 0, it may result in a
+    ZeroDivisionError.
+    :return: positive float
+    """
+
+    if not reference_model:
+        print('Loading reference model for the first time.')
+        global _brown_model
+        _brown_model = NgramModel.load_model('brown', 'noskip_all')
+
+    target_freq = target_model.freq(term) + smoothing
+    reference_freq = reference_model.freq(term) + smoothing
+    target_length = target_model.total_counts(1) + smoothing
+    reference_length = reference_model.total_counts(1) + smoothing
+
+    return (target_freq * reference_length) / (reference_freq * target_length)
+
 # PERFORMANCE MEASURES
 def gold_standard_concepts(corpus, allow_discontinuous=True):
     print('Retrieving gold standard concepts ...', end=' ', flush=True)
@@ -411,8 +441,8 @@ def gold_standard_concepts(corpus, allow_discontinuous=True):
             # concept span does not equal token span, e.g. if only
             # part of a token constitutes a concept
             if len(c_tokens) == 0 or \
-                not (c.span[0] == c_tokens[0].span[0]
-                     and c.span[1] == c_tokens[-1].span[1]):
+                    not (c.span[0] == c_tokens[0].span[0]
+                         and c.span[1] == c_tokens[-1].span[1]):
                 skipped.add(c.get_covered_text())
                 continue
             #  normalize to lemmaed version
@@ -454,4 +484,3 @@ def performance(predicted, expected):
 
 if __name__ == '__main__':
     ngram_model = NgramModel.load_model('genia', '_skip_min1')
-
