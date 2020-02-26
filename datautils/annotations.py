@@ -78,23 +78,14 @@ class Document:
                 return []
 
         if annotation_type == Constituent:
-            max_index = len(self._text)
-            potential = {a for li in [self._span_starts[index]
-                                      for index in range(span[0]+1)]
-                                     + [self._span_ends[index]
-                                        for index in range(span[1], max_index)]
-                         for a in li if isinstance(a, annotation_type)
-                         and a.span[0] <= span[0] and span[1] <= a.span[1]}
+
             start = span[0]
             end = span[1]
-            closest = None
-            closest_dist = None
-            for p in potential:
-                dist = abs(p.span[0] - start) + abs(p.span[1] - end)
-                if not closest or dist < closest_dist:
-                    closest = p
-                    closest_dist = dist
-            return [closest]
+            for i in range(start, -1, -1):
+                for annotation in self._span_starts[i]:
+                    if (isinstance(annotation, Constituent)
+                            and annotation.span[1] >= end):
+                        return [annotation]
 
         else:
             return sorted(
@@ -183,11 +174,17 @@ class Sentence(Annotation):
 
 POS_TAG_MAP = defaultdict(lambda: 'x')
 POS_TAG_MAP.update({
-    'NN': 'n', 'NNS': 'n', 'NNP': 'n', 'NNPS': 'n',
-    'JJ': 'a', 'JJR': 'a', 'JJS': 'a',
-    'VB': 'v', 'VBD': 'v', 'VBG': 'v', 'VBN': 'v', 'VBP': 'v', 'VBZ': 'v',
+    'NN': 'n', 'NNS': 'n', 'NNP': 'n', 'NNPS': 'n',  # nouns
+    'JJ': 'a', 'JJR': 'a', 'JJS': 'a',  # adjectives
+    'VB': 'v', 'VBD': 'v', 'VBG': 'v', 'VBN': 'v', 'VBP': 'v',  # verbs
+    'VBZ': 'v',  # verbs
     'RB': 'r', 'RBS': 'r', 'RBR': 'r',  # adv's
-    'CD': 'd', 'CC': 'c', 'POS': 'g', 'IN': 'p', 'DT': 't'
+    'CD': 'd',  # cardinal digit
+    'CC': 'c',  # coordinating conjunction
+    'POS': 'g',  # possessive marker
+    'IN': 'p',  # preposition
+    'DT': 't',  # determiner
+    ',': ',', '.': '.'  # punctuation
 })
 
 
@@ -250,3 +247,8 @@ class Constituent(Annotation):
             c.__str__(depth=depth+1) if isinstance(c, Constituent) else str(c)
             for c in self.constituents
         )
+
+    def structure(self):
+        return '(' + self.label + ' ' + ' '.join(
+            c.structure() if type(c) == Constituent else c.mapped_pos()
+            for c in self.constituents) + ')'
