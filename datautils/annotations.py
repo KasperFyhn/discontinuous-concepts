@@ -129,6 +129,9 @@ class Annotation:
         end = self.span[1]
         return self.document.get_text()[start:end]
 
+    def get_tokens(self):
+        return self.document.get_annotations_at(self.span, Token)
+
     def get_context(self, char_window=40):
         start = self.span[0] - char_window
         if start < 0:
@@ -184,7 +187,8 @@ POS_TAG_MAP.update({
     'POS': 'g',  # possessive marker
     'IN': 'p',  # preposition
     'DT': 't',  # determiner
-    ',': ',', '.': '.'  # punctuation
+    ',': ',', '.': '.',  # punctuation
+    '-NONE-': 'Ø'  # null element
 })
 
 
@@ -218,6 +222,10 @@ class DiscontinuousConcept(Concept):
         super().__init__(document, full_span, label)
         self.spans = spans
 
+    def get_concept_tokens(self):
+        return [t for span in self.spans
+                for t in self.document.get_annotations_at(span, Token)]
+
     def get_concept(self):
         """Returns only the concept, disregarding tokens within the full span
         that are not part of the concept."""
@@ -250,5 +258,5 @@ class Constituent(Annotation):
 
     def structure(self):
         return '(' + self.label + ' ' + ' '.join(
-            c.structure() if type(c) == Constituent else c.mapped_pos()
+            c.structure() if isinstance(c, Constituent) else c.mapped_pos()
             for c in self.constituents) + ')'
