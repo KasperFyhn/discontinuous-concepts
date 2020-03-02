@@ -3,6 +3,8 @@ import re
 import sys
 from collections import defaultdict
 
+import nltk
+
 
 class Document:
     """A representation of a document which contains raw text and annotations"""
@@ -156,6 +158,13 @@ class Annotation:
         doc.add_annotation(another_annotation)
         return another_annotation
 
+    def __eq__(self, other):
+        return type(self) == type(other) and self.document == other.document\
+               and self.span == other.span
+
+    def __hash__(self):
+        return hash((type(self), self.document, self.span))
+
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
                + str(self.span) + ')'
@@ -175,7 +184,14 @@ class Sentence(Annotation):
     pass
 
 
-POS_TAG_MAP = defaultdict(lambda: 'x')
+class PosTagMap(dict):
+    def __getitem__(self, item):
+        if item in self.keys():
+            return super(PosTagMap, self).__getitem__(item)
+        else:
+            return item
+
+POS_TAG_MAP = PosTagMap()
 POS_TAG_MAP.update({
     'NN': 'n', 'NNS': 'n', 'NNP': 'n', 'NNPS': 'n',  # nouns
     'JJ': 'a', 'JJR': 'a', 'JJS': 'a',  # adjectives
@@ -188,8 +204,10 @@ POS_TAG_MAP.update({
     'IN': 'p',  # preposition
     'DT': 't',  # determiner
     ',': ',', '.': '.',  # punctuation
+    '*': 'f',  # affix/part of elliptic compound word
     '-NONE-': 'Ø'  # null element
 })
+LEMMATIZER = nltk.WordNetLemmatizer()
 
 
 class Token(Annotation):
@@ -197,9 +215,25 @@ class Token(Annotation):
     def __init__(self, document: Document, span: tuple, pos_tag: str):
         super().__init__(document, span)
         self.pos = pos_tag
+        self._lemma = None
 
     def mapped_pos(self):
         return POS_TAG_MAP[self.pos]
+
+    def lemma(self):
+        if not self._lemma:
+            normalized = self.get_covered_text().lower()
+            pos = self.mapped_pos()
+            lemma = LEMMATIZER.lemmatize(normalized, pos) if pos in 'anvr'\
+                else LEMMATIZER.lemmatize(normalized)
+            self._lemma = lemma
+        return self._lemma
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self.pos == other.pos
+
+    def __hash__(self):
+        return hash((type(self), self.document, self.span, self.pos))
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos
@@ -210,14 +244,14 @@ class Token(Annotation):
 
 class Concept(Annotation):
 
-    def __init__(self, document: Document, span: tuple, label: str):
+    def __init__(self, document: Document, span: tuple, label: str = ''):
         super().__init__(document, span)
         self.label = label
 
 
 class DiscontinuousConcept(Concept):
 
-    def __init__(self, document: Document, spans: list, label: str):
+    def __init__(self, document: Document, spans: list, label: str = ''):
         full_span = (spans[0][0], spans[-1][1])
         super().__init__(document, full_span, label)
         self.spans = spans
@@ -231,6 +265,12 @@ class DiscontinuousConcept(Concept):
         that are not part of the concept."""
 
         return ' '.join(self.document.get_text()[s[0]:s[1]] for s in self.spans)
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self.spans == other.spans
+
+    def __hash__(self):
+        return hash((type(self), self.document, self.span, self.spans))
 
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_concept() + "'"\

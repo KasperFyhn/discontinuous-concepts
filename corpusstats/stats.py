@@ -32,7 +32,7 @@ class NgramModel:
 
     @classmethod
     def load_model(cls, name, model_spec_name=''):
-        model, encoder, decoder = ngm.load_model(name, model_spec_name)
+        model, encoder, decoder = ngm.load_colibri_model(name, model_spec_name)
         return cls(model, encoder, decoder)
 
     def decode_pattern(self, pattern):

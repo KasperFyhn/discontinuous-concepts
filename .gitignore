@@ -1,8 +1,6 @@
 __pycache__
 .idea
 
-corpusstats/ngramdata/PMC*
-corpusstats/ngramdata/brown_skip_all.colibri.patternmodel
-corpusstats/colibribug.py
+corpusstats/ngramdata/*
 
 temp.py

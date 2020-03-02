@@ -7,7 +7,6 @@ import os
 import multiprocessing as mp
 
 DATA_FOLDER = os.path.dirname(__file__) + '/ngramdata/'
-WORKING_DATA = DATA_FOLDER
 LEMMA = WordNetLemmatizer().lemmatize
 N_CORE = os.cpu_count()
 
@@ -89,12 +88,12 @@ def encode_corpus(name, corpus_ids, doc_loader):
     encoder.encodefile(tokenized_corpus_file, encoded_corpus_file)
 
 
-def make_ngram_model(name, model_spec_name='', model_options=None):
+def make_colibri_model(name, model_spec_name='', model_options=None):
     encoded_corpus_file = DATA_FOLDER + name + '.colibri.dat'
     model_file = DATA_FOLDER + name + model_spec_name + '.colibri.patternmodel'
 
     if not model_options:
-        model_options = colibricore.PatternModelOptions(mintokens=2,
+        model_options = colibricore.PatternModelOptions(mintokens=0,
                                                         maxlength=5)
     model = colibricore.UnindexedPatternModel()
     model.train(encoded_corpus_file, model_options)
@@ -103,7 +102,7 @@ def make_ngram_model(name, model_spec_name='', model_options=None):
     return model
 
 
-def load_model(name, model_spec_name=''):
+def load_colibri_model(name, model_spec_name=''):
     model_file = DATA_FOLDER + name + model_spec_name + '.colibri.patternmodel'
     class_file = DATA_FOLDER + name + '.colibri.cls'
 

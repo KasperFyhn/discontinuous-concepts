@@ -120,9 +120,7 @@ def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False, as_generator=False):
 
     if text_only:
         print('Loading CRAFT corpus without annotations ...')
-        return tqdm(
-            (load_craft_document(doc_id, only_text=True) for doc_id in ids),
-            total=len(ids))
+        return [load_craft_document(doc_id, only_text=True) for doc_id in ids]
 
     if as_generator:
         return (load_craft_document(doc_id) for doc_id in ids)
