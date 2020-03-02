@@ -205,7 +205,7 @@ POS_TAG_MAP.update({
     'DT': 't',  # determiner
     ',': ',', '.': '.',  # punctuation
     '*': 'f',  # affix/part of elliptic compound word
-    '-NONE-': 'Ø'  # null element
+    '-NONE-': 'Ø', '': 'Ø'  # null element
 })
 LEMMATIZER = nltk.WordNetLemmatizer()
 

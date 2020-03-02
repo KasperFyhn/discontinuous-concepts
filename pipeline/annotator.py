@@ -29,14 +29,13 @@ class CoreNlpServer:
         if constituency_parsing: annotation_types.append('parse')
         if dependency_parsing: annotation_types.append('depparse')
         self.anno_types = ','.join(annotation_types)
-        self._server = self._start_server(self.anno_types, show_output)
+        self._server = self._start_server(show_output)
 
-    @staticmethod
-    def _start_server(annotation_types: str, show_output=False):
+    def _start_server(self, show_output=False):
         command = ['java', '-mx8g', '-cp', "*",
                    'edu.stanford.nlp.pipeline.StanfordCoreNLPServer',
-                   '-preload ' + annotation_types + ' -timeout 15000']
-        os.chdir(CoreNlpServer.CORE_NLP_PATH)
+                   '-preload ' + self.anno_types + ' -timeout 15000']
+        os.chdir(self.CORE_NLP_PATH)
         print('Opening CoreNLP annotator server. It may still be running '
               'after termination if shut-down is not stated explicitly.')
         server_process = subprocess.Popen(command, stdout=subprocess.DEVNULL,
@@ -86,8 +85,13 @@ class CoreNlpServer:
 
         try:
             parser = nltk.CoreNLPParser(tagtype='pos')
+            doc_text = doc.get_text().replace('%', '%25')
+            # the reason for replacing percentage signs is that it screws up
+            # spans in the text
+            # TODO: replacing percentage signs is sort of a hacky fix;
+            #  make it more robust!
             annotations = parser.api_call(
-                doc.get_text(), properties={
+                doc_text, properties={
                     'annotators': annotation_types,
                     'ssplit.newlineIsSentenceBreak': 'two'}, timeout=15000
             )
@@ -163,9 +167,9 @@ class CandidateDiscConcept(anno.DiscontinuousConcept, CandidateConcept):
 class SimpleCandidateConceptExtractor:
 
     class FILTERS:
-        UNSILO = re.compile('([na]|(ng)|(vn))+n')
+        unsilo = re.compile('([na]|(ng)|(vn))+n')
         simple = re.compile('[an]+n')
-        liberal = re.compile('[^x]*n')
+        liberal = re.compile('[navrdgp]*n')
 
     def __init__(self, pos_tag_filter=None, min_n=1, max_n=5):
         self.pos_filter = pos_tag_filter
@@ -195,6 +199,8 @@ class SimpleCandidateConceptExtractor:
                     candidates.append(CandidateConcept(doc, ngram_tokens))
         return candidates
 
+    def candidate_types(self):
+        return set(self.concept_index.keys())
 
 
 def make_ngrams(tokens, min_n=1, max_n=5):

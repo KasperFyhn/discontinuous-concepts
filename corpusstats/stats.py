@@ -6,7 +6,7 @@ from datautils import annotations as anno, dataio
 from corpusstats.ngramcounting import NgramCounter
 import corpusstats.ngramcounting as ngc
 import multiprocessing as mp
-import corpusstats.ngrammodel as ngm
+import corpusstats.ngramstats as ngm
 import colibricore as cc
 from typing import Union
 
@@ -295,17 +295,6 @@ def mutual_information(contingency_table: ContingencyTable):
     return mi
 
 
-def ngram_pointwise_mutual_information(ngram_a, ngram_b, model, smoothing=1,
-                                       extra_count=0):
-    p_x_and_y = (model.freq(ngram_a + ngram_b) + extra_count + smoothing) \
-                / model.total_counts(len(ngram_a))
-    p_x = (model.freq(ngram_a) + smoothing) \
-          / model.total_counts(len(ngram_a))
-    p_y = (model.freq(ngram_b) + smoothing) \
-          / model.total_counts(len(ngram_b))
-    return math.log(p_x_and_y / (p_x * p_y))
-
-
 def pointwise_mutual_information(contingency_table: ContingencyTable):
     p_x_and_y = contingency_table.a_b / contingency_table.n()
     p_x = contingency_table.marginal_a() / contingency_table.n()
@@ -365,8 +354,8 @@ def rectified_freq(ngram: tuple, nested_ngrams: dict, model, skipgrams=False):
 
 
 # TF-IDF
-def calculate_tf_idf_values(candidate_terms, docs, counter, n_docs=None):
-    term_frequency = {t: counter.freq(t) for t in candidate_terms}
+def calculate_tf_idf_values(candidate_terms, docs, model, n_docs=None):
+    term_frequency = {t: model.freq(t) for t in candidate_terms}
     doc_frequency = {t: 0 for t in candidate_terms}
     if not n_docs:
         try:
@@ -397,7 +386,7 @@ def tf_idf(tf, df, n_docs):
 _brown_model = None  # used by weirdness()
 
 
-def weirdness(term, target_model, reference_model=_brown_model, smoothing=1):
+def weirdness(term, target_model, reference_model=None, smoothing=1):
     """
     Returns Weirdness measure as calculated in Ahmad et al. (1999)
     :param term: the term; can be multi-word term.
@@ -410,9 +399,11 @@ def weirdness(term, target_model, reference_model=_brown_model, smoothing=1):
     """
 
     if not reference_model:
-        print('Loading reference model for the first time.')
         global _brown_model
-        _brown_model = NgramModel.load_model('brown', 'noskip_all')
+        if not _brown_model:
+            print('Loading reference model for the first time.')
+            _brown_model = NgramModel.load_model('brown', '_noskip_all')
+        reference_model = _brown_model
 
     target_freq = target_model.freq(term) + smoothing
     reference_freq = reference_model.freq(term) + smoothing
@@ -420,6 +411,7 @@ def weirdness(term, target_model, reference_model=_brown_model, smoothing=1):
     reference_length = reference_model.total_counts(1) + smoothing
 
     return (target_freq * reference_length) / (reference_freq * target_length)
+
 
 # PERFORMANCE MEASURES
 def gold_standard_concepts(corpus, allow_discontinuous=True):
@@ -481,6 +473,3 @@ def performance(predicted, expected):
     print('Recall:     ', round(recall, 3))
     print('F1-measure: ', round(f1, 3))
 
-
-if __name__ == '__main__':
-    ngram_model = NgramModel.load_model('genia', '_skip_min1')
