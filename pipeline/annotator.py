@@ -6,6 +6,7 @@ import requests
 import os
 from pathlib import Path
 from datautils import annotations as anno
+from stats.ngramcounting import make_ngrams
 import subprocess
 from tqdm import tqdm
 import multiprocessing as mp
@@ -203,12 +204,7 @@ class SimpleCandidateConceptExtractor:
         return set(self.concept_index.keys())
 
 
-def make_ngrams(tokens, min_n=1, max_n=5):
-    """Make n-grams from a list of tokens."""
-    n_grams = []
-    for n in range(min_n, max_n + 1):
-        n_grams += list(nltk.ngrams(tokens, n))
-    return n_grams
+
 
 
 
