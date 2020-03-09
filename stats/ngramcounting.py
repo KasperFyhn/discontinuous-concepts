@@ -93,12 +93,14 @@ def encode_corpus(name, corpus_ids, doc_loader):
     encoder.encodefile(tokenized_corpus_file, encoded_corpus_file)
 
 
-def make_colibri_model(name, model_spec_name='', model_options=None):
+def make_colibri_model(name, model_spec_name='', mintokens=0, maxlength=5,
+                       skipgrams=False):
     encoded_corpus_file = DATA_FOLDER + name + '.colibri.dat'
     model_file = DATA_FOLDER + name + model_spec_name + '.colibri.patternmodel'
 
-    if not model_options:
-        model_options = cc.PatternModelOptions(mintokens=0, maxlength=5)
+    model_options = cc.PatternModelOptions(mintokens=mintokens,
+                                           maxlength=maxlength,
+                                           doskipgrams_exhaustive=skipgrams)
     model = cc.UnindexedPatternModel()
     model.train(encoded_corpus_file, model_options)
     model.write(model_file)

@@ -109,11 +109,17 @@ class Document:
     def get_text(self):
         return self._text
 
+    def __eq__(self, other):
+        return self.id == other.id and self.get_text() == other.get_text()
+
+    def __hash__(self):
+        return hash((self.id, self._text))
+
     def __str__(self):
         return self._text
 
     def __repr__(self):
-        return f'Document({self.id})'
+        return f'Document({self.id}: "{self._text[:30]}...")'
 
 
 class Annotation:
@@ -163,7 +169,7 @@ class Annotation:
                and self.span == other.span
 
     def __hash__(self):
-        return hash((type(self), self.document, self.span))
+        return hash((type(self), self.document.id, self.span))
 
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
@@ -233,7 +239,7 @@ class Token(Annotation):
         return super().__eq__(other) and self.pos == other.pos
 
     def __hash__(self):
-        return hash((type(self), self.document, self.span, self.pos))
+        return hash((type(self), self.document.id, self.span, self.pos))
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos
@@ -247,6 +253,10 @@ class Concept(Annotation):
     def __init__(self, document: Document, span: tuple, label: str = ''):
         super().__init__(document, span)
         self.label = label
+
+    def normalized_concept(self):
+        tokens = self.get_tokens()
+        return tuple(t.lemma() for t in tokens)
 
 
 class DiscontinuousConcept(Concept):
@@ -263,14 +273,18 @@ class DiscontinuousConcept(Concept):
     def get_concept(self):
         """Returns only the concept, disregarding tokens within the full span
         that are not part of the concept."""
-
         return ' '.join(self.document.get_text()[s[0]:s[1]] for s in self.spans)
+
+    def normalized_concept(self):
+        tokens = self.get_concept_tokens()
+        return tuple(t.lemma() for t in tokens)
 
     def __eq__(self, other):
         return super().__eq__(other) and self.spans == other.spans
 
     def __hash__(self):
-        return hash((type(self), self.document, self.span, self.spans))
+        return hash((type(self), self.document.id, self.span,
+                     tuple(self.spans)))
 
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_concept() + "'"\

@@ -1,5 +1,6 @@
-from stats import conceptstats, ngramcounting
+from stats import conceptstats, ngramcounting, analysisstats
 from datautils import dataio as dio
+import math
 import nltk
 import pandas as pd
 import seaborn as sns
@@ -7,7 +8,7 @@ from tqdm import tqdm
 
 CORPUS = 'genia'
 MODEL_SPEC = '_skip_all'
-FREQ_THRESHOLD = 5
+FREQ_THRESHOLD = 3
 SKIPGRAMS = True
 
 load_corpus = dio.load_genia_corpus if CORPUS.lower() == 'genia' \
@@ -70,6 +71,29 @@ data = pd.DataFrame({'bigram': bigrams, 'in_concept': is_concept_bigram,
                      'type': concept_types, 'pmi': pmis, 'll': lls,
                      'frequency': freqs, 'skipgram_frequency': skip_freqs})
 
-sns.boxplot(x='type', y='pmi', data=data, showfliers=False)
+sns.boxplot(x='type', y='frequency', data=data, showfliers=False)
 
-# data.to_csv('/home/kasper/Desktop/test.csv')
+cc_pmi = [v for v in data.where(data['type'] == 'cc')['pmi']
+          if not math.isnan(v)]
+both_pmi = [v for v in data.where(data['type'] == 'both')['pmi']
+            if not math.isnan(v)]
+neither_pmi = [v for v in data.where(data['type'] == 'neither')['pmi']
+               if not math.isnan(v)]
+
+in_concept_pmi = [v for v in data.where(data['in_concept'] == True)['pmi']
+                  if not math.isnan(v)]
+outside_concept_pmi = [v for v in data.where(data['in_concept'] == False)['pmi']
+                       if not math.isnan(v)]
+
+
+cc_ll = [v for v in data.where(data['type'] == 'cc')['ll']
+          if not math.isnan(v)]
+both_ll = [v for v in data.where(data['type'] == 'both')['ll']
+            if not math.isnan(v)]
+neither_ll = [v for v in data.where(data['type'] == 'neither')['ll']
+               if not math.isnan(v)]
+
+in_concept_ll = [v for v in data.where(data['in_concept'] == True)['ll']
+                  if not math.isnan(v)]
+outside_concept_ll = [v for v in data.where(data['in_concept'] == False)['ll']
+                       if not math.isnan(v)]

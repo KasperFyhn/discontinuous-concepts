@@ -139,8 +139,9 @@ def calculate_tf_idf_values(candidate_terms, docs, model, n_docs=None):
 
     print('Gathering numbers for TF-IDF calculations')
     with mp.Pool() as pool:
-        for dc in tqdm(pool.imap_unordered(ngramcounting.count_ngrams_in_doc, docs),
-                       total=n_docs, file=sys.stdout):
+        for dc in tqdm(
+                pool.imap_unordered(ngramcounting.count_ngrams_in_doc, docs),
+                total=n_docs, file=sys.stdout):
             for term in dc.keys():
                 if term in doc_frequency:
                     doc_frequency[term] += 1
@@ -183,6 +184,11 @@ def weirdness(term, target_model, reference_model=None, smoothing=1):
     reference_length = reference_model.total_counts(1) + smoothing
 
     return (target_freq * reference_length) / (reference_freq * target_length)
+
+
+def glossex(term, target_model, reference_model=None, smoothing=1):
+    return sum(math.log(weirdness(w, target_model, reference_model, smoothing))
+               for w in term) / len(term)
 
 
 # PERFORMANCE MEASURES

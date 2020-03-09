@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from datautils import annotations as anno
 from stats.ngramcounting import make_ngrams
+from stats import conceptstats
 import subprocess
 from tqdm import tqdm
 import multiprocessing as mp
@@ -148,11 +149,8 @@ class CandidateConcept(anno.Concept):
         concept = anno.Concept(self.document, self.span)
         self.document.add_annotation(concept)
 
-    def normalized_concept(self):
-        return tuple(t.lemma() for t in self.covered_tokens)
 
-
-class CandidateDiscConcept(anno.DiscontinuousConcept, CandidateConcept):
+class CandidateDiscConcept(anno.DiscontinuousConcept):
 
     def __init__(self, document, token_chunks):
         spans = [(tokens[0].span[0], tokens[-1].span[-1])
@@ -165,35 +163,55 @@ class CandidateDiscConcept(anno.DiscontinuousConcept, CandidateConcept):
         self.document.add_annotation(concept)
 
 
-class SimpleCandidateConceptExtractor:
+class AbstractCandidateExtractor:
 
-    class FILTERS:
-        unsilo = re.compile('([na]|(ng)|(vn))+n')
-        simple = re.compile('[an]+n')
-        liberal = re.compile('[navrdgp]*n')
-
-    def __init__(self, pos_tag_filter=None, min_n=1, max_n=5):
-        self.pos_filter = pos_tag_filter
-        self.min_n = min_n
-        self.max_n = max_n
+    def __init__(self):
         self.doc_index = defaultdict(list)
         self.concept_index = defaultdict(list)
         self.all_candidates = []
 
     def extract_candidates(self, doc):
-        candidates = self._extract_candidates(doc, self.pos_filter, self.min_n,
-                                              self.max_n)
+        candidates = self._extract_candidates(doc)
         for c in candidates:
-            self.doc_index[c.document].append(c)
-            self.concept_index[c.normalized_concept()].append(c)
-            self.all_candidates.append(c)
+            self.add(c)
 
-    @staticmethod
-    def _extract_candidates(doc, pos_filter, min_n=1, max_n=5):
+    def add(self, concept):
+        self.doc_index[concept.document].append(concept)
+        self.concept_index[concept.normalized_concept()].append(concept)
+        self.all_candidates.append(concept)
+
+    def _extract_candidates(self, doc):
+        pass
+
+    def accept_candidates(self, accepted_candidates):
+        for concept in accepted_candidates:
+            for instance in self.concept_index[concept]:
+                instance.accept()
+
+    def update(self, other):
+        for c in other.all_candidates:
+            self.add(c)
+
+
+class CandidateExtractor(AbstractCandidateExtractor):
+
+    class FILTERS:
+        unsilo = re.compile(r'([na]|(ng)|(vn))+n')
+        simple = re.compile(r'[an]+n')
+        liberal = re.compile(r'[navrdgp]*n')
+
+    def __init__(self, pos_tag_filter=None, min_n=1, max_n=5):
+        super().__init__()
+        self.pos_filter = pos_tag_filter
+        self.min_n = min_n
+        self.max_n = max_n
+
+    def _extract_candidates(self, doc):
+        pos_filter = self.pos_filter
         candidates = []
         for sentence in doc.get_annotations(anno.Sentence):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
-            ngrams = make_ngrams(tokens, min_n,  max_n)
+            ngrams = make_ngrams(tokens, self.min_n,  self.max_n)
             for ngram_tokens in ngrams:
                 pos_sequence = ''.join(t.mapped_pos() for t in ngram_tokens)
                 if re.fullmatch(pos_filter, pos_sequence):
@@ -204,8 +222,72 @@ class SimpleCandidateConceptExtractor:
         return set(self.concept_index.keys())
 
 
+class DiscCandidateExtractor(AbstractCandidateExtractor):
+
+    class FILTERS:
+        basic_coordinated = (re.compile(r'([an]c[an]n+)'),
+                             (1, 3))
+
+    def __init__(self, pos_tag_filters, max_n=5):
+        super().__init__()
+        self.pos_filters = pos_tag_filters
+        self.min_n = 3
+        self.max_n = max_n
+
+    def _extract_candidates(self, doc):
+        candidates = []
+        for sentence in doc.get_annotations(anno.Sentence):
+            tokens = doc.get_annotations_at(sentence.span, anno.Token)
+            ngrams = make_ngrams(tokens, self.min_n, self.max_n)
+            for ngram_tokens in ngrams:
+                pos_sequence = ''.join(t.mapped_pos() for t in ngram_tokens)
+                for pos_filter in self.pos_filters:
+
+                    if re.fullmatch(pos_filter[0], pos_sequence):
+                        skip = pos_filter[1]
+                        chunks = [ngram_tokens[:skip[0]],
+                                  ngram_tokens[skip[1]:]]
+                        candidates.append(CandidateDiscConcept(doc, chunks))
+
+        return candidates
 
 
+class AbstractCandidateRanker:
+
+    def __init__(self, candidate_extractor):
+        self.candidates = candidate_extractor
+        self._ranked = []
+
+    def rank(self, *args):
+        pass
+
+    def filter_at_value(self, value):
+        return [c for c, v in self._ranked if v > value]
+
+    def keep_proportion(self, proportion: float):
+        cutoff = int(len(self._ranked) * proportion)
+        return [c for c, v in self._ranked[:cutoff]]
+
+    def keep_n_highest(self, n: int):
+        return self._ranked[:n]
+
+
+class CValueRanker(AbstractCandidateRanker):
+
+    def __init__(self, candidate_extractor, c_value_threshold, ngram_model,
+                 include_skipgrams):
+        super().__init__(candidate_extractor)
+        self._c_threshold = c_value_threshold
+        self._ngram_model = ngram_model
+        self._skipgrams = include_skipgrams
+
+    def rank(self, *args):
+        c_values = conceptstats.calculate_c_values(
+            self.candidates.candidate_types(), self._c_threshold,
+            self._ngram_model, self._skipgrams
+        )
+        self._ranked = sorted(c_values.items(), reverse=True,
+                              key=lambda x: x[1])
 
 
 

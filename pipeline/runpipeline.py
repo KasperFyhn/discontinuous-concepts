@@ -1,56 +1,67 @@
-import datautils.dataio as dio
+from datautils import dataio as dio, annotations as anno
 from stats import ngramcounting, conceptstats
-from pipeline.annotator import CoreNlpServer, SimpleCandidateConceptExtractor
+from pipeline import annotator
+from pipeline.evaluation import CorpusReport
 from tqdm import tqdm
 
 # RUN CONFIGURATIONS
-CORPUS = 'craft'
+CORPUS = 'genia'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
 C_VALUE_THRESHOLD = 3
+FREQ_THRESHOLD = 0
+MAX_N = 6
 
+USE_PMC_CORPUS = False
 
 print('STEP 1: ANNOTATE DOCUMENTS')
 if CORPUS.lower() == 'genia':
     docs = dio.load_genia_corpus(text_only=True)
 else:
     docs = dio.load_craft_corpus(text_only=True)
-with CoreNlpServer() as server:
+with annotator.CoreNlpServer() as server:
     docs = server.annotate_batch(docs)
 
 
-print('\nSTEP 2: MAKE N-GRAM MODEL')
-colibri_model_name = CORPUS + 'v' + RUN_VERSION
-spec_name = '_std'
-doc_dict = {doc.id: doc for doc in docs}
-ngramcounting.encode_corpus(colibri_model_name, list(doc_dict.keys()),
-                            lambda x: doc_dict[x])
-ngramcounting.make_colibri_model(colibri_model_name, spec_name)
-ngram_model = conceptstats.NgramModel.load_model(colibri_model_name, spec_name)
+print('\nSTEP 2: MAKE/LOAD N-GRAM MODEL')
+if USE_PMC_CORPUS:
+    ngram_model = conceptstats.NgramModel.load_model('PMC', '_min20')
+else:
+    colibri_model_name = CORPUS + 'v' + RUN_VERSION
+    spec_name = '_std'
+    doc_dict = {doc.id: doc for doc in docs}
+    ngramcounting.encode_corpus(colibri_model_name, list(doc_dict.keys()),
+                                lambda x: doc_dict[x])
+    ngramcounting.make_colibri_model(colibri_model_name, spec_name,
+                                     mintokens=FREQ_THRESHOLD, maxlength=MAX_N,
+                                     skipgrams=SKIPGRAMS)
+    ngram_model = conceptstats.NgramModel.load_model(colibri_model_name,
+                                                     spec_name)
 
 
 print('\nSTEP 3: EXTRACT CANDIDATE CONCEPTS')
-candidate_extractor = SimpleCandidateConceptExtractor(
-    pos_tag_filter=SimpleCandidateConceptExtractor.FILTERS.unsilo
+extractor = annotator.CandidateExtractor(
+    pos_tag_filter=annotator.CandidateExtractor.FILTERS.simple,
+    max_n=MAX_N
+)
+dc_extractor = annotator.DiscCandidateExtractor(
+    pos_tag_filters=[],
+    max_n=MAX_N
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
-    candidate_extractor.extract_candidates(doc)
-n_candidates = len(candidate_extractor.all_candidates)
-n_docs = len(docs)
-candidate_terms = candidate_extractor.candidate_types()
-print(f'Extracted {n_candidates} candidate concepts ({len(candidate_terms)} '
-      f'types) from {n_docs} documents.')
+    extractor.extract_candidates(doc)
+    dc_extractor.extract_candidates(doc)
+
+extractor.update(dc_extractor)
 
 
-print('\nSTEP 4: RANK AND FILTER CANDIDATE CONCEPTS')
-c_values = conceptstats.calculate_c_values(candidate_terms, C_VALUE_THRESHOLD,
-                                           ngram_model, skipgrams=SKIPGRAMS)
-tf_idf_values = conceptstats.calculate_tf_idf_values(candidate_terms, docs,
-                                                     ngram_model)
-final = {c for c, v in c_values.items() if v > C_VALUE_THRESHOLD}
-print(f'Filtered out {len(candidate_terms)} concept types, thus leaving '
-      f'{len(final)} concept types in the final list.')
+print('\nSTEP 4: RANK, FILTER AND ADD CANDIDATE CONCEPTS')
+ranker = annotator.CValueRanker(extractor, C_VALUE_THRESHOLD, ngram_model,
+                                SKIPGRAMS)
+ranker.rank()
+final = ranker.filter_at_value(C_VALUE_THRESHOLD)
+extractor.accept_candidates(final)
 
 
 print('\nSTEP 5: EVALUATE')
@@ -58,9 +69,12 @@ if CORPUS.lower() == 'genia':
     gold_docs = dio.load_genia_corpus()
 else:
     gold_docs = dio.load_craft_corpus()
+
+corpus_report = CorpusReport(anno.Concept, docs, gold_docs)
+corpus_report.performance_summary()
+
 gold_concepts = conceptstats.gold_standard_concepts(gold_docs)
 
 conceptstats.performance(final, gold_concepts)
-conceptstats.precision_at_k(sorted(final, reverse=True, key=lambda x: c_values[x]),
-                            gold_concepts, (100, 200, 300, 500, 1000, 5000, 10000))
+conceptstats.precision_at_k(final, gold_concepts, (100, 200, 500, 1000, 5000))
 
