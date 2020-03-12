@@ -5,19 +5,21 @@ from pipeline.evaluation import CorpusReport
 from tqdm import tqdm
 
 # RUN CONFIGURATIONS
-CORPUS = 'genia'
+CORPUS = 'acl'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
-C_VALUE_THRESHOLD = 3
+C_VALUE_THRESHOLD = 1
 FREQ_THRESHOLD = 0
-MAX_N = 6
+MAX_N = 5
 
 USE_PMC_CORPUS = False
 
 print('STEP 1: ANNOTATE DOCUMENTS')
 if CORPUS.lower() == 'genia':
     docs = dio.load_genia_corpus(text_only=True)
+elif CORPUS.lower() == 'acl':
+    docs = dio.load_acl_corpus(text_only=True)
 else:
     docs = dio.load_craft_corpus(text_only=True)
 with annotator.CoreNlpServer() as server:
@@ -42,16 +44,18 @@ else:
 
 print('\nSTEP 3: EXTRACT CANDIDATE CONCEPTS')
 extractor = annotator.CandidateExtractor(
-    pos_tag_filter=annotator.CandidateExtractor.FILTERS.simple,
+    pos_tag_filter=annotator.CandidateExtractor.FILTERS.unsilo,
     max_n=MAX_N
 )
 dc_extractor = annotator.DiscCandidateExtractor(
-    pos_tag_filters=[],
+    pos_tag_filters=[annotator.DiscCandidateExtractor.FILTERS.coord_unsilo],
     max_n=MAX_N
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
     extractor.extract_candidates(doc)
     dc_extractor.extract_candidates(doc)
+print(f'Extracted {len(extractor.all_candidates)} continuous candidates and '
+      f'{len(dc_extractor.all_candidates)} discontinuous candidates.')
 
 extractor.update(dc_extractor)
 
@@ -61,12 +65,17 @@ ranker = annotator.CValueRanker(extractor, C_VALUE_THRESHOLD, ngram_model,
                                 SKIPGRAMS)
 ranker.rank()
 final = ranker.filter_at_value(C_VALUE_THRESHOLD)
-extractor.accept_candidates(final)
+mesh_matcher = annotator.MeshMatcher(extractor)
+mesh_matcher.verify_candidates()
+
+extractor.accept_candidates(set(final).union(mesh_matcher.verified()))
 
 
 print('\nSTEP 5: EVALUATE')
 if CORPUS.lower() == 'genia':
     gold_docs = dio.load_genia_corpus()
+elif CORPUS.lower() == 'acl':
+    gold_docs = dio.load_acl_corpus()
 else:
     gold_docs = dio.load_craft_corpus()
 

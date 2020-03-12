@@ -9,13 +9,19 @@ class EvaluationReport:
         self.ok = self.predicted.intersection(self.expected)
 
     def precision(self):
-        return len(self.ok) / len(self.predicted)
+        try:
+            return len(self.ok) / len(self.predicted)
+        except ZeroDivisionError:
+            return 0
 
     def false_positives(self):
         return self.predicted.difference(self.ok)
 
     def recall(self):
-        return len(self.ok) / len(self.expected)
+        try:
+            return len(self.ok) / len(self.expected)
+        except ZeroDivisionError:
+            return 0
 
     def false_negatives(self):
         return self.expected.difference(self.ok)
@@ -26,11 +32,7 @@ class DocumentReport(EvaluationReport):
     def __init__(self, annotation_type: type, predicted_doc: anno.Document,
                  expected_doc: anno.Document):
         predicted = predicted_doc.get_annotations(annotation_type)
-        if not predicted:
-            predicted = {None}
         expected = expected_doc.get_annotations(annotation_type)
-        if not expected:
-            expected = {None}
         super().__init__(predicted, expected)
         self.predicted_doc = predicted_doc
         self.expected_doc = expected_doc
@@ -89,10 +91,15 @@ def gold_standard_concepts(corpus, discontinuous=True):
             if not discontinuous and isinstance(c, anno.DiscontinuousConcept):
                 continue  # skip DiscontinuousConcept if not allowed
             else:
-                all_concepts.add(c.normalized_concept())
-            # concept span does not equal token span, e.g. if only
-            # part of a token constitutes a concept
-
+                c_tokens = c.get_tokens()
+                if len(c_tokens) == 0 or \
+                        not (c.span[0] == c_tokens[0].span[0]
+                             and c.span[1] == c_tokens[-1].span[1]):
+                    # concept span does not equal token span, e.g. if only
+                    # part of a token constitutes a concept
+                    skipped.add(c.get_covered_text())
+                else:
+                    all_concepts.add(c.normalized_concept())
     print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries.')
     return all_concepts
 

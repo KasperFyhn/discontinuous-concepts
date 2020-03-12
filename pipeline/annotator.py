@@ -5,7 +5,7 @@ import nltk
 import requests
 import os
 from pathlib import Path
-from datautils import annotations as anno
+from datautils import annotations as anno, dataio
 from stats.ngramcounting import make_ngrams
 from stats import conceptstats
 import subprocess
@@ -225,8 +225,15 @@ class CandidateExtractor(AbstractCandidateExtractor):
 class DiscCandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
-        basic_coordinated = (re.compile(r'([an]c[an]n+)'),
-                             (1, 3))
+        coord_unsilo = (
+            re.compile(r'(?:[navg]+,?)+c[navg]n+'),
+            re.compile(r'(?:([navg]+),?)(?:[navg]+,?)*c[navg]+?(n+)'))
+        coord_simple = (re.compile(r'(?:[an]+,?)+cnn+'),
+                        re.compile(r'(?:([an]+),?)(?:[an]+,?)*cn(n+)'))
+        coord_liberal = (
+            re.compile(r'(?:[navrdg]+,?)+c[navrdg]n+'),
+            re.compile(r'(?:([navrdg]+),?)(?:[navrdg]+,?)*c[navrdg](n+)')
+        )
 
     def __init__(self, pos_tag_filters, max_n=5):
         super().__init__()
@@ -238,16 +245,36 @@ class DiscCandidateExtractor(AbstractCandidateExtractor):
         candidates = []
         for sentence in doc.get_annotations(anno.Sentence):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
-            ngrams = make_ngrams(tokens, self.min_n, self.max_n)
-            for ngram_tokens in ngrams:
-                pos_sequence = ''.join(t.mapped_pos() for t in ngram_tokens)
-                for pos_filter in self.pos_filters:
+            for f in self.pos_filters:
+                sent_candidates = self._apply_filter(f, tokens, doc)
+                candidates += sent_candidates
 
-                    if re.fullmatch(pos_filter[0], pos_sequence):
-                        skip = pos_filter[1]
-                        chunks = [ngram_tokens[:skip[0]],
-                                  ngram_tokens[skip[1]:]]
-                        candidates.append(CandidateDiscConcept(doc, chunks))
+        return candidates
+
+    def _apply_filter(self, filter_tuple, tokens, doc):
+        super_pattern = filter_tuple[0]
+        concept_pattern = filter_tuple[1]
+
+        candidates = []
+
+        full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
+        super_match = re.finditer('.*?(' + super_pattern.pattern + ').*',
+                                  full_pos_seq)
+        super_match_strings = [tokens[m.start(1):m.end(1)] for m in super_match]
+
+        for ngram in (ngram for sm in super_match_strings
+                      for ngram in make_ngrams(sm, max_n=len(sm))):
+            pos_seq = ''.join(t.mapped_pos() for t in ngram)
+            match = re.fullmatch(super_pattern, pos_seq)
+            if match:
+                concept_match = re.fullmatch(concept_pattern, pos_seq)
+                dc_token_chunks = []
+                for group_number in range(1, len(concept_match.groups()) + 1):
+                    start = concept_match.start(group_number)
+                    end = concept_match.end(group_number)
+                    dc_token_chunks.append(ngram[start:end])
+                dc = CandidateDiscConcept(doc, dc_token_chunks)
+                candidates.append(dc)
 
         return candidates
 
@@ -280,16 +307,47 @@ class CValueRanker(AbstractCandidateRanker):
         self._c_threshold = c_value_threshold
         self._ngram_model = ngram_model
         self._skipgrams = include_skipgrams
+        self._c_values = None
 
     def rank(self, *args):
         c_values = conceptstats.calculate_c_values(
             self.candidates.candidate_types(), self._c_threshold,
             self._ngram_model, self._skipgrams
         )
+        self._c_values = c_values
         self._ranked = sorted(c_values.items(), reverse=True,
                               key=lambda x: x[1])
 
+    def c_value(self, term):
+        if self._c_values:
+            if isinstance(term, str):
+                term = tuple(term.split())
+            return self._c_values[term]
 
 
+class OntologyMatcher:
+
+    def __init__(self, candidate_extractor):
+        self.candidates = candidate_extractor
+        self._verified = set()
+
+    def verify_candidates(self, *args):
+        pass
+
+    def verified(self):
+        return self._verified
+
+
+class MeshMatcher(OntologyMatcher):
+
+    def __init__(self, candidate_extractor):
+        super().__init__(candidate_extractor)
+        self._mesh_terms = dataio.load_mesh_terms()
+
+    def verify_candidates(self, *args):
+        for ct in tqdm(self.candidates.candidate_types(),
+                       desc='Matching candidates against MeSH'):
+            if ct in self._mesh_terms:
+                self._verified.add(ct)
 
 
