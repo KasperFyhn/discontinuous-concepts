@@ -8,7 +8,8 @@ from nltk.corpus import brown
 import multiprocessing as mp
 from tqdm import tqdm
 from datautils.annotations import *
-from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA, PATH_TO_PMC
+from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA, PATH_TO_PMC,\
+    PATH_TO_MESH, PATH_TO_ACL
 
 
 def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
@@ -139,15 +140,15 @@ def craft_corpus_ids(path=PATH_TO_CRAFT):
     return [os.path.basename(name[:-4]) for name in glob.glob(path + 'txt/*')]
 
 
-def _flatten(li):
-    return sum(([x] if not isinstance(x, list)
-                else _flatten(x) for x in li), [])
-
-
 with open(PATH_TO_GENIA + 'MEDLINE-to-PMID') as map_file:
     _MEDLINE_TO_PMID = eval(map_file.read())
 with open(PATH_TO_GENIA + 'constituent-quarantine') as quarantine_file:
     _CONST_QUARANTINE = {str(q) for q in eval(quarantine_file.read())}
+
+
+def _flatten(li):
+    return sum(([x] if not isinstance(x, list)
+                else _flatten(x) for x in li), [])
 
 
 def _resolve_child(tag, offset, doc):
@@ -486,6 +487,142 @@ def load_brown_corpus(text_only=False, as_generator=False):
         return [load_brown_doc(doc_id, only_text=text_only)
                 for doc_id in brown_corpus_ids()]
 
+
+def load_acl_doc(doc_id, only_text=False, path=PATH_TO_ACL, file_number='1'):
+    with open(path + 'split_files/' + doc_id + f'_{file_number}.vert') as file:
+        lines = [line.strip() for line in file if not line == '']
+
+    sentences = []
+    sent_begin, sent_end = None, None
+    concepts = []
+    open_cons, cons_end = [], None
+    tokens = []
+    text = ''
+    offset = 0
+
+    for line in lines[1:-1]:
+        if line.startswith('<s'):  # new sentence starts
+            sent_begin = offset
+        elif line.startswith('</s>'):  # sentence ends
+            sent_end = offset - 1
+            sentences.append((sent_begin, sent_end))
+        elif line.startswith('<term'):  # new concept starts
+            open_cons.append(offset)
+        elif line.startswith('</term>'):  # concept ends
+            if text[-1] == ' ':  # space in the end
+                cons_end = offset - 1
+            else:
+                cons_end = offset
+            concepts.append((open_cons.pop(), cons_end))
+        elif line.startswith('<g/>'):  # no space
+            text = text[:-1]  # delete last added space
+            offset -= 1
+        elif line.startswith('<'):  # another kind of tag, e.g. <doc
+            continue  # skip
+        else:
+            token, _, pos = line.split()
+            text += token + ' '
+            token_begin = offset
+            token_end = offset + len(token)
+            tokens.append(((token_begin, token_end), pos))
+            offset = len(text)
+    text = text[:-1]  # delete last added space after last sentence
+
+    doc = Document(doc_id, text)
+    if only_text:
+        return doc
+
+    for sent_span in sentences:
+        doc.add_annotation(Sentence(doc, sent_span))
+    for token_span_pos in tokens:
+        token_span, pos = token_span_pos
+        doc.add_annotation(Token(doc, token_span, pos))
+    for cons_span in concepts:
+        doc.add_annotation(Concept(doc, cons_span))
+
+    if file_number == '1' \
+            and os.path.isfile(path + 'split_files/' + doc_id + f'_2.vert'):
+        second_doc = load_acl_doc(doc_id, file_number='2')
+        for c in second_doc.get_annotations(Concept):
+            doc.add_annotation(Concept(doc, c.span))
+    return doc
+
+
+def acl_corpus_ids(path=PATH_TO_ACL):
+    return sorted(set(os.path.basename(name[:-7])
+                      for name in glob.glob(path + 'split_files/*')))
+
+
+def load_acl_corpus(text_only=False):
+    return [load_acl_doc(id_, only_text=text_only)
+            for id_ in tqdm(acl_corpus_ids(), desc='Loading ACL 2.0 corpus')]
+
+
+def _read_mesh_terms(file, main_label, synonym_label):
+    _lemma = nltk.WordNetLemmatizer()
+
+    terms = {}
+    current_term = ''
+    for line in file:
+        line = line.strip()
+        if line.startswith(main_label):
+            current_term = line.split('=')[1].strip().lower()
+            term_tuple = tuple(current_term.split())
+            terms[term_tuple] = current_term
+            normalized_term = tuple(_lemma.lemmatize(w) for w in term_tuple)
+            terms[normalized_term] = current_term
+
+        elif line.startswith(synonym_label):
+            synonym = line.split('=')[1].strip().lower()
+            if ', ' in synonym:
+                first, last = synonym.split(', ', maxsplit=1)
+                synonym = ' '.join([last, first])
+            elif '|' in synonym:
+                synonym = synonym.split('|', maxsplit=1)[0]
+            synonym_tuple = tuple(synonym.split())
+            terms[synonym_tuple] = current_term
+    return terms
+
+
+def load_mesh_terms(descriptors=True, qualifiers=True, supplementary=True,
+                    path=PATH_TO_MESH):
+    print('Loading MeSH terms ...')
+    terms = {}
+    if descriptors:
+        with open(path + 'd2020.bin') as f:
+            terms.update(_read_mesh_terms(f, 'MH', 'ENTRY'))
+    if qualifiers:
+        with open(path + 'q2020.bin') as f:
+            terms.update(_read_mesh_terms(f, 'SH', 'QX'))
+    if supplementary:
+        with open(path + 'c2020.bin') as f:
+            terms.update(_read_mesh_terms(f, 'NM', 'SY'))
+
+    return terms
+
+
+def corpus_stats(corpora: dict):
+    print('name      n_docs      tokens   concepts   types    disc.con   types'
+          '    unig.con   types')
+    print('-------------------------------------------------------------------'
+          '--------------------')
+    for name, corpus in corpora.items():
+        n_docs = len(corpus)
+        n_tokens = len([t for doc in corpus
+                        for t in doc.get_annotations(Token)])
+        concepts = [c for doc in corpus for c in doc.get_annotations(Concept)]
+        dcs = [c for c in concepts if isinstance(c, DiscontinuousConcept)]
+        unigram_concepts = [c for c in concepts
+                            if len(c.normalized_concept()) == 1]
+        n_concepts = len(concepts)
+        n_dcs = len(dcs)
+        n_conc_types = len(set(c.normalized_concept() for c in concepts))
+        n_dc_types = len(set(c.normalized_concept() for c in dcs))
+        n_uni_concepts = len(unigram_concepts)
+        n_uni_types = len(set(c.normalized_concept() for c in unigram_concepts))
+
+        print(f'{name:8}{n_docs:8}{n_tokens:12}{n_concepts:11}{n_conc_types:8}'
+              f'{n_dcs:12}{n_dc_types:8}{n_uni_concepts:12}{n_uni_types:8}')
 
 
 # test_craft = load_craft_document('11319941')
