@@ -168,7 +168,7 @@ class NgramModel:
         if isinstance(ngram, str):
             ngram = tuple(ngram.split())
         return (self.freq(ngram) + smoothing) \
-               / (self.total_counts(len(ngram)) + smoothing)
+               / (self.total_counts(1) + smoothing)
 
     def total_counts(self, of_length, skipgrams=False):
         if not skipgrams:
@@ -352,6 +352,20 @@ def make_ngrams(tokens, min_n=1, max_n=5):
     for n in range(min_n, max_n + 1):
         n_grams += list(nltk.ngrams(tokens, n))
     return n_grams
+
+
+def make_skipgrams(tokens, min_n=2, max_n=5, min_k=1, max_k=None):
+    if min_k < 1:
+        min_k = 1
+    if not max_k:
+        max_k = len(tokens) - min_n
+    skipgrams = []
+    for n in range(min_n, max_n+1):
+        max_k_for_n = len(tokens) - n
+        max_k_for_n = min(max_k_for_n, max_k)
+        for k in range(min_k, max_k_for_n + 1):
+            skipgrams += list(nltk.skipgrams(tokens, n, k))
+    return skipgrams
 
 
 def count_ngrams_in_doc(d, pos_tag_filter=None, min_n=1, max_n=5):

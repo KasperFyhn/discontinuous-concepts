@@ -13,14 +13,7 @@ ONLY_DISCONTINUOUS = True
 SAMPLE_CATEGORIES = {'concept', 'super', 'cross-count'}
 CROSS_COUNTING = ['concept', 'super']
 
-if CORPUS.lower() == 'craft':
-    load_docs = dataio.load_craft_corpus
-elif CORPUS.lower() == 'genia':
-    load_docs = dataio.load_genia_corpus
-else:
-    print('No valid corpus stated. Exiting ...')
-    sys.exit(1)
-docs = load_docs()
+docs = dataio.load_corpus(CORPUS)
 if CORPUS.lower() == 'genia':
     # not all docs in genia get Constituent annotations; if so, leave them out
     docs = [doc for doc in docs if doc.get_annotations(anno.Constituent)]

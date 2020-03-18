@@ -206,7 +206,7 @@ POS_TAG_MAP.update({
     'RB': 'r', 'RBS': 'r', 'RBR': 'r',  # adv's
     'CD': 'd',  # cardinal digit
     'CC': 'c',  # coordinating conjunction
-    'POS': 'g',  # possessive marker
+    'POS': 's',  # possessive marker
     'IN': 'p',  # preposition
     'DT': 't',  # determiner
     ',': ',', '.': '.',  # punctuation
@@ -266,6 +266,7 @@ class DiscontinuousConcept(Concept):
         super().__init__(document, full_span, label)
         self.spans = spans
 
+    # TODO: refactor such that the super class methods are overridden instead
     def get_concept_tokens(self):
         return [t for span in self.spans
                 for t in self.document.get_annotations_at(span, Token)]

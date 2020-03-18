@@ -18,6 +18,10 @@ def iqr_outlier_filter(dist):
     return [v for v in dist if lower_bound < v < upper_bound]
 
 
+def filtered_dist(dataframe, column, allowed_value):
+    return [v for v in dataframe[dataframe[column] == allowed_value][column]]
+
+
 def prepare_latex_boxplot(dist, show_outliers=False):
     filtered_dist = iqr_outlier_filter(dist)
 

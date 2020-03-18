@@ -81,14 +81,17 @@ class TypesReport(EvaluationReport):
 
 
 # PERFORMANCE MEASURES
-def gold_standard_concepts(corpus, discontinuous=True):
+def gold_standard_concepts(corpus, continuous=True, discontinuous=True,
+                           exclude_unigrams=True):
     print('Retrieving gold standard concepts ...', end=' ', flush=True)
     all_concepts = set()
     skipped = set()
     for doc in corpus:
         concepts = doc.get_annotations(anno.Concept)
         for c in concepts:
-            if not discontinuous and isinstance(c, anno.DiscontinuousConcept):
+            if not continuous and not isinstance(c, anno.DiscontinuousConcept):
+                continue  # skip non-DiscontinuousConcept if not allowed
+            elif not discontinuous and isinstance(c, anno.DiscontinuousConcept):
                 continue  # skip DiscontinuousConcept if not allowed
             else:
                 c_tokens = c.get_tokens()
@@ -101,6 +104,8 @@ def gold_standard_concepts(corpus, discontinuous=True):
                 else:
                     all_concepts.add(c.normalized_concept())
     print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries.')
+    if exclude_unigrams:
+        all_concepts = {c for c in all_concepts if not len(c) == 1}
     return all_concepts
 
 

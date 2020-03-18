@@ -375,18 +375,15 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     return doc
 
 
-def genia_corpus_ids(path=PATH_TO_GENIA, skip_quarantine=True):
+def genia_corpus_ids(path=PATH_TO_GENIA):
     ids = [os.path.basename(name[:-4])
            for name in glob.glob(os.path.join(path, 'pos+concepts', '*'))]
-    if skip_quarantine:
-        ids = [id_ for id_ in ids if int(id_) not in _CONST_QUARANTINE]
     return ids
 
 
 def load_genia_corpus(path=PATH_TO_GENIA, text_only=False, as_generator=False):
 
-    ids = [os.path.basename(name[:-4])
-           for name in glob.glob(os.path.join(path, 'pos+concepts', '*'))]
+    ids = genia_corpus_ids(path=path)
 
     if text_only:
         print('Loading GENIA corpus without annotations ...')
@@ -553,9 +550,13 @@ def acl_corpus_ids(path=PATH_TO_ACL):
                       for name in glob.glob(path + 'split_files/*')))
 
 
-def load_acl_corpus(text_only=False):
-    return [load_acl_doc(id_, only_text=text_only)
-            for id_ in tqdm(acl_corpus_ids(), desc='Loading ACL 2.0 corpus')]
+def load_acl_corpus(path=PATH_TO_ACL, text_only=False, as_generator=False):
+    if as_generator:
+        return (load_acl_doc(id_) for id_ in tqdm(acl_corpus_ids(path=path)))
+    else:
+        return [load_acl_doc(id_, only_text=text_only)
+                for id_ in tqdm(acl_corpus_ids(path=path),
+                                desc='Loading ACL 2.0 corpus')]
 
 
 def _read_mesh_terms(file, main_label, synonym_label):
@@ -599,6 +600,17 @@ def load_mesh_terms(descriptors=True, qualifiers=True, supplementary=True,
             terms.update(_read_mesh_terms(f, 'NM', 'SY'))
 
     return terms
+
+
+def load_corpus(name: str, only_text=False, as_generator=False):
+    corpus_loaders = {'genia': load_genia_corpus, 'craft': load_craft_corpus,
+                      'acl': load_acl_corpus, 'brown': load_brown_corpus}
+    try:
+        loader = corpus_loaders[name.lower()]
+        return loader(text_only=only_text, as_generator=as_generator)
+    except KeyError as e:
+        print('Corpus name not recognized!')
+        raise e
 
 
 def corpus_stats(corpora: dict):

@@ -9,6 +9,7 @@ import seaborn as sns
 import pandas as pd
 
 CORPUS = 'PMC'
+MODEL_NAME = CORPUS
 MODEL_SPEC = '_min20'
 FREQ_THRESHOLD = 5
 MAX_LEN = 5
@@ -16,10 +17,7 @@ MIN_LEN = 1
 C_THRESHOLD = 2
 
 
-load_corpus = dio.load_genia_corpus if CORPUS.lower() == 'genia' \
-    else dio.load_craft_corpus if CORPUS.lower() == 'craft'\
-    else dio.load_craft_corpus
-corpus = load_corpus()
+corpus = load_corpus(CORPUS.lower())
 print('Excluding discontinuous concepts: ', end='')
 cont_concepts = conceptstats.gold_standard_concepts(corpus, allow_discontinuous=False)
 print('Only discontinuous concepts: ', end='')

@@ -6,8 +6,6 @@ from datautils import annotations as anno, dataio
 from stats import ngramcounting
 from stats.ngramcounting import NgramModel, ContingencyTable, make_ngrams
 import multiprocessing as mp
-import stats.ngramcounting as ngm
-import colibricore as cc
 
 
 ################################################################################
@@ -21,7 +19,7 @@ def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1):
     return log_likelihood_ratio(table)
 
 
-def log_likelihood_ratio(contingency_table):
+def log_likelihood_ratio(contingency_table: ContingencyTable):
     """The binomial case of the log-likelihood ratio (see Dunning 1993)."""
     k_1 = contingency_table.a_b
     k_2 = contingency_table.not_a_b
@@ -65,6 +63,13 @@ def mutual_information(contingency_table: ContingencyTable):
         marginal_p2 = mf2 / contingency_table.n()
         mi += joint_prob * math.log(joint_prob / (marginal_p1 * marginal_p2))
     return mi
+
+
+def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1):
+    p_x_and_y = model.prob(ngram1 + ngram2, smoothing=smoothing)
+    p_x = model.prob(ngram1, smoothing=smoothing)
+    p_y = model.prob(ngram2, smoothing=smoothing)
+    return math.log(p_x_and_y / (p_x * p_y))
 
 
 def pointwise_mutual_information(contingency_table: ContingencyTable):
@@ -192,41 +197,6 @@ def glossex(term, target_model, reference_model=None, smoothing=1):
 
 
 # PERFORMANCE MEASURES
-def gold_standard_concepts(corpus, allow_discontinuous=True):
-    print('Retrieving gold standard concepts ...', end=' ', flush=True)
-    lemmatize = WordNetLemmatizer().lemmatize
-    all_concepts = set()
-    skipped = set()
-    for doc in corpus:
-        concepts = doc.get_annotations(anno.Concept)
-        for c in concepts:
-            if allow_discontinuous and isinstance(c, anno.DiscontinuousConcept):
-                c_tokens = [t for span in c.spans
-                            for t in doc.get_annotations_at(span, anno.Token)]
-            elif isinstance(c, anno.DiscontinuousConcept):
-                continue  # skip DiscontinuousConcept if not allowed
-            else:
-                c_tokens = [t for t in doc.get_annotations_at(c.span,
-                                                              anno.Token)]
-            # concept span does not equal token span, e.g. if only
-            # part of a token constitutes a concept
-            if len(c_tokens) == 0 or \
-                    not (c.span[0] == c_tokens[0].span[0]
-                         and c.span[1] == c_tokens[-1].span[1]):
-                skipped.add(c.get_covered_text())
-                continue
-            #  normalize to lemmaed version
-            lemmaed_concept = tuple(
-                lemmatize(w.get_covered_text().lower().replace(' ', '_'),
-                          pos=w.mapped_pos()) if w.mapped_pos() in 'anvr'
-                else lemmatize(w.get_covered_text().lower().replace(' ', '_'))
-                for w in c_tokens
-            )
-            all_concepts.add(lemmaed_concept)
-    print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries.')
-    return all_concepts
-
-
 def recall_types(predicted, expected):
     pred = set(predicted)
     exp = set(expected)

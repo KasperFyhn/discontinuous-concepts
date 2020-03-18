@@ -6,7 +6,7 @@ import requests
 import os
 from pathlib import Path
 from datautils import annotations as anno, dataio
-from stats.ngramcounting import make_ngrams
+from stats.ngramcounting import make_ngrams, NgramModel
 from stats import conceptstats
 import subprocess
 from tqdm import tqdm
@@ -196,9 +196,9 @@ class AbstractCandidateExtractor:
 class CandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
-        unsilo = re.compile(r'([na]|(ng)|(vn))+n')
+        unsilo = re.compile(r'([na]|(ns)|(vn))+n')
         simple = re.compile(r'[an]+n')
-        liberal = re.compile(r'[navrdgp]*n')
+        liberal = re.compile(r'[navrdsp]*n')
 
     def __init__(self, pos_tag_filter=None, min_n=1, max_n=5):
         super().__init__()
@@ -222,17 +222,56 @@ class CandidateExtractor(AbstractCandidateExtractor):
         return set(self.concept_index.keys())
 
 
-class DiscCandidateExtractor(AbstractCandidateExtractor):
+class HypernymCandidateExtractor(CandidateExtractor):
+
+    def __init__(self, pos_tag_filter=None, min_n=3, max_n=5, max_k=None):
+        super().__init__(pos_tag_filter, min_n, max_n)
+        if not max_k:
+            self.max_k = max_n - 2
+        else:
+            self.max_k = min(max_k, max_n - 2)
+
+    def _extract_candidates(self, doc):
+        basic_candidates = super()._extract_candidates(doc)
+        dc_candidates = []
+        for candidate in basic_candidates:
+            c_tokens = candidate.get_tokens()
+            if len(c_tokens) < 3:
+                continue
+
+            obligatory_token = c_tokens[-1]
+            min_n = min(self.min_n, 2)
+
+            skipgrams = [sg for n in range(min_n, self.max_n)
+                         for sg in nltk.skipgrams(c_tokens, n, self.max_k)
+                         if sg[-1] == obligatory_token]
+            for sg in skipgrams:
+                chunks = [[sg[0]]]
+                for token in sg[1:]:
+                    if token.span[0] - chunks[-1][-1].span[-1] > 1:  # gap
+                        chunks.append([])
+                    chunks[-1].append(token)
+
+                if len(chunks) < 2:
+                    continue
+                else:
+                    dc = CandidateDiscConcept(doc, chunks)
+                    dc_candidates.append(dc)
+
+        return dc_candidates
+
+
+class CoordCandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
         coord_unsilo = (
-            re.compile(r'(?:[navg]+,?)+c[navg]n+'),
-            re.compile(r'(?:([navg]+),?)(?:[navg]+,?)*c[navg]+?(n+)'))
+            re.compile(r'(?:[navs]+,?)+c[navs]n+'),
+            re.compile(r'(?:([navs]+),?)(?:[navs]+,?)*c[navs]+?(n+)'))
         coord_simple = (re.compile(r'(?:[an]+,?)+cnn+'),
                         re.compile(r'(?:([an]+),?)(?:[an]+,?)*cn(n+)'))
         coord_liberal = (
-            re.compile(r'(?:[navrdg]+,?)+c[navrdg]n+'),
-            re.compile(r'(?:([navrdg]+),?)(?:[navrdg]+,?)*c[navrdg](n+)')
+            re.compile(r'(?:[navrds]+,?)+c[navrds]n+'),
+            re.compile(r'(?:([navrds]+),?)(?:[navrds]+,?)*c[navrds](n+)')
         )
 
     def __init__(self, pos_tag_filters, max_n=5):
@@ -251,7 +290,8 @@ class DiscCandidateExtractor(AbstractCandidateExtractor):
 
         return candidates
 
-    def _apply_filter(self, filter_tuple, tokens, doc):
+    @staticmethod
+    def _apply_filter(filter_tuple, tokens, doc):
         super_pattern = filter_tuple[0]
         concept_pattern = filter_tuple[1]
 
