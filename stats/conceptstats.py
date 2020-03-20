@@ -14,8 +14,9 @@ import multiprocessing as mp
 
 
 # LOG-LIKELIHOOD
-def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1):
-    table = model.contingency_table(ngram1, ngram2, smoothing)
+def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1,
+                               skipgrams=False):
+    table = model.contingency_table(ngram1, ngram2, smoothing, skipgrams)
     return log_likelihood_ratio(table)
 
 
@@ -50,9 +51,10 @@ def log_likelihood(p, k, n, log_base=math.e):
 
 
 # MUTUAL INFORMATION
-def ngram_mutual_information(ngram1, ngram2, model, smoothing=1):
-    contingency_table = model.contingency_table(ngram1, ngram2, smoothing)
-    return mutual_information(contingency_table)
+def ngram_mutual_information(ngram1, ngram2, model, smoothing=1,
+                             skipgrams=False):
+    table = model.contingency_table(ngram1, ngram2, smoothing, skipgrams)
+    return mutual_information(table)
 
 
 def mutual_information(contingency_table: ContingencyTable):
@@ -65,10 +67,15 @@ def mutual_information(contingency_table: ContingencyTable):
     return mi
 
 
-def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1):
-    p_x_and_y = model.prob(ngram1 + ngram2, smoothing=smoothing)
-    p_x = model.prob(ngram1, smoothing=smoothing)
-    p_y = model.prob(ngram2, smoothing=smoothing)
+def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1,
+                                       skipgrams=False):
+    if isinstance(ngram1, str):
+        ngram1 = (ngram1,)
+    if isinstance(ngram2, str):
+        ngram2 = (ngram2,)
+    p_x_and_y = model.prob(ngram1 + ngram2, smoothing, skipgrams)
+    p_x = model.prob(ngram1, smoothing, skipgrams)
+    p_y = model.prob(ngram2, smoothing, skipgrams)
     return math.log(p_x_and_y / (p_x * p_y))
 
 
@@ -77,6 +84,18 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
     p_x = contingency_table.marginal_a() / contingency_table.n()
     p_y = contingency_table.marginal_b() / contingency_table.n()
     return math.log(p_x_and_y / (p_x * p_y))
+
+
+def length_normalized_pmi(ngram, model, smoothing, skipgrams=False):
+    if isinstance(ngram, str):
+        ngram = tuple(ngram.split())
+    joint_prob = model.prob(ngram, smoothing, skipgrams)
+    indiv_probs = 1
+    for w in gc:
+        indiv_probs *= model.prob(w, smoothing, skipgrams)
+    pmi = math.log(joint_prob / indiv_probs)
+    pmi_nl = pmi / (len(ngram) - 1)
+    return pmi_nl
 
 
 # C-VALUE

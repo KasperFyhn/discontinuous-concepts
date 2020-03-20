@@ -6,10 +6,12 @@ import math
 import seaborn as sns
 import pandas as pd
 
-CORPUS_NAME = 'craft'
-FREQ_THRESHOLD = 1
+CORPUS_NAME = 'genia'
+FREQ_THRESHOLD = 3
+SKIPGRAMS = True
 MODEL_NAME = CORPUS_NAME
-MODEL_SPEC = '_noskip_all'
+MODEL_SPEC = '_skip_all'
+STOP_LIST = '123456789(),.-+[]{}'
 
 corpus = dataio.load_corpus(CORPUS_NAME.lower())
 dcs = {dc for doc in corpus
@@ -29,27 +31,39 @@ for dc in dcs:
             other_bigrams[bigram].append(dc)
 
 model = ngramcounting.NgramModel.load_model(MODEL_NAME, MODEL_SPEC)
-data_dict = {'bigram': [], 'pmi': [], 'mi': [], 'll': [], 'occurrence': []}
+data_dict = {'bigram': [], 'freq': [], 'max_freq': [], 'mean_freq': [],
+             'pmi': [], 'mi': [], 'll': [], 'occurrence': []}
 all_bigrams = set(gap_bigrams.keys()).union(set(other_bigrams.keys()))
 for bigram in all_bigrams:
-    # skip if not frequent enough
-    if model.freq(bigram) < FREQ_THRESHOLD:
+    # skip if not frequent enough or either element is in STOP_LIST
+    if model.freq(bigram) < FREQ_THRESHOLD \
+            or any((w in STOP_LIST) for w in bigram):
         continue
 
     # normalized form of bigram
     data_dict['bigram'].append(bigram)
 
-    # pmi
+    # frequency measures
+    freq = model.freq(bigram)
+    data_dict['freq'].append(freq)
+    max_freq = max(model.freq(bigram[0]), model.freq(bigram[1]))
+    data_dict['max_freq'].append(max_freq)
+    mean_freq = (model.freq(bigram[0]) + model.freq(bigram[1])) / 2
+    data_dict['mean_freq'].append(mean_freq)
+
+    # association measures
     pmi = conceptstats.ngram_pointwise_mutual_information(bigram[0], bigram[1],
-                                                          model)
+                                                          model,
+                                                          skipgrams=SKIPGRAMS)
     data_dict['pmi'].append(pmi)
-
-    mi = conceptstats.ngram_mutual_information(bigram[0], bigram[1], model)
+    mi = conceptstats.ngram_mutual_information(bigram[0], bigram[1], model,
+                                               skipgrams=SKIPGRAMS)
     data_dict['mi'].append(mi)
+    ll = conceptstats.ngram_log_likelihood_ratio(bigram[0], bigram[1], model,
+                                                 skipgrams=SKIPGRAMS)
+    data_dict['ll'].append(ll)
 
-    ll = conceptstats.ngram_log_likelihood_ratio(bigram[0], bigram[1], model)
-    data_dict['ll'].append(math.log(ll) if not ll <= 0 else None)
-
+    # how it occurs
     if bigram in gap_bigrams and bigram in other_bigrams: type_ = 'both'
     elif bigram in gap_bigrams: type_ = 'only_gap'
     else: type_ = 'only_cont'
@@ -57,4 +71,4 @@ for bigram in all_bigrams:
 
 data = pd.DataFrame(data_dict)
 
-sns.boxplot(x='occurrence', y='ll', data=data, showfliers=False)
+sns.boxplot(x='occurrence', y='pmi', data=data, showfliers=False)

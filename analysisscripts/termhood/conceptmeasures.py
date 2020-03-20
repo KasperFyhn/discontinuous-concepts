@@ -8,16 +8,15 @@ from tqdm import tqdm
 import seaborn as sns
 import pandas as pd
 
-CORPUS = 'PMC'
-MODEL_NAME = CORPUS
+CORPUS = 'genia'
+MODEL_NAME = 'PMC'
 MODEL_SPEC = '_min20'
 FREQ_THRESHOLD = 5
 MAX_LEN = 5
 MIN_LEN = 1
 C_THRESHOLD = 2
 
-
-corpus = load_corpus(CORPUS.lower())
+corpus = dio.load_corpus(CORPUS.lower())
 print('Excluding discontinuous concepts: ', end='')
 cont_concepts = conceptstats.gold_standard_concepts(corpus, allow_discontinuous=False)
 print('Only discontinuous concepts: ', end='')

@@ -325,7 +325,7 @@ class AbstractCandidateRanker:
         self.candidates = candidate_extractor
         self._ranked = []
 
-    def rank(self, *args):
+    def rank(self):
         pass
 
     def filter_at_value(self, value):
@@ -349,7 +349,7 @@ class CValueRanker(AbstractCandidateRanker):
         self._skipgrams = include_skipgrams
         self._c_values = None
 
-    def rank(self, *args):
+    def rank(self):
         c_values = conceptstats.calculate_c_values(
             self.candidates.candidate_types(), self._c_threshold,
             self._ngram_model, self._skipgrams
@@ -363,6 +363,11 @@ class CValueRanker(AbstractCandidateRanker):
             if isinstance(term, str):
                 term = tuple(term.split())
             return self._c_values[term]
+
+
+class VotingCandidateRanker(AbstractCandidateRanker):
+
+    pass
 
 
 class OntologyMatcher:

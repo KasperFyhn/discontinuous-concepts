@@ -164,10 +164,11 @@ class NgramModel:
             skipgram_counts = sum(self.skipgrams_with(ngram).values())
             return self.model.occurrencecount(ngram) + skipgram_counts
 
-    def prob(self, ngram, smoothing=1):
-        if isinstance(ngram, str):
-            ngram = tuple(ngram.split())
-        return (self.freq(ngram) + smoothing) \
+    def __getitem__(self, item):
+        return self.freq(item)
+
+    def prob(self, ngram, smoothing=1, skipgrams=False):
+        return (self.freq(ngram, include_skipgrams=skipgrams) + smoothing) \
                / (self.total_counts(1) + smoothing)
 
     def total_counts(self, of_length, skipgrams=False):
@@ -214,6 +215,8 @@ class NgramModel:
             ngram = ngram.tostring(self.decoder)
         if isinstance(ngram, str):
             ngram = tuple(ngram.split())
+        if len(ngram) == 1:
+            return {}
         if not min_skips:
             min_skips = 1
         if not max_size:
@@ -254,60 +257,6 @@ class NgramModel:
         not_a_b = self.freq(ngram_b, skipgrams) - a_b + smoothing * 2
         if not_a_b <= 0: not_a_b = smoothing
         not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
-
-        return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
-
-
-class IndexedNgramModel(NgramModel):
-
-    def __init__(self, model: cc.IndexedPatternModel, encoder: cc.ClassEncoder,
-                 decoder: cc.ClassDecoder):
-        super().__init__(model, encoder, decoder)
-
-    def left_neighbours(self, size):
-        return self.model.getleftneighbours(size=size)
-
-    def contingency_table(self, ngram_a, ngram_b, smoothing=1,
-                          based_on_lower_order=True, same_order_threshold=3):
-        """
-        :param ngram_a:
-        :param ngram_b:
-        :param smoothing:
-        :param based_on_lower_order:
-        If True (default), counts are based on len(a)-grams except for (a, b);
-        If False, all counts are based on len(a+b)-grams. NOTE: If set to false,
-        it is MUCH slower!
-        :param same_order_threshold:
-        :return:
-        """
-        if isinstance(ngram_a, tuple):
-            ngram_a = self.encoder.buildpattern(' '.join(ngram_a))
-        elif isinstance(ngram_a, str):
-            ngram_a = self.encoder.buildpattern(ngram_a)
-        if isinstance(ngram_b, tuple):
-            ngram_b = self.encoder.buildpattern(' '.join(ngram_b))
-        elif isinstance(ngram_b, str):
-            ngram_b = self.encoder.buildpattern(ngram_b)
-
-        if not based_on_lower_order:
-            base = len(ngram_a + ngram_b)
-            n = self.model.totaloccurrencesingroup(n=base)
-            a_b, a_not_b, not_a_b, not_a_not_b = (smoothing,) * 4
-            split = len(ngram_a)
-            cooc_ngram = ngram_a + ngram_b
-            for ngram, count in self.iterate(n, threshold=same_order_threshold):
-                if ngram == cooc_ngram: a_b += count
-                elif ngram[:split] == ngram_a: a_not_b += count
-                elif ngram[split:] == ngram_b: not_a_b += count
-                else: not_a_not_b += count
-
-        else:  # default
-            base = len(ngram_a)
-            n = self.model.totaloccurrencesingroup(n=base)
-            a_b = self.model.occurrencecount(ngram_a + ngram_b) + smoothing
-            a_not_b = self.model.occurrencecount(ngram_a) - a_b + smoothing * 2
-            not_a_b = self.model.occurrencecount(ngram_b) - a_b + smoothing * 2
-            not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
 
         return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
 
