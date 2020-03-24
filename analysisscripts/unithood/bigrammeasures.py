@@ -20,7 +20,7 @@ model = ngramcounting.NgramModel.load_model(CORPUS, MODEL_SPEC)
 
 print('Excluding discontinuous concepts: ', end='')
 gold_concepts = conceptstats.gold_standard_concepts(corpus,
-                                                    allow_discontinuous=False)
+                                                    discontinuous=False)
 print('Only discontinuous concepts: ', end='')
 disc_concepts = conceptstats.gold_standard_concepts(corpus).difference(
     gold_concepts)
