@@ -209,8 +209,9 @@ POS_TAG_MAP.update({
     'POS': 's',  # possessive marker
     'IN': 'p',  # preposition
     'DT': 't',  # determiner
+    'HYPH': '-',  # hyphen
     ',': ',', '.': '.',  # punctuation
-    '*': 'f',  # affix/part of compound word
+    '*': 'f', 'AFX': 'f',  # affix/part of compound word
     '-NONE-': 'Ø', '': 'Ø'  # null element
 })
 LEMMATIZER = nltk.WordNetLemmatizer()

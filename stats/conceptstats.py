@@ -6,6 +6,8 @@ from datautils import annotations as anno, dataio
 from stats import ngramcounting
 from stats.ngramcounting import NgramModel, ContingencyTable, make_ngrams
 import multiprocessing as mp
+from collections import Counter
+from pipeline.evaluation import gold_standard_concepts
 
 
 ################################################################################
@@ -99,8 +101,7 @@ def length_normalized_pmi(ngram, model, smoothing, skipgrams=False):
 
 
 # C-VALUE
-def calculate_c_values(candidate_terms: list, threshold: float,
-                       model: NgramModel, skipgrams=False):
+def calculate_c_values(candidate_terms: list, threshold: float, model):
     """
     Return a dict of terms and their C-values, calculated as in Frantzi et
     al. (2000). If a term's C-value is below the threshold, it will not be used
@@ -108,17 +109,15 @@ def calculate_c_values(candidate_terms: list, threshold: float,
     :param candidate_terms: list of tuples containing candidate terms
     :param threshold: C-value treshold; can be a floating point number
     :param model: NgramModel-like object with a .freq(ngram) method
-    :param skipgrams: Whether to include skipgram counts or not
     :return: dict of candidate terms and their C-value
     """
     # make sure that the candidate terms list is sorted
-    print('Calculating C-values')
     candidate_terms = sorted(candidate_terms, key=lambda x: len(x),
                              reverse=True)
     final_terms = {}
     nested_ngrams = {t: set() for t in candidate_terms}
-    for t in tqdm(candidate_terms, file=sys.stdout):
-        c = c_value(t, nested_ngrams, model, skipgrams=skipgrams)
+    for t in candidate_terms:
+        c = c_value(t, nested_ngrams, model)
         final_terms[t] = c
         if c >= threshold:
             for ng in make_ngrams(t, max_n=len(t)-1):
@@ -131,10 +130,10 @@ def calculate_c_values(candidate_terms: list, threshold: float,
 def c_value(term: tuple, nested_ngrams: dict, model, skipgrams=False):
     """Calculate C-value as in Frantzi et al. (2000)."""
     if not nested_ngrams[term]:
-        return math.log2(len(term)) * model.freq(term, skipgrams)
+        return math.log2(len(term)) * model[term]
     else:
         nested_in = nested_ngrams[term]
-        return math.log2(len(term)) * (model.freq(term, skipgrams) - sum(
+        return math.log2(len(term)) * (model[term] - sum(
             rectified_freq(s, nested_ngrams, model, skipgrams)
             for s in nested_in) / len(nested_in))
 
@@ -142,15 +141,22 @@ def c_value(term: tuple, nested_ngrams: dict, model, skipgrams=False):
 def rectified_freq(ngram: tuple, nested_ngrams: dict, model, skipgrams=False):
     """Return the frequency of the ngram occurring as non-nested."""
     if not nested_ngrams[ngram]:
-        return model.freq(ngram, skipgrams)
+        return model[ngram]
     else:
-        return model.freq(ngram) - sum(
+        return model[ngram] - sum(
             rectified_freq(sg, nested_ngrams, model, skipgrams)
             for sg in nested_ngrams[ngram])
 
 
 # TF-IDF
-def calculate_tf_idf_values(candidate_terms, docs, model, n_docs=None):
+def calculate_tf_idf_values(candidate_terms, term_frequencies, doc_frequencies,
+                            n_docs):
+    tf_idf_values = {t: tf_idf(term_frequencies[t], doc_frequencies[t], n_docs)
+                     for t in candidate_terms}
+    return tf_idf_values
+
+
+def old_calculate_tf_idf_values(candidate_terms, docs, model, n_docs=None):
     term_frequency = {t: model.freq(t) for t in candidate_terms}
     doc_frequency = {t: 0 for t in candidate_terms}
     if not n_docs:
@@ -213,6 +219,21 @@ def weirdness(term, target_model, reference_model=None, smoothing=1):
 def glossex(term, target_model, reference_model=None, smoothing=1):
     return sum(math.log(weirdness(w, target_model, reference_model, smoothing))
                for w in term) / len(term)
+
+
+# MISCELLANEOUS UTILITIES
+def count_concepts(corpus, discontinuous=True, doc_frequency=False):
+    counter = Counter()
+    for doc in corpus:
+        concepts = [c.normalized_concept()
+                    for c in doc.get_annotations(anno.Concept)
+                    if discontinuous  # retrieve all if also DC's are allowed
+                    or not isinstance(c, anno.DiscontinuousConcept)]  # skip DC
+        if doc_frequency:  # count only one per doc if doc_frequency
+            concepts = set(concepts)
+        for c in concepts:
+            counter[c] += 1
+    return counter
 
 
 # PERFORMANCE MEASURES
