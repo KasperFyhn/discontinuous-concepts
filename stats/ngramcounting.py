@@ -130,18 +130,23 @@ class NgramModel:
     and decoder.
     """
 
-    def __init__(self, model: Union[cc.UnindexedPatternModel,
-                                    cc.IndexedPatternModel],
-                 encoder: cc.ClassEncoder, decoder: cc.ClassDecoder):
+    def __init__(self, model: cc.UnindexedPatternModel,
+                 encoder: cc.ClassEncoder, decoder: cc.ClassDecoder,
+                 skipgram_model=False):
         self.model = model
         self.encoder = encoder
         self.decoder = decoder
+        self._is_skipgram_model = skipgram_model
         self._skip_counts = {}
 
     @classmethod
     def load_model(cls, name, model_spec_name=''):
         model, encoder, decoder = load_colibri_model(name, model_spec_name)
-        return cls(model, encoder, decoder)
+        if 'skip' in model_spec_name:
+            skipgram_model = True
+        else:
+            skipgram_model = False
+        return cls(model, encoder, decoder, skipgram_model)
 
     def decode_pattern(self, pattern):
         return tuple(pattern.tostring(self.decoder).split())
@@ -153,12 +158,12 @@ class NgramModel:
             return ((p.tostring(self.decoder), c)
                     for p, c in self.model.filter(threshold, size=n))
 
-    def freq(self, ngram, include_skipgrams=False):
+    def freq(self, ngram):
         if isinstance(ngram, tuple):
             ngram = ' '.join(ngram)
         if isinstance(ngram, str):
             ngram = self.encoder.buildpattern(ngram)
-        if not include_skipgrams:
+        if not self._is_skipgram_model:
             return self.model.occurrencecount(ngram)
         else:
             skipgram_counts = sum(self.skipgrams_with(ngram).values())
@@ -167,12 +172,15 @@ class NgramModel:
     def __getitem__(self, item):
         return self.freq(item)
 
-    def prob(self, ngram, smoothing=1, skipgrams=False):
-        return (self.freq(ngram, include_skipgrams=skipgrams) + smoothing) \
+    def prob(self, ngram, smoothing=1):
+        return (self.freq(ngram) + smoothing) \
                / (self.total_counts(1) + smoothing)
 
-    def total_counts(self, of_length, skipgrams=False):
-        if not skipgrams:
+    def max_length(self):
+        return self.model.maxlength()
+
+    def total_counts(self, of_length):
+        if not self._is_skipgram_model:
             return self.model.totaloccurrencesingroup(n=of_length)
         else:
             if of_length not in self._skip_counts:
@@ -210,6 +218,9 @@ class NgramModel:
 
         return combos
 
+    def is_skipgram_model(self):
+        return self._is_skipgram_model
+
     def skipgrams_with(self, ngram, min_skips=None, max_size=None):
         if isinstance(ngram, cc.Pattern):
             ngram = ngram.tostring(self.decoder)
@@ -233,12 +244,11 @@ class NgramModel:
                               if self.freq(sg) > 0}
         return skipgrams_in_model
 
-    def contingency_table(self, ngram_a, ngram_b, smoothing=1, skipgrams=False):
+    def contingency_table(self, ngram_a, ngram_b, smoothing=1):
         """
         :param ngram_a:
         :param ngram_b:
         :param smoothing:
-        :param skipgrams:
         :return:
         """
         if isinstance(ngram_a, tuple):
@@ -250,15 +260,25 @@ class NgramModel:
         elif isinstance(ngram_b, str):
             ngram_b = self.encoder.buildpattern(ngram_b)
 
-        n = self.total_counts(1)  # TODO: re-evaluate this decision!
-        a_b = self.freq(ngram_a + ngram_b, skipgrams) + smoothing
-        a_not_b = self.freq(ngram_a, skipgrams) - a_b + smoothing * 2
+        n = self.total_counts(1)
+        a_b = self.freq(ngram_a + ngram_b) + smoothing
+        a_not_b = self.freq(ngram_a) - a_b + smoothing * 2
         if a_not_b <= 0: a_not_b = smoothing
-        not_a_b = self.freq(ngram_b, skipgrams) - a_b + smoothing * 2
+        not_a_b = self.freq(ngram_b) - a_b + smoothing * 2
         if not_a_b <= 0: not_a_b = smoothing
         not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
 
         return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
+
+    def update(self, counter):
+        for ngram, count in counter:
+            self.add(ngram, count)
+
+    def add(self, ngram, count):
+        if isinstance(ngram, tuple):
+            ngram = ' '.join(ngram)
+        pattern = self.encoder.buildpattern(ngram)
+        self.model.add(pattern, count)
 
 
 class ContingencyTable:

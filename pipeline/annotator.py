@@ -1,5 +1,5 @@
 import re
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import nltk
 import requests
@@ -191,6 +191,18 @@ class AbstractCandidateExtractor:
     def update(self, other):
         for c in other.all_candidates:
             self.add(c)
+
+    def term_frequencies(self):
+        return Counter({key: len(sample)
+                        for key, sample in self.concept_index.items()})
+
+    def doc_frequencies(self):
+        counter = Counter()
+        for doc, sample in self.doc_index.items():
+            present_concepts = {c.normalized_concept() for c in sample}
+            for c in present_concepts:
+                counter[c] += 1
+        return counter
 
 
 class CandidateExtractor(AbstractCandidateExtractor):

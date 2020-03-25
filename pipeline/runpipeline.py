@@ -16,12 +16,7 @@ MAX_N = 5
 USE_PMC_MODEL = False
 
 print('STEP 1: ANNOTATE DOCUMENTS')
-if CORPUS.lower() == 'genia':
-    docs = dio.load_genia_corpus(text_only=True)
-elif CORPUS.lower() == 'acl':
-    docs = dio.load_acl_corpus(text_only=True)
-else:
-    docs = dio.load_craft_corpus(text_only=True)
+docs = dio.load_corpus(CORPUS, only_text=True)
 with annotator.CoreNlpServer() as server:
     docs = server.annotate_batch(docs)
 
@@ -36,8 +31,7 @@ ngramcounting.encode_corpus(colibri_model_name, list(doc_dict.keys()),
 ngramcounting.make_colibri_model(colibri_model_name, spec_name,
                                  mintokens=FREQ_THRESHOLD, maxlength=MAX_N,
                                  skipgrams=SKIPGRAMS)
-ngram_model = conceptstats.NgramModel.load_model(colibri_model_name,
-                                                 spec_name)
+ngram_model = conceptstats.NgramModel.load_model(colibri_model_name, spec_name)
 
 
 print('\nSTEP 3: EXTRACT CANDIDATE CONCEPTS')

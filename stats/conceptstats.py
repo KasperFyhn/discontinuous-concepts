@@ -16,9 +16,8 @@ from pipeline.evaluation import gold_standard_concepts
 
 
 # LOG-LIKELIHOOD
-def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1,
-                               skipgrams=False):
-    table = model.contingency_table(ngram1, ngram2, smoothing, skipgrams)
+def ngram_log_likelihood_ratio(ngram1, ngram2, model, smoothing=1):
+    table = model.contingency_table(ngram1, ngram2, smoothing)
     return log_likelihood_ratio(table)
 
 
@@ -53,9 +52,8 @@ def log_likelihood(p, k, n, log_base=math.e):
 
 
 # MUTUAL INFORMATION
-def ngram_mutual_information(ngram1, ngram2, model, smoothing=1,
-                             skipgrams=False):
-    table = model.contingency_table(ngram1, ngram2, smoothing, skipgrams)
+def ngram_mutual_information(ngram1, ngram2, model, smoothing=1):
+    table = model.contingency_table(ngram1, ngram2, smoothing)
     return mutual_information(table)
 
 
@@ -69,15 +67,14 @@ def mutual_information(contingency_table: ContingencyTable):
     return mi
 
 
-def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1,
-                                       skipgrams=False):
+def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1):
     if isinstance(ngram1, str):
         ngram1 = (ngram1,)
     if isinstance(ngram2, str):
         ngram2 = (ngram2,)
-    p_x_and_y = model.prob(ngram1 + ngram2, smoothing, skipgrams)
-    p_x = model.prob(ngram1, smoothing, skipgrams)
-    p_y = model.prob(ngram2, smoothing, skipgrams)
+    p_x_and_y = model.prob(ngram1 + ngram2, smoothing)
+    p_x = model.prob(ngram1, smoothing)
+    p_y = model.prob(ngram2, smoothing)
     return math.log(p_x_and_y / (p_x * p_y))
 
 
@@ -88,13 +85,13 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
     return math.log(p_x_and_y / (p_x * p_y))
 
 
-def length_normalized_pmi(ngram, model, smoothing, skipgrams=False):
+def length_normalized_pmi(ngram, model, smoothing=1):
     if isinstance(ngram, str):
         ngram = tuple(ngram.split())
-    joint_prob = model.prob(ngram, smoothing, skipgrams)
+    joint_prob = model.prob(ngram, smoothing)
     indiv_probs = 1
-    for w in gc:
-        indiv_probs *= model.prob(w, smoothing, skipgrams)
+    for w in ngram:
+        indiv_probs *= model.prob(w, smoothing)
     pmi = math.log(joint_prob / indiv_probs)
     pmi_nl = pmi / (len(ngram) - 1)
     return pmi_nl
@@ -127,24 +124,24 @@ def calculate_c_values(candidate_terms: list, threshold: float, model):
     return final_terms
 
 
-def c_value(term: tuple, nested_ngrams: dict, model, skipgrams=False):
+def c_value(term: tuple, nested_ngrams: dict, model):
     """Calculate C-value as in Frantzi et al. (2000)."""
     if not nested_ngrams[term]:
         return math.log2(len(term)) * model[term]
     else:
         nested_in = nested_ngrams[term]
         return math.log2(len(term)) * (model[term] - sum(
-            rectified_freq(s, nested_ngrams, model, skipgrams)
+            rectified_freq(s, nested_ngrams, model)
             for s in nested_in) / len(nested_in))
 
 
-def rectified_freq(ngram: tuple, nested_ngrams: dict, model, skipgrams=False):
+def rectified_freq(ngram: tuple, nested_ngrams: dict, model):
     """Return the frequency of the ngram occurring as non-nested."""
     if not nested_ngrams[ngram]:
         return model[ngram]
     else:
         return model[ngram] - sum(
-            rectified_freq(sg, nested_ngrams, model, skipgrams)
+            rectified_freq(sg, nested_ngrams, model)
             for sg in nested_ngrams[ngram])
 
 
@@ -205,7 +202,7 @@ def weirdness(term, target_model, reference_model=None, smoothing=1):
         global _brown_model
         if not _brown_model:
             print('Loading reference model for the first time.')
-            _brown_model = NgramModel.load_model('brown', '_noskip_all')
+            _brown_model = NgramModel.load_model('brown', '_all')
         reference_model = _brown_model
 
     target_freq = target_model.freq(term) + smoothing
