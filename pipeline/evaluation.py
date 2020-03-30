@@ -1,3 +1,5 @@
+import re
+
 from datautils import annotations as anno
 
 
@@ -26,6 +28,11 @@ class EvaluationReport:
     def false_negatives(self):
         return self.expected.difference(self.ok)
 
+    def f1_measure(self, beta=1):
+        precision = self.precision()
+        recall = self.recall()
+        return (1 + beta) * precision * recall / (beta * precision + recall)
+
 
 class DocumentReport(EvaluationReport):
 
@@ -41,6 +48,7 @@ class DocumentReport(EvaluationReport):
 class CorpusReport(EvaluationReport):
 
     def __init__(self, annotation_type: type, predicted_docs, expected_docs):
+        self._anno_type = annotation_type
         if isinstance(predicted_docs, list) or isinstance(expected_docs, list):
             predicted_docs = {doc.id: doc for doc in predicted_docs}
             expected_docs = {doc.id: doc for doc in expected_docs}
@@ -67,17 +75,90 @@ class CorpusReport(EvaluationReport):
         prec_values = self.precision_values()
         max_prec = max(prec_values)
         min_prec = min(prec_values)
-        print('Summary of CorpusReport')
+        print('Summary of CorpusReport for', self._anno_type.__name__)
         print(f'Recall:    {self.recall():.3f}   (highest: {max_recall:.3f}'
               f', lowest: {min_recall:.3f})')
         print(f'Precision: {self.precision():.3f}   (highest: {max_prec:.3f}'
               f', lowest: {min_prec:.3f})')
 
+    def error_analysis(self, gold_concepts, verified_concepts, max_n,
+                       pos_filter, gold_counter, freq_threshold):
+        gold_concepts = set(gold_concepts)
+        if self.false_positives():
+            gold_fps = {c for c in self.false_positives()
+                        if c.normalized_concept() in gold_concepts}
+            percent = len(gold_fps) / len(self.false_positives()) * 100
+            print(f'{len(gold_fps)} ({percent:.2f}%) FP\'s occur elsewhere as '
+                  f'a gold standard concept.')
+
+            verified_concepts = set(verified_concepts)
+            verified_fps = {c for c in self.false_positives()
+                            if c.normalized_concept() in verified_concepts}
+            percent = len(verified_fps) / len(self.false_positives()) * 100
+            print(f'{len(verified_fps)} ({percent:.2f}%) FP\'s were verified.')
+
+        if self.false_negatives():
+            over_max = {c for c in self.false_negatives() if len(c) > max_n}
+            percent = len(over_max) / len(self.false_negatives()) * 100
+            print(f'{len(over_max)} ({percent:.2f}%) FN\'s are above max n.')
+
+            non_captured = {c for c in self.false_negatives()
+                            if not re.match(pos_filter, c.pos_sequence())}
+            percent = len(non_captured) / len(self.false_negatives()) * 100
+            print(f'{len(non_captured)} ({percent:.2f}%) FN\'s cannot be '
+                  'captured by the used POS-tag filter.')
+
+            below_threshold = {c for c in self.false_negatives()
+                               if gold_counter[c.normalized_concept()]
+                               < freq_threshold}
+            percent = len(below_threshold) / len(self.false_negatives()) * 100
+            print(f'{len(below_threshold)} ({percent:.2f}%) FN\'s occur less '
+                  'often than the frequency threshold.')
 
 
 class TypesReport(EvaluationReport):
 
-    pass
+    def __init__(self, ranked_final, gold_concepts):
+        self.ranked_final = ranked_final
+        super().__init__(set(ranked_final), gold_concepts)
+
+    def precision_at_k(self, k_values=(100, 200, 500, 1000, 5000)):
+        print('Precision at k:')
+        for k in k_values:
+            if k > len(self.ranked_final):
+                k = len(self.ranked_final)
+            predicted_at_k = set(self.ranked_final[:k])
+            prec_at_k = len(predicted_at_k.intersection(self.expected)) / k
+            print(f'\tP@{k:<6}', round(prec_at_k, 3))
+            if k == len(self.ranked_final):
+                break
+
+    def performance_summary(self, k=(100, 200, 500, 1000, 5000)):
+        print('Summary of TypesReport')
+        precision = self.precision()
+        recall = self.recall()
+        f1 = self.f1_measure()
+        print('Precision:  ', round(precision, 3))
+        print('Recall:     ', round(recall, 3))
+        print('F1-measure: ', round(f1, 3))
+        self.precision_at_k(k)
+
+    def error_analysis(self, verified_concepts, max_n, gold_counter,
+                       freq_threshold):
+        verified_concepts = set(verified_concepts)
+        verified_fps = verified_concepts.intersection(self.false_positives())
+        percent = len(verified_fps) / len(self.false_positives()) * 100
+        print(f'{len(verified_fps)} ({percent:.2f}%) of FP\'s were verified.')
+
+        over_max = {c for c in self.false_negatives() if len(c) > max_n}
+        percent = len(over_max) / len(self.false_negatives()) * 100
+        print(f'{len(over_max)} ({percent:.2f}%) of FN\'s are above max n.')
+
+        below_threshold = {c for c in self.false_negatives()
+                           if gold_counter[c] < freq_threshold}
+        percent = len(below_threshold) / len(self.false_negatives()) * 100
+        print(f'{len(below_threshold)} ({percent:.2f}%) FN\'s occur less '
+              'often than the frequency threshold.')
 
 
 # PERFORMANCE MEASURES
@@ -109,37 +190,3 @@ def gold_standard_concepts(corpus, continuous=True, discontinuous=True,
     return all_concepts
 
 
-def recall_types(predicted, expected):
-    pred = set(predicted)
-    exp = set(expected)
-    return len(pred.intersection(exp)) / len(exp)
-
-
-def precision_types(predicted, expected):
-    pred = set(predicted)
-    exp = set(expected)
-    return len(pred.intersection(exp)) / len(pred)
-
-
-def precision_at_k(predicted_ranked: list, expected: set, k_values):
-    for k in k_values:
-        if k > len(predicted_ranked):
-            k = len(predicted_ranked)
-        predicted_at_k = set(predicted_ranked[:k])
-        prec_at_k = len(predicted_at_k.intersection(expected)) / k
-        print(f'P@{k:<6}', prec_at_k)
-        if k == len(predicted_ranked):
-            break
-
-
-def f1_measure(precision, recall):
-    return 2 * precision * recall / (precision + recall)
-
-
-def performance(predicted, expected):
-    precision = precision_types(predicted, expected)
-    recall = recall_types(predicted, expected)
-    f1 = f1_measure(precision, recall)
-    print('Precision:  ', round(precision, 3))
-    print('Recall:     ', round(recall, 3))
-    print('F1-measure: ', round(f1, 3))

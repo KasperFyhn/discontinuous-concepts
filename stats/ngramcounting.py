@@ -58,30 +58,37 @@ def _string_merger(out_file_name, in_queue):
     out_file.close()
 
 
-def encode_corpus(name, corpus_ids, doc_loader):
+def encode_corpus(name, corpus_ids, doc_loader, multiprocessing=False):
 
     # prepare filenames
     tokenized_corpus_file = DATA_FOLDER + name + '_tokenized.txt'
     class_file = DATA_FOLDER + name + '.colibri.cls'
     encoded_corpus_file = DATA_FOLDER + name + '.colibri.dat'
 
-    # prepare queues
-    path_queue = mp.Queue(maxsize=N_CORE)
-    string_queue = mp.Queue(maxsize=10)
+    if multiprocessing:
+        # prepare queues
+        path_queue = mp.Queue(maxsize=N_CORE)
+        string_queue = mp.Queue(maxsize=10)
 
-    # set up child processes and go
-    writer_process = mp.Process(target=_string_merger,
-                                args=(tokenized_corpus_file, string_queue))
-    writer_process.start()
-    pool = mp.Pool(initializer=_text_tokenizer,
-                   initargs=(path_queue, string_queue, doc_loader))
-    for doc in tqdm(corpus_ids, desc='Creating raw text corpus file'):
-        path_queue.put(doc)  # give paths to workers
-    for _ in range(N_CORE):  # tell workers we're done
-        path_queue.put(None)
-    pool.close()
-    pool.join()
-    writer_process.join()
+        # set up child processes and go
+        writer_process = mp.Process(target=_string_merger,
+                                    args=(tokenized_corpus_file, string_queue))
+        writer_process.start()
+        pool = mp.Pool(initializer=_text_tokenizer,
+                       initargs=(path_queue, string_queue, doc_loader))
+        for doc in tqdm(corpus_ids, desc='Creating raw text corpus file'):
+            path_queue.put(doc)  # give paths to workers
+        for _ in range(N_CORE):  # tell workers we're done
+            path_queue.put(None)
+        pool.close()
+        pool.join()
+        writer_process.join()
+    else:
+        with open(tokenized_corpus_file, 'w+') as out_file:
+            for id_ in tqdm(corpus_ids, desc='Creating raw text corpus file'):
+                doc = doc_loader(id_)
+                print(tokenized_text_from_doc(doc), file=out_file)
+
 
     print('Making colibri class file ...')
     encoder = cc.ClassEncoder()

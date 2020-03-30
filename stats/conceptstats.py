@@ -85,7 +85,7 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
     return math.log(p_x_and_y / (p_x * p_y))
 
 
-def length_normalized_pmi(ngram, model, smoothing=1):
+def length_normalized_pmi(ngram, model, smoothing=.1):
     if isinstance(ngram, str):
         ngram = tuple(ngram.split())
     joint_prob = model.prob(ngram, smoothing)
@@ -95,6 +95,17 @@ def length_normalized_pmi(ngram, model, smoothing=1):
     pmi = math.log(joint_prob / indiv_probs)
     pmi_nl = pmi / (len(ngram) - 1)
     return pmi_nl
+
+
+# TERM COHERENCE
+def term_coherence(term, model):
+    freq = model[term]
+    if freq == 0:
+        return 0
+    else:
+        top = len(term) * math.log10(freq) * freq
+        bottom = sum(model[t] for t in term)
+        return top / bottom
 
 
 # C-VALUE
@@ -133,6 +144,19 @@ def c_value(term: tuple, nested_ngrams: dict, model):
         return math.log2(len(term)) * (model[term] - sum(
             rectified_freq(s, nested_ngrams, model)
             for s in nested_in) / len(nested_in))
+
+
+def calculate_rectified_freqs(candidates, model):
+    # make sure that the candidate terms list is sorted
+    candidate_terms = sorted(candidates, key=lambda x: len(x), reverse=True)
+    final_terms = {}
+    nested_ngrams = {t: set() for t in candidate_terms}
+    for t in candidate_terms:
+        final_terms[t] = rectified_freq(t, nested_ngrams, model)
+        for ng in make_ngrams(t, max_n=len(t) - 1):
+            if ng in nested_ngrams:
+                nested_ngrams[ng].add(t)
+    return final_terms
 
 
 def rectified_freq(ngram: tuple, nested_ngrams: dict, model):

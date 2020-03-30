@@ -12,9 +12,9 @@ class Document:
     def __init__(self, doc_id: str, raw_text: str):
         self.id = doc_id
         self._text = raw_text
-        self._annotations = defaultdict(list)
-        self._span_starts = defaultdict(list)
-        self._span_ends = defaultdict(list)
+        self._annotations = defaultdict(set)
+        self._span_starts = defaultdict(set)
+        self._span_ends = defaultdict(set)
 
     def load_annotations_from_file(self, path_in):
         """Load saved annotations to this Document from the given path.
@@ -46,12 +46,12 @@ class Document:
             key = type_name.__name__
             if key == 'object':
                 continue
-            self._annotations[key].append(annotation)
+            self._annotations[key].add(annotation)
 
         span_start = annotation.span[0]
-        self._span_starts[span_start].append(annotation)
+        self._span_starts[span_start].add(annotation)
         span_end = annotation.span[1]
-        self._span_ends[span_end].append(annotation)
+        self._span_ends[span_end].add(annotation)
 
     def remove_annotation(self, annotation):
         for type_name in annotation.__class__.__mro__:
@@ -128,6 +128,7 @@ class Annotation:
 
     def __init__(self, document: Document, span: tuple):
         self.document = document
+        self._doc_id = document.id
         self.span = span
 
     def get_covered_text(self):
@@ -139,6 +140,12 @@ class Annotation:
 
     def get_tokens(self):
         return self.document.get_annotations_at(self.span, Token)
+
+    def pos_sequence(self):
+        return ''.join(t.mapped_pos() for t in self. get_tokens())
+
+    def __len__(self):
+        return len(self.get_tokens())
 
     def get_context(self, char_window=40):
         start = self.span[0] - char_window
@@ -169,7 +176,7 @@ class Annotation:
                and self.span == other.span
 
     def __hash__(self):
-        return hash((type(self), self.document.id, self.span))
+        return hash((type(self), self._doc_id, self.span))
 
     def __repr__(self):
         return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
@@ -195,7 +202,8 @@ class PosTagMap(dict):
         if item in self.keys():
             return super(PosTagMap, self).__getitem__(item)
         else:
-            return item
+            return item[0]
+
 
 POS_TAG_MAP = PosTagMap()
 POS_TAG_MAP.update({
@@ -240,7 +248,7 @@ class Token(Annotation):
         return super().__eq__(other) and self.pos == other.pos
 
     def __hash__(self):
-        return hash((type(self), self.document.id, self.span, self.pos))
+        return hash((type(self), self._doc_id, self.span, self.pos))
 
     def __repr__(self):
         return super().__repr__() + '\\' + self.pos
@@ -267,29 +275,34 @@ class DiscontinuousConcept(Concept):
         super().__init__(document, full_span, label)
         self.spans = spans
 
-    # TODO: refactor such that the super class methods are overridden instead
-    def get_concept_tokens(self):
+    def get_tokens(self):
         return [t for span in self.spans
                 for t in self.document.get_annotations_at(span, Token)]
 
-    def get_concept(self):
+    def get_spanned_tokens(self):
+        return super().get_tokens()
+
+    def get_covered_text(self):
         """Returns only the concept, disregarding tokens within the full span
         that are not part of the concept."""
         return ' '.join(self.document.get_text()[s[0]:s[1]] for s in self.spans)
 
+    def get_spanned_text(self):
+        return super().get_covered_text()
+
     def normalized_concept(self):
-        tokens = self.get_concept_tokens()
+        tokens = self.get_tokens()
         return tuple(t.lemma() for t in tokens)
 
     def __eq__(self, other):
         return super().__eq__(other) and self.spans == other.spans
 
     def __hash__(self):
-        return hash((type(self), self.document.id, self.span,
+        return hash((type(self), self._doc_id, self.span,
                      tuple(self.spans)))
 
     def __repr__(self):
-        return self.__class__.__name__ + "('" + self.get_concept() + "'"\
+        return self.__class__.__name__ + "('" + self.get_covered_text() + "'"\
                + str(self.spans) + ')'
 
 

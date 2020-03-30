@@ -136,7 +136,7 @@ class CoreNlpServer:
 
 
 ################################################################################
-# CONCEPT EXTRACTION
+# CANDIDATE EXTRACTION
 ################################################################################
 
 class CandidateConcept(anno.Concept):
@@ -154,7 +154,7 @@ class CandidateDiscConcept(anno.DiscontinuousConcept):
 
     def __init__(self, document, token_chunks):
         spans = [(tokens[0].span[0], tokens[-1].span[-1])
-                      for tokens in token_chunks]
+                 for tokens in token_chunks]
         super().__init__(document, spans)
         self.covered_tokens = [t for tokens in token_chunks for t in tokens]
 
@@ -166,8 +166,9 @@ class CandidateDiscConcept(anno.DiscontinuousConcept):
 class AbstractCandidateExtractor:
 
     def __init__(self):
-        self.doc_index = defaultdict(list)
-        self.concept_index = defaultdict(list)
+        self.doc_index = defaultdict(set)
+        self.concept_index = defaultdict(set)
+        self.types = set()
         self.all_candidates = []
 
     def extract_candidates(self, doc):
@@ -175,9 +176,13 @@ class AbstractCandidateExtractor:
         for c in candidates:
             self.add(c)
 
+    def candidate_types(self):
+        return self.types
+
     def add(self, concept):
-        self.doc_index[concept.document].append(concept)
-        self.concept_index[concept.normalized_concept()].append(concept)
+        self.doc_index[concept.document].add(concept)
+        self.concept_index[concept.normalized_concept()].add(concept)
+        self.types.add(concept.normalized_concept())
         self.all_candidates.append(concept)
 
     def _extract_candidates(self, doc):
@@ -230,9 +235,6 @@ class CandidateExtractor(AbstractCandidateExtractor):
                     candidates.append(CandidateConcept(doc, ngram_tokens))
         return candidates
 
-    def candidate_types(self):
-        return set(self.concept_index.keys())
-
 
 class HypernymCandidateExtractor(CandidateExtractor):
 
@@ -276,12 +278,12 @@ class HypernymCandidateExtractor(CandidateExtractor):
 class CoordCandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
-        coord_unsilo = (
+        unsilo = (
             re.compile(r'(?:[navs]+,?)+c[navs]n+'),
             re.compile(r'(?:([navs]+),?)(?:[navs]+,?)*c[navs]+?(n+)'))
-        coord_simple = (re.compile(r'(?:[an]+,?)+cnn+'),
-                        re.compile(r'(?:([an]+),?)(?:[an]+,?)*cn(n+)'))
-        coord_liberal = (
+        simple = (re.compile(r'(?:[an]+,?)+c[an]+?n+'),
+                  re.compile(r'(?:([an]+),?)(?:[an]+,?)*c[an]+?(n+)'))
+        liberal = (
             re.compile(r'(?:[navrds]+,?)+c[navrds]n+'),
             re.compile(r'(?:([navrds]+),?)(?:[navrds]+,?)*c[navrds](n+)')
         )
@@ -310,12 +312,14 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
         candidates = []
 
         full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
-        super_match = re.finditer('.*?(' + super_pattern.pattern + ').*',
-                                  full_pos_seq)
+        super_match = [m for m in re.finditer('(' + super_pattern.pattern + ')',
+                                              full_pos_seq)]
         super_match_strings = [tokens[m.start(1):m.end(1)] for m in super_match]
 
+        # if token POS before conj == 'NNS': pass
+
         for ngram in (ngram for sm in super_match_strings
-                      for ngram in make_ngrams(sm, max_n=len(sm))):
+                      for ngram in make_ngrams(sm, min_n=4, max_n=len(sm))):
             pos_seq = ''.join(t.mapped_pos() for t in ngram)
             match = re.fullmatch(super_pattern, pos_seq)
             if match:
@@ -331,21 +335,50 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
         return candidates
 
 
+################################################################################
+# CANDIDATE SCORING AND RANKING
+################################################################################
+
+
 class AbstractCandidateRanker:
 
-    def __init__(self, candidate_extractor):
-        self.candidates = candidate_extractor
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor):
+        self.candidate_extractor = candidate_extractor
+        self._values = None
+        self._calculate_values()
         self._ranked = []
+        self._rank_candidates()
+        self._ranks = {term: i + 1 for i, term in enumerate(self._ranked)}
 
-    def rank(self):
+    def __contains__(self, item):
+        return item in self._values.keys()
+
+    def value(self, term):
+        if isinstance(term, str):
+            term = tuple(term.split())
+        return self._values[term]
+
+    def rank(self, term):
+        if isinstance(term, str):
+            term = tuple(term.split())
+        return self._ranks[term]
+
+    def __getitem__(self, item):
+        return self._ranked[item - 1]
+
+    def _calculate_values(self):
         pass
+
+    def _rank_candidates(self):
+        self._ranked = sorted(self._values.keys(), reverse=True,
+                              key=lambda x: self._values[x])
 
     def filter_at_value(self, value):
         return [c for c, v in self._ranked if v > value]
 
     def keep_proportion(self, proportion: float):
         cutoff = int(len(self._ranked) * proportion)
-        return [c for c, v in self._ranked[:cutoff]]
+        return [c for c in self._ranked[:cutoff]]
 
     def keep_n_highest(self, n: int):
         return self._ranked[:n]
@@ -353,33 +386,125 @@ class AbstractCandidateRanker:
 
 class CValueRanker(AbstractCandidateRanker):
 
-    def __init__(self, candidate_extractor, c_value_threshold, ngram_model,
-                 include_skipgrams):
-        super().__init__(candidate_extractor)
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor,
+                 c_value_threshold, term_counter=None):
+        print('Calculating C-values')
         self._c_threshold = c_value_threshold
-        self._ngram_model = ngram_model
-        self._skipgrams = include_skipgrams
-        self._c_values = None
+        if not term_counter:
+            term_counter = candidate_extractor.term_frequencies()
+        self._term_counter = term_counter
+        super().__init__(candidate_extractor)
 
-    def rank(self):
-        c_values = conceptstats.calculate_c_values(
-            self.candidates.candidate_types(), self._c_threshold,
-            self._ngram_model, self._skipgrams
+    def _calculate_values(self):
+        self._values = conceptstats.calculate_c_values(
+            list(self.candidate_extractor.candidate_types()), self._c_threshold,
+            self.candidate_extractor.term_frequencies()
         )
-        self._c_values = c_values
-        self._ranked = sorted(c_values.items(), reverse=True,
-                              key=lambda x: x[1])
-
-    def c_value(self, term):
-        if self._c_values:
-            if isinstance(term, str):
-                term = tuple(term.split())
-            return self._c_values[term]
 
 
-class VotingCandidateRanker(AbstractCandidateRanker):
+class RectifiedFreqRanker(AbstractCandidateRanker):
 
-    pass
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor,
+                 term_counter=None):
+        print('Calculating Rectified Frequencies')
+        if not term_counter:
+            term_counter = candidate_extractor.term_frequencies()
+        self._term_counter = term_counter
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = conceptstats.calculate_rectified_freqs(
+            self.candidate_extractor.candidate_types(), self._term_counter
+        )
+
+
+class TfIdfRanker(AbstractCandidateRanker):
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor,
+                 term_counter=None, doc_counter=None, n_docs=None):
+        print('Calculating TF-IDF values')
+        if not term_counter:
+            term_counter = candidate_extractor.term_frequencies()
+        self._term_counter = term_counter
+        if not doc_counter:
+            doc_counter = candidate_extractor.doc_frequencies()
+        self._doc_counter = doc_counter
+        if not n_docs:
+            n_docs = len(candidate_extractor.doc_index)
+        self._n_docs = n_docs
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = conceptstats.calculate_tf_idf_values(
+            self.candidate_extractor.candidate_types(), self._term_counter,
+            self._doc_counter, self._n_docs
+        )
+
+
+class GlossexRanker(AbstractCandidateRanker):
+
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor, model):
+        print('Calculating Glossex values')
+        self._ngram_model = model
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = {tc: conceptstats.glossex(tc, self._ngram_model)
+                        for tc in self.candidate_extractor.candidate_types()}
+
+
+class PmiNlRanker(AbstractCandidateRanker):
+
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor, model):
+        print('Calculating length normalized PMI values')
+        self._ngram_model = model
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = {tc: conceptstats.length_normalized_pmi(
+            tc, self._ngram_model)
+            for tc in self.candidate_extractor.candidate_types()}
+
+
+class TermCoherenceRanker(AbstractCandidateRanker):
+
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor, model):
+        print('Calculating Term Coherence values')
+        self._ngram_model = model
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = {tc: conceptstats.term_coherence(tc, self._ngram_model)
+                        for tc in self.candidate_extractor.candidate_types()}
+
+
+class VotingRanker(AbstractCandidateRanker):
+
+    def __init__(self, candidate_extractor: AbstractCandidateExtractor,
+                 *rankers, weights=None):
+        print('Calculating votes between rankers')
+        self.candidate_extractor = candidate_extractor
+        self._rankers = rankers
+        if not weights:
+            weights = [1] * len(rankers)
+        self._weights = {rankers[i]: weights[i] for i in range(len(rankers))}
+        super().__init__(candidate_extractor)
+
+    def _calculate_values(self):
+        self._values = {tc: sum(1 / r.rank(tc) for r in self._rankers)
+                        for tc in self.candidate_extractor.candidate_types()}
+
+
+class Metrics:
+
+    def __init__(self, *rankers):
+        self.rankers = rankers
+
+    def __getitem__(self, item):
+        metrics = {}
+        for ranker in self.rankers:
+            if item in ranker:
+                metrics[type(ranker).__name__] = ranker.value(item)
+        return metrics
 
 
 class OntologyMatcher:

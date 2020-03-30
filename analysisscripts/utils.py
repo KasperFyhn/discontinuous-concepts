@@ -1,20 +1,11 @@
 from scipy.stats import mstats
 import numpy
 import pingouin as pg
+import os
 
 
-def welch_t_test(dist1: list, dist2: list, exclude_outliers=True):
-    if exclude_outliers:
-        dist1 = iqr_outlier_filter(dist1)
-        dist2 = iqr_outlier_filter(dist2)
-
-    # pg.ttest(dist1, dist2, correction=True)
-    return mstats.ttest_ind(dist1, dist2, equal_var=False)
-
-
-def welch_anova(dists):
-    pg.welch_anova
-
+SCRIPTS_DIR = os.path.dirname(__file__)
+ROOT = os.path.dirname(SCRIPTS_DIR)
 
 
 def iqr_outlier_filter(dist):
