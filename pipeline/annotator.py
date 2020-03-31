@@ -1,5 +1,6 @@
 import re
 from collections import defaultdict, Counter
+import itertools
 
 import nltk
 import requests
@@ -284,19 +285,15 @@ class HypernymCandidateExtractor(CandidateExtractor):
 class CoordCandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
-        unsilo = (
-            re.compile(r'(?:[navs]+,?)+c[navs]n+'),
-            re.compile(r'(?:([navs]+),?)(?:[navs]+,?)*c[navs]+?(n+)'))
-        simple = (re.compile(r'(?:[an]+,?)+c[an]+?n+'),
-                  re.compile(r'(?:([an]+),?)(?:[an]+,?)*c[an]+?(n+)'))
-        liberal = (
-            re.compile(r'(?:[navrds]+,?)+c[navrds]n+'),
-            re.compile(r'(?:([navrds]+),?)(?:[navrds]+,?)*c[navrds](n+)')
-        )
+        unsilo = re.compile(r'(?:[navs]+,?)+c[navs]n+')
+        simple = re.compile(r'(?:[an]+,?)+c[an]+?n+')
+        liberal = re.compile(r'(?:[navrds]+,?)+c[navrds]n+')
 
-    def __init__(self, pos_tag_filters, max_n=5):
+
+    def __init__(self, pos_tag_filters, model, max_n=5):
         super().__init__()
         self.pos_filters = pos_tag_filters
+        self.model = model
         self.min_n = 3
         self.max_n = max_n
 
@@ -305,38 +302,117 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
         for sentence in doc.get_annotations(anno.Sentence):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
             for f in self.pos_filters:
-                sent_candidates = self._apply_filter(f, tokens, doc)
+                sent_candidates = self._apply_filter(f, tokens, doc, self.model)
                 candidates += sent_candidates
 
         return candidates
 
     @staticmethod
-    def _apply_filter(filter_tuple, tokens, doc):
-        super_pattern = filter_tuple[0]
-        concept_pattern = filter_tuple[1]
+    def _apply_filter(filter_tuple, tokens, doc, model, pmi_threshold=1):
+        super_pattern = filter_tuple
 
         candidates = []
 
         full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
-        super_match = [m for m in re.finditer('(' + super_pattern.pattern + ')',
+        super_match = [m for m in re.finditer(super_pattern.pattern,
                                               full_pos_seq)]
-        super_match_strings = [tokens[m.start(1):m.end(1)] for m in super_match]
+        super_match_strings = [tokens[m.start(0):m.end(0)] for m in super_match]
+        super_match_strings = [sm for sm in super_match_strings if len(sm) > 3]
 
-        # if token POS before conj == 'NNS': pass
+        for supergram in super_match_strings:
+            pos_seq = ''.join(t.mapped_pos() for t in supergram)
 
-        for ngram in (ngram for sm in super_match_strings
-                      for ngram in make_ngrams(sm, min_n=4, max_n=len(sm))):
-            pos_seq = ''.join(t.mapped_pos() for t in ngram)
-            match = re.fullmatch(super_pattern, pos_seq)
-            if match:
-                concept_match = re.fullmatch(concept_pattern, pos_seq)
-                dc_token_chunks = []
-                for group_number in range(1, len(concept_match.groups()) + 1):
-                    start = concept_match.start(group_number)
-                    end = concept_match.end(group_number)
-                    dc_token_chunks.append(ngram[start:end])
-                dc = CandidateDiscConcept(doc, dc_token_chunks)
-                candidates.append(dc)
+            edges = []
+            # loop over the sequence to find all coordination pairs
+            # this is to determine which gaps to bridge
+            for cc_group in re.finditer('(.)(,[^,]+)*,?c(.)', pos_seq):
+                # we need the indices of the tokens around the coordination
+                first_index = cc_group.start(1)
+                last_index = cc_group.start(3)
+
+                # determine gap from token 1 to somewhere after 2, if any
+                first_token = supergram[first_index]
+                if first_token.pos == 'NNS':
+                    right_edge = None  # plural word, probably not a modifier
+                else:
+                    # indices of all tokens after the last word
+                    # but only up until another coordination
+                    after_last = []
+                    for i in range(last_index+1, len(pos_seq)):
+                        if pos_seq[i] == 'c':
+                            break  # another coordination was encountered
+                        after_last.append(i)
+                    if not after_last:
+                        right_edge = None
+                    else:
+                        potential_edges = {None: pmi_threshold}
+                        for index in after_last:
+                            token = supergram[index]
+                            pmi = conceptstats.ngram_pmi(first_token.lemma(),
+                                                         token.lemma(), model)
+                            potential_edges[index] = pmi
+
+                        right_edge = max(potential_edges,
+                                         key=lambda x: potential_edges[x])
+
+                # determine gap from token 2 to somewhere before 1, if any
+                last_token = supergram[last_index]
+                # indices of all tokens before the first word
+                # but only down until another coordination
+                before_first = []
+                for i in range(first_index - 1, -1, -1):
+                    if pos_seq[i] == 'c':
+                        break  # another coordination was encountered
+                    before_first.append(i)
+
+                if not before_first:
+                    left_edge = None
+                else:
+                    potential_edges = {None: pmi_threshold}
+                    for index in before_first:
+                        token = supergram[index]
+                        pmi = conceptstats.ngram_pmi(token.lemma(),
+                                                     last_token.lemma(), model)
+                        potential_edges[index] = pmi
+
+                    left_edge = max(potential_edges,
+                                    key=lambda x: potential_edges[x])
+
+                edges.append((left_edge, right_edge))
+
+            prev_right = 0
+            elements = []
+            for left_edge, right_edge in edges:
+                if left_edge:
+                    elements.append([supergram[prev_right:left_edge]])  # shared
+                alternatives = [[]]
+                for token in supergram[left_edge:right_edge]:
+                    if token.mapped_pos() in ',c':
+                        if alternatives[-1]:
+                            alternatives.append([])
+                    else:
+                        alternatives[-1].append(token)
+                elements.append(alternatives)
+                prev_right = right_edge
+            if prev_right:
+                elements.append([supergram[prev_right:]])
+
+            for chunks in itertools.product(*elements):
+                # first, merge adjacent spans
+                chunks = list(chunks)
+                merged_chunks = [chunks.pop(0)]
+                for chunk in chunks:
+                    if chunk[0].span[0] - merged_chunks[-1][-1].span[1] < 2:
+                        merged_chunks[-1] += chunk
+                    else:
+                        merged_chunks.append(chunk)
+
+                # then see if they are merged into one; if so, move on
+                if len(merged_chunks) == 1:  # not discontinuous
+                    continue
+                else:
+                    dc = CandidateDiscConcept(doc, merged_chunks)
+                    candidates.append(dc)
 
         return candidates
 
@@ -506,6 +582,52 @@ class VotingRanker(AbstractCandidateRanker):
                         for tc in self.candidate_extractor.candidate_types()}
 
 
+################################################################################
+# ONTOLOGY MATCHING/VERIFICATION
+################################################################################
+
+class Matcher:
+
+    def __init__(self, candidate_extractor, verifiers):
+        self.candidates = candidate_extractor
+        self._verifiers = verifiers
+        self._verified = set()
+        self.verify_candidates()
+
+    def __contains__(self, item):
+        return item in self._verified
+
+    def verify_candidates(self):
+        for ct in self.candidates.candidate_types():
+            if ct in self._verifiers:
+                self._verified.add(ct)
+
+    def verified(self):
+        return self._verified
+
+    def value(self, term):
+        if isinstance(term, str):
+            term = tuple(term.split())
+        return term in self._verified
+
+
+class MeshMatcher(Matcher):
+
+    def __init__(self, candidate_extractor):
+        super().__init__(candidate_extractor, dataio.load_mesh_terms())
+
+
+class GoldMatcher(Matcher):
+
+    def __init__(self, candidate_extractor, gold_concepts):
+        super().__init__(candidate_extractor, gold_concepts)
+
+
+################################################################################
+# METRICS AND FILTERING
+################################################################################
+
+
 class Metrics:
 
     C_VALUE = CValueRanker.__name__
@@ -515,6 +637,8 @@ class Metrics:
     PMI_NL = PmiNlRanker.__name__
     TERM_COHERENCE = TermCoherenceRanker.__name__
     VOTER = VotingRanker.__name__
+    MESH_MATCHER = MeshMatcher.__name__
+    GOLD = GoldMatcher.__name__
 
     def __init__(self, *rankers):
         self.rankers = list(rankers)
@@ -526,18 +650,17 @@ class Metrics:
     def __getitem__(self, item):
         metrics = {}
         for ranker in self.rankers:
-            if item in ranker:
+            if isinstance(ranker, Matcher):
+                metrics[type(ranker).__name__] = ranker.value(item)
+            elif item in ranker:
                 metrics[type(ranker).__name__] = ranker.value(item)
         return metrics
 
-    def inspect(self, concepts, char_window=20, one_at_a_time=True):
+    def inspect(self, concepts, char_window=20):
         for concept in concepts:
-            print(concept.get_context(char_window), )
+            print(concept.get_context(char_window))
             print(self[concept.normalized_concept()])
-            if one_at_a_time:
-                input()
-            else:
-                print()
+            print()
 
 
 class ConceptFilter:
@@ -560,35 +683,4 @@ class ConceptFilter:
             if self.filtering_method(passed_filters):
                 passed_candidates.append(c)
         return passed_candidates
-
-
-################################################################################
-# ONTOLOGY MATCHING/VERIFICATION
-################################################################################
-
-class OntologyMatcher:
-
-    def __init__(self, candidate_extractor):
-        self.candidates = candidate_extractor
-        self._verified = set()
-
-    def verify_candidates(self, *args):
-        pass
-
-    def verified(self):
-        return self._verified
-
-
-class MeshMatcher(OntologyMatcher):
-
-    def __init__(self, candidate_extractor):
-        super().__init__(candidate_extractor)
-        self._mesh_terms = dataio.load_mesh_terms()
-
-    def verify_candidates(self, *args):
-        for ct in tqdm(self.candidates.candidate_types(),
-                       desc='Matching candidates against MeSH'):
-            if ct in self._mesh_terms:
-                self._verified.add(ct)
-
 

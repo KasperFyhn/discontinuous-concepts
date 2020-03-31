@@ -57,7 +57,7 @@ extractor = an.CandidateExtractor(
     pos_tag_filter=an.CandidateExtractor.FILTERS.simple, max_n=MAX_N
 )
 coord_extractor = an.CoordCandidateExtractor(
-    pos_tag_filters=[an.CoordCandidateExtractor.FILTERS.simple],
+    [an.CoordCandidateExtractor.FILTERS.simple], ngram_model,
     max_n=MAX_N
 )
 hypernym_extractor = an.HypernymCandidateExtractor(
@@ -74,8 +74,7 @@ print(f'Extracted {len(extractor.all_candidates)} continuous candidates and '
 
 
 print('\nSTEP 4: SCORE, RANK AND FILTER CANDIDATE CONCEPTS')
-mesh_matcher = an.MeshMatcher(extractor)
-mesh_matcher.verify_candidates()
+
 
 c_value = an.CValueRanker(extractor, C_VALUE_THRESHOLD)
 rect_freq = an.RectifiedFreqRanker(extractor)
@@ -92,6 +91,8 @@ final = FILTER.apply(final)  # then filter
 
 extractor.update(coord_extractor)
 #extractor.update(hypernym_extractor)
+
+mesh_matcher = an.MeshMatcher(extractor)
 
 extractor.accept_candidates(set(final).union(mesh_matcher.verified()))
 
@@ -113,4 +114,5 @@ types_report.performance_summary()
 types_report.error_analysis(mesh_matcher.verified(), MAX_N, gold_counter,
                             FREQ_THRESHOLD)
 
+METRICS.add(mesh_matcher, an.GoldMatcher(extractor, gold_concepts))
 

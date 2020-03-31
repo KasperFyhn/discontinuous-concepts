@@ -67,7 +67,7 @@ def mutual_information(contingency_table: ContingencyTable):
     return mi
 
 
-def ngram_pointwise_mutual_information(ngram1, ngram2, model, smoothing=1):
+def ngram_pmi(ngram1, ngram2, model, smoothing=1):
     if isinstance(ngram1, str):
         ngram1 = (ngram1,)
     if isinstance(ngram2, str):
