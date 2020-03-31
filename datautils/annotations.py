@@ -1,9 +1,12 @@
 import os
 import re
+from colorama import Style, Back, Fore
 import sys
 from collections import defaultdict
-
 import nltk
+
+_COLOR_BEGIN = Back.CYAN + Fore.BLACK
+_COLOR_END = Style.RESET_ALL
 
 
 class Document:
@@ -147,7 +150,7 @@ class Annotation:
     def __len__(self):
         return len(self.get_tokens())
 
-    def get_context(self, char_window=40):
+    def get_context(self, char_window=20):
         start = self.span[0] - char_window
         if start < 0:
             start = 0
@@ -155,8 +158,9 @@ class Annotation:
         if end > len(self.document.get_text()):
             end = len(self.document.get_text())
         build_string = self.document.get_text()[start:self.span[0]]\
-                       + "     " + self.get_covered_text() + "     " \
+                       + _COLOR_BEGIN + self.get_covered_text() + _COLOR_END \
                        + self.document.get_text()[self.span[1]:end]
+        build_string = build_string.replace('\n', ' ')
         return build_string
 
     def merge_with(self, another_annotation):
@@ -289,6 +293,30 @@ class DiscontinuousConcept(Concept):
 
     def get_spanned_text(self):
         return super().get_covered_text()
+
+    def get_context(self, char_window=20):
+        start = self.span[0] - char_window
+        if start < 0:
+            start = 0
+        end = self.span[1] + char_window
+        if end > len(self.document.get_text()):
+            end = len(self.document.get_text())
+        span1 = self.spans[0]
+        marked_text = _COLOR_BEGIN\
+                      + self.document.get_text()[span1[0]:span1[1]]\
+                      + _COLOR_END
+        for i in range(1, len(self.spans)):
+            prev_span = self.spans[i-1]
+            span = self.spans[i]
+            marked_text += self.document.get_text()[prev_span[1]:span[0]]
+            marked_text += _COLOR_BEGIN\
+                           + self.document.get_text()[span[0]:span[1]]\
+                           + _COLOR_END
+        build_string = self.document.get_text()[start:self.span[0]]\
+                       + marked_text\
+                       + self.document.get_text()[self.span[1]:end]
+        build_string = build_string.replace('\n', ' ')
+        return build_string
 
     def normalized_concept(self):
         tokens = self.get_tokens()

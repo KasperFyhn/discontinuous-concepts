@@ -1,6 +1,6 @@
 from datautils import dataio as dio, annotations as anno
 from stats import ngramcounting, conceptstats
-from pipeline import annotator
+from pipeline import annotator as an
 from pipeline.evaluation import CorpusReport, TypesReport,\
     gold_standard_concepts
 from tqdm import tqdm
@@ -14,6 +14,13 @@ C_VALUE_THRESHOLD = 2
 FREQ_THRESHOLD = 2
 MAX_N = 7
 
+METRICS = an.Metrics()
+FILTER = an.ConceptFilter(
+    lambda c: METRICS[c][an.Metrics.C_VALUE] > C_VALUE_THRESHOLD,
+    lambda c: METRICS[c][an.Metrics.RECT_FREQ] >= FREQ_THRESHOLD,
+    # lambda c: METRICS[c][an.Metrics.PMI_NL] > .5,
+    filtering_method=an.ConceptFilter.METHODS.ALL
+)
 
 print('STEP 0: LOAD GOLD DOCUMENTS AND CONCEPTS')
 print('Loading gold docs: ', end='')
@@ -29,7 +36,7 @@ gold_counter = conceptstats.count_concepts(gold_docs)
 
 print('\nSTEP 1: ANNOTATE DOCUMENTS')
 docs = dio.load_corpus(CORPUS, only_text=True)
-with annotator.CoreNlpServer() as server:
+with an.CoreNlpServer() as server:
     docs = server.annotate_batch(docs)
 
 
@@ -46,15 +53,15 @@ ngram_model = conceptstats.NgramModel.load_model(colibri_model_name, spec_name)
 
 
 print('\nSTEP 3: EXTRACT CANDIDATE CONCEPTS')
-extractor = annotator.CandidateExtractor(
-    pos_tag_filter=annotator.CandidateExtractor.FILTERS.simple, max_n=MAX_N
+extractor = an.CandidateExtractor(
+    pos_tag_filter=an.CandidateExtractor.FILTERS.simple, max_n=MAX_N
 )
-coord_extractor = annotator.CoordCandidateExtractor(
-    pos_tag_filters=[annotator.CoordCandidateExtractor.FILTERS.simple],
+coord_extractor = an.CoordCandidateExtractor(
+    pos_tag_filters=[an.CoordCandidateExtractor.FILTERS.simple],
     max_n=MAX_N
 )
-hypernym_extractor = annotator.HypernymCandidateExtractor(
-    annotator.HypernymCandidateExtractor.FILTERS.simple, max_n=MAX_N
+hypernym_extractor = an.HypernymCandidateExtractor(
+    an.HypernymCandidateExtractor.FILTERS.simple, max_n=MAX_N
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
     extractor.extract_candidates(doc)
@@ -67,36 +74,38 @@ print(f'Extracted {len(extractor.all_candidates)} continuous candidates and '
 
 
 print('\nSTEP 4: SCORE, RANK AND FILTER CANDIDATE CONCEPTS')
-c_value = annotator.CValueRanker(extractor, C_VALUE_THRESHOLD)
-rect_freq = annotator.RectifiedFreqRanker(extractor)
-tf_idf = annotator.TfIdfRanker(extractor)
-glossex = annotator.GlossexRanker(extractor, ngram_model)
-pmi_nl = annotator.PmiNlRanker(extractor, ngram_model)
-term_coherence = annotator.TermCoherenceRanker(extractor, ngram_model)
-voter = annotator.VotingRanker(extractor, c_value, tf_idf, glossex, pmi_nl,
-                               term_coherence)
-final = voter.keep_proportion(.8)
-mesh_matcher = annotator.MeshMatcher(extractor)
+mesh_matcher = an.MeshMatcher(extractor)
 mesh_matcher.verify_candidates()
 
+c_value = an.CValueRanker(extractor, C_VALUE_THRESHOLD)
+rect_freq = an.RectifiedFreqRanker(extractor)
+tf_idf = an.TfIdfRanker(extractor)
+glossex = an.GlossexRanker(extractor, ngram_model)
+pmi_nl = an.PmiNlRanker(extractor, ngram_model)
+term_coherence = an.TermCoherenceRanker(extractor, ngram_model)
+voter = an.VotingRanker(extractor, c_value, tf_idf, glossex, pmi_nl,
+                        term_coherence)
+METRICS.add(c_value, rect_freq, tf_idf, glossex, pmi_nl, term_coherence, voter)
+
+final = c_value.keep_proportion(1)  # keep all, but ranked
+final = FILTER.apply(final)  # then filter
+
 extractor.update(coord_extractor)
-extractor.update(hypernym_extractor)
+#extractor.update(hypernym_extractor)
 
-final = [c for c in final if rect_freq.value(c) >= FREQ_THRESHOLD]
 extractor.accept_candidates(set(final).union(mesh_matcher.verified()))
-
 
 print('\nSTEP 5: EVALUATE')
 corpus_report = CorpusReport(anno.Concept, docs, gold_docs)
 corpus_report.performance_summary()
 corpus_report.error_analysis(gold_concepts, mesh_matcher.verified(), MAX_N,
-                             annotator.CandidateExtractor.FILTERS.simple,
+                             an.CandidateExtractor.FILTERS.simple,
                              gold_counter, FREQ_THRESHOLD)
 print()
 dc_corpus_report = CorpusReport(anno.DiscontinuousConcept, docs, gold_docs)
 dc_corpus_report.performance_summary()
 dc_corpus_report.error_analysis(gold_concepts, mesh_matcher.verified(), MAX_N,
-                                annotator.CandidateExtractor.FILTERS.simple,
+                                an.CandidateExtractor.FILTERS.simple,
                                 gold_counter, FREQ_THRESHOLD)
 print()
 types_report = TypesReport(final, gold_concepts)
@@ -104,5 +113,4 @@ types_report.performance_summary()
 types_report.error_analysis(mesh_matcher.verified(), MAX_N, gold_counter,
                             FREQ_THRESHOLD)
 
-metrics = annotator.Metrics(c_value, tf_idf, rect_freq, glossex, pmi_nl,
-                            term_coherence)
+
