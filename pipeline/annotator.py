@@ -97,7 +97,7 @@ class CoreNlpServer:
                     'annotators': annotation_types,
                     'ssplit.newlineIsSentenceBreak': 'two'}, timeout=15000
             )
-        except requests.exceptions.HTTPError as e:
+        except requests.exceptions.HTTPError:
             # some docs cause such an error; if so, give up and return
             print('\rHTTPError for:', doc.id)
             return doc
@@ -161,6 +161,12 @@ class CandidateDiscConcept(anno.DiscontinuousConcept):
     def accept(self):
         concept = anno.DiscontinuousConcept(self.document, self.spans)
         self.document.add_annotation(concept)
+
+
+class ExtractionFilters:
+    UNSILO = 'unsilo'
+    SIMPLE = 'simple'
+    LIBERAL = 'liberal'
 
 
 class AbstractCandidateExtractor:
@@ -374,7 +380,13 @@ class AbstractCandidateRanker:
                               key=lambda x: self._values[x])
 
     def filter_at_value(self, value):
-        return [c for c, v in self._ranked if v > value]
+        return_list = []
+        for c in self._ranked:
+            if self.value(c) > value:
+                return_list.append(c)
+            else:
+                break
+        return return_list
 
     def keep_proportion(self, proportion: float):
         cutoff = int(len(self._ranked) * proportion)
@@ -496,8 +508,20 @@ class VotingRanker(AbstractCandidateRanker):
 
 class Metrics:
 
+    C_VALUE = CValueRanker.__name__
+    TF_IDF = TfIdfRanker.__name__
+    RECT_FREQ = RectifiedFreqRanker.__name__
+    GLOSSEX = GlossexRanker.__name__
+    PMI_NL = PmiNlRanker.__name__
+    TERM_COHERENCE = TermCoherenceRanker.__name__
+    VOTER = VotingRanker.__name__
+
     def __init__(self, *rankers):
-        self.rankers = rankers
+        self.rankers = list(rankers)
+
+    def add(self, *rankers):
+        for ranker in rankers:
+            self.rankers.append(ranker)
 
     def __getitem__(self, item):
         metrics = {}
@@ -506,6 +530,41 @@ class Metrics:
                 metrics[type(ranker).__name__] = ranker.value(item)
         return metrics
 
+    def inspect(self, concepts, char_window=20, one_at_a_time=True):
+        for concept in concepts:
+            print(concept.get_context(char_window), )
+            print(self[concept.normalized_concept()])
+            if one_at_a_time:
+                input()
+            else:
+                print()
+
+
+class ConceptFilter:
+
+    class METHODS:
+        ALL = all
+        ANY = any
+        MORE_THAN = lambda x: sum(1 for b in x if b)\
+                              > sum(1 for b in x if not b)
+        AT_LEAST = lambda n: lambda x: sum(1 for b in x if b) >= n
+
+    def __init__(self, *filters, filtering_method=METHODS.ALL):
+        self.filters = filters
+        self.filtering_method = filtering_method
+
+    def apply(self, candidates):
+        passed_candidates = []
+        for c in candidates:
+            passed_filters = [f(c) for f in self.filters]
+            if self.filtering_method(passed_filters):
+                passed_candidates.append(c)
+        return passed_candidates
+
+
+################################################################################
+# ONTOLOGY MATCHING/VERIFICATION
+################################################################################
 
 class OntologyMatcher:
 
