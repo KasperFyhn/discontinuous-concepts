@@ -286,13 +286,14 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
 
     class FILTERS:
         unsilo = re.compile(r'(?:[navs]+,?)+c[navs]n+')
-        simple = re.compile(r'(?:[an]+,?)+c[an]+?n+')
+        simple = (re.compile(r'(([an]+,?)+c[an]+?)+[an]*'),
+                  re.compile(r'a*n+'))
         liberal = re.compile(r'(?:[navrds]+,?)+c[navrds]n+')
 
 
-    def __init__(self, pos_tag_filters, model, max_n=5):
+    def __init__(self, pos_tag_filter, model, max_n=5):
         super().__init__()
-        self.pos_filters = pos_tag_filters
+        self.pos_filter = pos_tag_filter
         self.model = model
         self.min_n = 3
         self.max_n = max_n
@@ -301,105 +302,151 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
         candidates = []
         for sentence in doc.get_annotations(anno.Sentence):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
-            for f in self.pos_filters:
-                sent_candidates = self._apply_filter(f, tokens, doc, self.model)
-                candidates += sent_candidates
+            sent_candidates = self._apply_filter(self.pos_filter[0],
+                                                 self.pos_filter[1], tokens,
+                                                 doc, self.model)
+            candidates += sent_candidates
 
         return candidates
 
     @staticmethod
-    def _apply_filter(filter_tuple, tokens, doc, model, pmi_threshold=1):
-        super_pattern = filter_tuple
+    def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
+                      pmi_threshold=1.5):
 
         candidates = []
 
         full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
         super_match = [m for m in re.finditer(super_pattern.pattern,
                                               full_pos_seq)]
-        super_match_strings = [tokens[m.start(0):m.end(0)] for m in super_match]
-        super_match_strings = [sm for sm in super_match_strings if len(sm) > 3]
+        super_match_chunks = [tokens[m.start(0):m.end(0)] for m in super_match]
+        supergrams = [sg for smc in super_match_chunks
+                      for n in range(4, len(smc) + 1)
+                      for sg in nltk.ngrams(smc, n)
+                      if len(sg) > 3
+                      and re.match(super_pattern, ''.join(t.mapped_pos()
+                                                          for t in sg))]
 
-        for supergram in super_match_strings:
+        for supergram in supergrams:
             pos_seq = ''.join(t.mapped_pos() for t in supergram)
 
             edges = []
             # loop over the sequence to find all coordination pairs
             # this is to determine which gaps to bridge
-            for cc_group in re.finditer('(.)(,[^,]+)*,?c(.)', pos_seq):
+            for cc_group in re.finditer('(.)(?:,[^,]+)*,?c(.)', pos_seq):
                 # we need the indices of the tokens around the coordination
+                # but forget extra enumerated words for now
+                # e.g. we want B and D in A B, C and D E
                 first_index = cc_group.start(1)
-                last_index = cc_group.start(3)
+                last_index = cc_group.start(2)
 
-                # determine gap from token 1 to somewhere after 2, if any
+                # determine gap from token 1 to somewhere after the last, if any
+                # e.g. given A B C c D E F, both E and F will be candidates to
+                # make a bridge to from B
                 first_token = supergram[first_index]
                 if first_token.pos == 'NNS':
-                    right_edge = None  # plural word, probably not a modifier
+                    # plural word, probably not a modifier, but a head which is
+                    # coordinated with the whole thing on the right, e.g.
+                    # JJ NNS CC NN NN
+                    right_edge = None
                 else:
-                    # indices of all tokens after the last word
+                    # get indices of all tokens after the last word
                     # but only up until another coordination
                     after_last = []
+                    hit_cc = False
                     for i in range(last_index+1, len(pos_seq)):
                         if pos_seq[i] == 'c':
-                            break  # another coordination was encountered
-                        after_last.append(i)
-                    if not after_last:
-                        right_edge = None
+                            # another coordination was encountered
+                            hit_cc = True
+                            break
+                        after_last.append(i)  # each encountered is a candidate
+
+                    # each candidate is a potential edge, but also None
+                    # decide based on high PMI between candidates and first.
+                    # if not any tokens after the last in the coordination,
+                    # there is no edge to take care of, e.g. A B c C, and
+                    # None will win.
+                    if hit_cc:
+                        potential_edges = {}
                     else:
                         potential_edges = {None: pmi_threshold}
-                        for index in after_last:
-                            token = supergram[index]
-                            pmi = conceptstats.ngram_pmi(first_token.lemma(),
-                                                         token.lemma(), model)
-                            potential_edges[index] = pmi
-
-                        right_edge = max(potential_edges,
-                                         key=lambda x: potential_edges[x])
-
-                # determine gap from token 2 to somewhere before 1, if any
-                last_token = supergram[last_index]
-                # indices of all tokens before the first word
-                # but only down until another coordination
-                before_first = []
-                for i in range(first_index - 1, -1, -1):
-                    if pos_seq[i] == 'c':
-                        break  # another coordination was encountered
-                    before_first.append(i)
-
-                if not before_first:
-                    left_edge = None
-                else:
-                    potential_edges = {None: pmi_threshold}
-                    for index in before_first:
+                    for index in after_last:
                         token = supergram[index]
-                        pmi = conceptstats.ngram_pmi(token.lemma(),
-                                                     last_token.lemma(), model)
+                        pmi = conceptstats.ngram_pmi(first_token.lemma(),
+                                                     token.lemma(), model)
                         potential_edges[index] = pmi
 
-                    left_edge = max(potential_edges,
-                                    key=lambda x: potential_edges[x])
+                    right_edge = max(potential_edges,
+                                     key=lambda x: potential_edges[x])
+
+                # determine gap from last token to somewhere before first
+                # more or less the same as previous, just reversed. Also, pay
+                # attention to indices
+                last_token = supergram[last_index]
+                # get indices of all tokens before the first word
+                # but only down until another coordination
+                before_first = []
+                hit_cc = False
+                for i in range(first_index - 1, -1, -1):
+                    if pos_seq[i] == 'c':
+                        # another coordination was encountered
+                        hit_cc = True
+                        break
+                    before_first.append(i)
+
+                if hit_cc:
+                    potential_edges = {}
+                else:
+                    potential_edges = {None: pmi_threshold}
+                for index in before_first:
+                    token = supergram[index]
+                    pmi = conceptstats.ngram_pmi(token.lemma(),
+                                                 last_token.lemma(), model)
+                    potential_edges[index] = pmi
+
+                left_edge = max(potential_edges,
+                                key=lambda x: potential_edges[x])
+                # + 1 to ensure that the index is at the token AFTER the edge
+                if type(left_edge) == int:
+                    left_edge += 1
 
                 edges.append((left_edge, right_edge))
 
+            # make common and shared element chunks based on the edges
+            # candidates are then made from the Cartesian product of elements
             prev_right = 0
             elements = []
             for left_edge, right_edge in edges:
                 if left_edge:
-                    elements.append([supergram[prev_right:left_edge]])  # shared
+                    shared = supergram[prev_right:left_edge]
+                    if shared:  # shared material before the coordination
+                        elements.append([shared])
                 alternatives = [[]]
+                # loop over tokens in the coordination and chop up the chunks
+                # based on commas and coordination (more can be added)
                 for token in supergram[left_edge:right_edge]:
                     if token.mapped_pos() in ',c':
-                        if alternatives[-1]:
+                        if alternatives[-1]:  # wrap up the Tokens and make new
                             alternatives.append([])
-                    else:
+                    else:  # add it to the current
                         alternatives[-1].append(token)
+                if not alternatives[-1]:
+                    # sometimes, due to punctuation, this last one can be empty
+                    # if so, remove it
+                    alternatives.pop()
                 elements.append(alternatives)
                 prev_right = right_edge
-            if prev_right:
-                elements.append([supergram[prev_right:]])
+
+            if prev_right:  # shared material after the last coordination
+                shared = supergram[prev_right:]
+                if shared:  # shared material before the coordination
+                    elements.append([shared])
 
             for chunks in itertools.product(*elements):
                 # first, merge adjacent spans
-                chunks = list(chunks)
+                chunks = [tuple(chunk) for chunk in chunks]
+                for c in chunks:
+                    if not c:
+                        print()
                 merged_chunks = [chunks.pop(0)]
                 for chunk in chunks:
                     if chunk[0].span[0] - merged_chunks[-1][-1].span[1] < 2:
@@ -412,7 +459,9 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     continue
                 else:
                     dc = CandidateDiscConcept(doc, merged_chunks)
-                    candidates.append(dc)
+                    # post filtering step: allowed POS-sequence?
+                    if re.match(concept_pattern, dc.pos_sequence()):
+                        candidates.append(dc)
 
         return candidates
 
@@ -621,6 +670,13 @@ class GoldMatcher(Matcher):
 
     def __init__(self, candidate_extractor, gold_concepts):
         super().__init__(candidate_extractor, gold_concepts)
+
+
+class ExtractionMatcher(Matcher):
+
+    def __init__(self, candidate_extractor):
+        super().__init__(candidate_extractor,
+                         set(candidate_extractor.concept_index.keys()))
 
 
 ################################################################################

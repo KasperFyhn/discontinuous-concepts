@@ -10,7 +10,7 @@ CORPUS = 'genia'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
-C_VALUE_THRESHOLD = 2
+C_VALUE_THRESHOLD = 2.5
 FREQ_THRESHOLD = 2
 MAX_N = 7
 
@@ -57,7 +57,7 @@ extractor = an.CandidateExtractor(
     pos_tag_filter=an.CandidateExtractor.FILTERS.simple, max_n=MAX_N
 )
 coord_extractor = an.CoordCandidateExtractor(
-    [an.CoordCandidateExtractor.FILTERS.simple], ngram_model,
+    an.CoordCandidateExtractor.FILTERS.simple, ngram_model,
     max_n=MAX_N
 )
 hypernym_extractor = an.HypernymCandidateExtractor(
@@ -74,8 +74,6 @@ print(f'Extracted {len(extractor.all_candidates)} continuous candidates and '
 
 
 print('\nSTEP 4: SCORE, RANK AND FILTER CANDIDATE CONCEPTS')
-
-
 c_value = an.CValueRanker(extractor, C_VALUE_THRESHOLD)
 rect_freq = an.RectifiedFreqRanker(extractor)
 tf_idf = an.TfIdfRanker(extractor)
@@ -90,7 +88,7 @@ final = c_value.keep_proportion(1)  # keep all, but ranked
 final = FILTER.apply(final)  # then filter
 
 extractor.update(coord_extractor)
-#extractor.update(hypernym_extractor)
+extractor.update(hypernym_extractor)
 
 mesh_matcher = an.MeshMatcher(extractor)
 
@@ -114,5 +112,6 @@ types_report.performance_summary()
 types_report.error_analysis(mesh_matcher.verified(), MAX_N, gold_counter,
                             FREQ_THRESHOLD)
 
-METRICS.add(mesh_matcher, an.GoldMatcher(extractor, gold_concepts))
+METRICS.add(mesh_matcher, an.GoldMatcher(extractor, gold_concepts),
+            an.ExtractionMatcher(coord_extractor))
 

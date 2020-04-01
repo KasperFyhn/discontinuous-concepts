@@ -114,7 +114,8 @@ class CorpusReport(EvaluationReport):
             verified_fps = {c for c in self.false_positives()
                             if c.normalized_concept() in verified_concepts}
             percent = len(verified_fps) / len(self.false_positives()) * 100
-            print(f'{len(verified_fps)} ({percent:.2f}%) FP\'s were verified.')
+            print(f'{len(verified_fps)} ({percent:.2f}%) FP\'s were verified '
+                  'in ontology source(s).')
 
             # all analyzed FP's
             analyzed_fps = set.union(gold_fps, verified_fps)
