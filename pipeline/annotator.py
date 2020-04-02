@@ -245,15 +245,20 @@ class CandidateExtractor(AbstractCandidateExtractor):
 
 class HypernymCandidateExtractor(CandidateExtractor):
 
-    def __init__(self, pos_tag_filter=None, min_n=3, max_n=5, max_k=None):
+    def __init__(self, pos_tag_filter, model, *extractors, min_n=3, max_n=5,
+                 max_k=None, freq_threshold=1):
         super().__init__(pos_tag_filter, min_n, max_n)
+        self.model = model
+        self.extractors = extractors
         if not max_k:
             self.max_k = max_n - 2
         else:
             self.max_k = min(max_k, max_n - 2)
+        self.freq_threshold = freq_threshold
 
     def _extract_candidates(self, doc):
-        basic_candidates = super()._extract_candidates(doc)
+        basic_candidates = [c for extractor in self.extractors
+                            for c in extractor.doc_index[doc]]
         dc_candidates = []
         for candidate in basic_candidates:
             c_tokens = candidate.get_tokens()
@@ -277,7 +282,10 @@ class HypernymCandidateExtractor(CandidateExtractor):
                     continue
                 else:
                     dc = CandidateDiscConcept(doc, chunks)
-                    dc_candidates.append(dc)
+                    if re.match(self.pos_filter, dc.pos_sequence()) \
+                            and self.model[dc.normalized_concept()] \
+                            > self.freq_threshold:
+                        dc_candidates.append(dc)
 
         return dc_candidates
 
@@ -290,13 +298,15 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                   re.compile(r'a*n+'))
         liberal = re.compile(r'(?:[navrds]+,?)+c[navrds]n+')
 
-
-    def __init__(self, pos_tag_filter, model, max_n=5):
+    def __init__(self, pos_tag_filter, model, max_n=5, freq_threshold=1,
+                 pmi_threshold=1.5):
         super().__init__()
+
         self.pos_filter = pos_tag_filter
         self.model = model
-        self.min_n = 3
         self.max_n = max_n
+        self.pmi_threshold = pmi_threshold
+        self.freq_threshold = freq_threshold
 
     def _extract_candidates(self, doc):
         candidates = []
@@ -311,7 +321,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
 
     @staticmethod
     def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
-                      pmi_threshold=1.5):
+                      freq_threshold=1, pmi_threshold=1.5):
 
         candidates = []
 
@@ -459,8 +469,10 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     continue
                 else:
                     dc = CandidateDiscConcept(doc, merged_chunks)
-                    # post filtering step: allowed POS-sequence?
-                    if re.match(concept_pattern, dc.pos_sequence()):
+                    # post filtering step: allowed POS-sequence
+                    # and frequent enough?
+                    if re.match(concept_pattern, dc.pos_sequence())\
+                            and model[dc.normalized_concept()] > freq_threshold:
                         candidates.append(dc)
 
         return candidates

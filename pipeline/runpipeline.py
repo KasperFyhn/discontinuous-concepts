@@ -10,8 +10,8 @@ CORPUS = 'genia'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
-C_VALUE_THRESHOLD = 2.5
-FREQ_THRESHOLD = 2
+C_VALUE_THRESHOLD = 2
+FREQ_THRESHOLD = 3
 MAX_N = 7
 
 METRICS = an.Metrics()
@@ -61,7 +61,8 @@ coord_extractor = an.CoordCandidateExtractor(
     max_n=MAX_N
 )
 hypernym_extractor = an.HypernymCandidateExtractor(
-    an.HypernymCandidateExtractor.FILTERS.simple, max_n=MAX_N
+    an.HypernymCandidateExtractor.FILTERS.simple, ngram_model, extractor,
+    coord_extractor, max_n=MAX_N
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
     extractor.extract_candidates(doc)
@@ -112,6 +113,5 @@ types_report.performance_summary()
 types_report.error_analysis(mesh_matcher.verified(), MAX_N, gold_counter,
                             FREQ_THRESHOLD)
 
-METRICS.add(mesh_matcher, an.GoldMatcher(extractor, gold_concepts),
-            an.ExtractionMatcher(coord_extractor))
+METRICS.add(mesh_matcher, an.GoldMatcher(extractor, gold_concepts))
 
