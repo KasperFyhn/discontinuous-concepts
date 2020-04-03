@@ -219,14 +219,15 @@ class AbstractCandidateExtractor:
 
 class CandidateExtractor(AbstractCandidateExtractor):
 
-    class FILTERS:
-        unsilo = re.compile(r'([na]|(ns)|(vn))+n')
-        simple = re.compile(r'[an]+n')
-        liberal = re.compile(r'[navrdsp]*n')
+    FILTERS = {
+        ExtractionFilters.UNSILO: re.compile(r'([na]|(ns)|(vn))+n'),
+        ExtractionFilters.SIMPLE: re.compile(r'[an]+n'),
+        ExtractionFilters.LIBERAL: re.compile(r'[navrds]*n')
+    }
 
     def __init__(self, pos_tag_filter=None, min_n=1, max_n=5):
         super().__init__()
-        self.pos_filter = pos_tag_filter
+        self.pos_filter = self.FILTERS[pos_tag_filter]
         self.min_n = min_n
         self.max_n = max_n
 
@@ -246,7 +247,7 @@ class CandidateExtractor(AbstractCandidateExtractor):
 class HypernymCandidateExtractor(CandidateExtractor):
 
     def __init__(self, pos_tag_filter, model, *extractors, min_n=3, max_n=5,
-                 max_k=None, freq_threshold=1):
+                 max_k=None, freq_threshold=1, pmi_threshold=1):
         super().__init__(pos_tag_filter, min_n, max_n)
         self.model = model
         self.extractors = extractors
@@ -255,6 +256,7 @@ class HypernymCandidateExtractor(CandidateExtractor):
         else:
             self.max_k = min(max_k, max_n - 2)
         self.freq_threshold = freq_threshold
+        self.pmi_threshold = pmi_threshold
 
     def _extract_candidates(self, doc):
         basic_candidates = [c for extractor in self.extractors
@@ -277,8 +279,19 @@ class HypernymCandidateExtractor(CandidateExtractor):
                     if token.span[0] - chunks[-1][-1].span[-1] > 1:  # gap
                         chunks.append([])
                     chunks[-1].append(token)
+                # check if all gaps have a bridge with high enough association
+                bridges_accepted = True
+                for i in range(len(chunks) - 1):
+                    chunk = chunks[i]
+                    next_chunk = chunks[i+1]
+                    left_of_gap, right_of_gap = chunk[-1], next_chunk[0]
+                    bridge_pmi = conceptstats.ngram_pmi(left_of_gap.lemma(),
+                                                        right_of_gap.lemma(),
+                                                        self.model)
+                    if bridge_pmi < self.pmi_threshold:
+                        bridges_accepted = False  # not high enough association
 
-                if len(chunks) < 2:
+                if len(chunks) < 2 or not bridges_accepted:
                     continue
                 else:
                     dc = CandidateDiscConcept(doc, chunks)
@@ -291,18 +304,21 @@ class HypernymCandidateExtractor(CandidateExtractor):
 
 
 class CoordCandidateExtractor(AbstractCandidateExtractor):
-
-    class FILTERS:
-        unsilo = re.compile(r'(?:[navs]+,?)+c[navs]n+')
-        simple = (re.compile(r'(([an]+,?)+c[an]+?)+[an]*'),
-                  re.compile(r'a*n+'))
-        liberal = re.compile(r'(?:[navrds]+,?)+c[navrds]n+')
+    FILTERS = {
+        ExtractionFilters.UNSILO:
+            (re.compile(r'(([navs]+,?)+c[navs])+[navs]*'),
+             re.compile(r'[navs]+n')),
+        ExtractionFilters.SIMPLE: (re.compile(r'(([an]+,?)+c[an])+[an]*'),
+                                   re.compile(r'a*n+')),
+        ExtractionFilters.LIBERAL:
+            (re.compile(r'(([navrds]+,?)+c[navrds])+[navrds]*'),
+             re.compile(r'[navrds]+n'))
+    }
 
     def __init__(self, pos_tag_filter, model, max_n=5, freq_threshold=1,
-                 pmi_threshold=1.5):
+                 pmi_threshold=1):
         super().__init__()
-
-        self.pos_filter = pos_tag_filter
+        self.pos_filter = self.FILTERS[pos_tag_filter]
         self.model = model
         self.max_n = max_n
         self.pmi_threshold = pmi_threshold
@@ -384,6 +400,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                         pmi = conceptstats.ngram_pmi(first_token.lemma(),
                                                      token.lemma(), model)
                         potential_edges[index] = pmi
+                        if pmi > pmi_threshold: break
 
                     right_edge = max(potential_edges,
                                      key=lambda x: potential_edges[x])
@@ -412,6 +429,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     pmi = conceptstats.ngram_pmi(token.lemma(),
                                                  last_token.lemma(), model)
                     potential_edges[index] = pmi
+                    if pmi > pmi_threshold:
+                        break
 
                 left_edge = max(potential_edges,
                                 key=lambda x: potential_edges[x])
@@ -472,7 +491,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     # post filtering step: allowed POS-sequence
                     # and frequent enough?
                     if re.match(concept_pattern, dc.pos_sequence())\
-                            and model[dc.normalized_concept()] > freq_threshold:
+                            and model[dc.normalized_concept()] >= freq_threshold:
                         candidates.append(dc)
 
         return candidates
