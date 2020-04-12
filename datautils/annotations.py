@@ -255,7 +255,7 @@ class Token(Annotation):
         return hash((type(self), self._doc_id, self.span, self.pos))
 
     def __repr__(self):
-        return super().__repr__() + '\\' + self.pos
+        return super().__repr__() + '/' + self.pos
 
     def short_repr(self):
         return self.__class__.__name__ + ':' + str([self.span, self.pos])

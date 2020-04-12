@@ -88,6 +88,9 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
 def length_normalized_pmi(ngram, model, smoothing=.1):
     if isinstance(ngram, str):
         ngram = tuple(ngram.split())
+    if len(ngram) < 2:
+        raise ArithmeticError('Cannot calculate PMI for an n-gram of less than '
+                              'two tokens!\n' + str(ngram))
     joint_prob = model.prob(ngram, smoothing)
     indiv_probs = 1
     for w in ngram:

@@ -10,15 +10,17 @@ CORPUS = 'genia'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
-C_VALUE_THRESHOLD = 2
+C_VALUE_THRESHOLD = 1.5
 FREQ_THRESHOLD = 3
-MAX_N = 7
+MAX_N = 5
+GAP_PMI_THRESHOLD = .1
 
 METRICS = cm.Metrics()
 FILTER = cm.ConceptFilter(
     lambda c: METRICS[c][cm.Metrics.C_VALUE] >= C_VALUE_THRESHOLD,
     lambda c: METRICS[c][cm.Metrics.RECT_FREQ] >= FREQ_THRESHOLD,
-    lambda c: METRICS[c][cm.Metrics.PMI_NL] >= 2,
+    lambda c: METRICS[c][cm.Metrics.GLOSSEX] >= 1.5,
+    # lambda c: METRICS[c][cm.Metrics.PMI_NL] >= 2,
     # lambda c: METRICS[c][cm.Metrics.TF_IDF] >= 100,
     filtering_method=cm.ConceptFilter.METHODS.ALL
 )
@@ -59,20 +61,21 @@ extractor = cm.CandidateExtractor(
 )
 coord_extractor = cm.CoordCandidateExtractor(
     cm.ExtractionFilters.SIMPLE, ngram_model,
-    max_n=MAX_N
+    max_n=MAX_N, pmi_threshold=GAP_PMI_THRESHOLD
 )
 hypernym_extractor = cm.HypernymCandidateExtractor(
     cm.ExtractionFilters.SIMPLE, ngram_model, extractor,
-    coord_extractor, max_n=MAX_N
+    coord_extractor, max_n=MAX_N, pmi_threshold=GAP_PMI_THRESHOLD
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
     extractor.extract_candidates(doc)
     coord_extractor.extract_candidates(doc)
     hypernym_extractor.extract_candidates(doc)
 
+n_dcs = len(set.union(coord_extractor.all_candidates,
+                      hypernym_extractor.all_candidates))
 print(f'Extracted {len(extractor.all_candidates)} continuous candidates and '
-      f'{len(coord_extractor.all_candidates+hypernym_extractor.all_candidates)}'
-      f' discontinuous candidates.')
+      f'{n_dcs} discontinuous candidates.')
 
 
 print('\nSTEP 4: SCORE, RANK AND FILTER CANDIDATE CONCEPTS')
@@ -86,7 +89,7 @@ voter = cm.VotingRanker(extractor, c_value, tf_idf, glossex, pmi_nl,
                         term_coherence)
 METRICS.add(c_value, rect_freq, tf_idf, glossex, pmi_nl, term_coherence, voter)
 
-final = voter.keep_proportion(.9)  # keep all, but ranked
+final = voter.keep_proportion(1)  # keep all, but ranked
 final = FILTER.apply(final)  # then filter
 
 extractor.update(coord_extractor)
@@ -99,7 +102,7 @@ extractor.accept_candidates(set(final).union(mesh_matcher.verified()))
 print('\nSTEP 5: EVALUATE')
 corpus_report = CorpusReport(anno.Concept, docs, gold_docs)
 corpus_report.performance_summary()
-corpus_report.error_analysis(
+actual_errors = corpus_report.error_analysis(
     gold_concepts, mesh_matcher.verified(), MAX_N,
     cm.CandidateExtractor.FILTERS[cm.ExtractionFilters.SIMPLE], gold_counter,
     FREQ_THRESHOLD
@@ -107,7 +110,7 @@ corpus_report.error_analysis(
 print()
 dc_corpus_report = CorpusReport(anno.DiscontinuousConcept, docs, gold_docs)
 dc_corpus_report.performance_summary()
-dc_corpus_report.error_analysis(
+dc_actual_errors = dc_corpus_report.error_analysis(
     gold_concepts, mesh_matcher.verified(), MAX_N,
     cm.CandidateExtractor.FILTERS[cm.ExtractionFilters.SIMPLE], gold_counter,
     FREQ_THRESHOLD
@@ -115,8 +118,9 @@ dc_corpus_report.error_analysis(
 print()
 types_report = TypesReport(final, gold_concepts)
 types_report.performance_summary()
-types_report.error_analysis(mesh_matcher.verified(), MAX_N, gold_counter,
-                            FREQ_THRESHOLD)
+types_actual_errors = types_report.error_analysis(mesh_matcher.verified(),
+                                                  MAX_N, gold_counter,
+                                                  FREQ_THRESHOLD)
 
 METRICS.add(mesh_matcher, cm.GoldMatcher(extractor, gold_concepts))
 

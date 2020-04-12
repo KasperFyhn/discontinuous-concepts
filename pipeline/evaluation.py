@@ -100,6 +100,7 @@ class CorpusReport(EvaluationReport):
     def error_analysis(self, gold_concepts, verified_concepts, max_n,
                        pos_filter, gold_counter, freq_threshold):
         print('Error analysis of CorpusReport for', self._anno_type.__name__)
+        return_dict = {}
         if self.false_positives():
             # some concepts are not annotated, but occur elsewhere
             gold_concepts = set(gold_concepts)
@@ -125,6 +126,7 @@ class CorpusReport(EvaluationReport):
 
             print('Corrected precision:',
                   round(self.corrected_precision(percent), 3))
+            return_dict['fps'] = self.false_positives().difference(analyzed_fps)
 
         if self.false_negatives():
             # some concepts cannot be captured if they are longer than max n
@@ -155,6 +157,9 @@ class CorpusReport(EvaluationReport):
                   'for in this analysis.')
 
             print('Corrected recall:', round(self.corrected_recall(percent), 3))
+            return_dict['fns'] = self.false_negatives().difference(analyzed_fns)
+
+        return return_dict
 
 
 class TypesReport(EvaluationReport):
@@ -187,6 +192,7 @@ class TypesReport(EvaluationReport):
     def error_analysis(self, verified_concepts, max_n, gold_counter,
                        freq_threshold):
         print('Error analysis of TypesReport')
+        return_dict = {}
         # some concepts can be verified from other sources, e.g. ontologies
         verified_concepts = set(verified_concepts)
         verified_fps = verified_concepts.intersection(self.false_positives())
@@ -201,6 +207,7 @@ class TypesReport(EvaluationReport):
 
         print('Corrected precision:',
               round(self.corrected_precision(percent), 3))
+        return_dict['fps'] = self.false_positives().difference(analyzed_fps)
 
         # some concepts cannot be captured if they are longer than max n
         over_max = {c for c in self.false_negatives() if len(c) > max_n}
@@ -221,6 +228,9 @@ class TypesReport(EvaluationReport):
               'in this analysis.')
 
         print('Corrected recall:', round(self.corrected_recall(percent), 3))
+        return_dict['fns'] = self.false_negatives().difference(analyzed_fns)
+
+        return return_dict
 
 
 # PERFORMANCE MEASURES

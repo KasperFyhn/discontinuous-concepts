@@ -146,9 +146,11 @@ class CandidateConcept(anno.Concept):
         super().__init__(document, (tokens[0].span[0], tokens[-1].span[-1]))
         self.covered_tokens = tokens
 
+    def to_concept(self):
+        return anno.Concept(self.document, self.span)
+
     def accept(self):
-        concept = anno.Concept(self.document, self.span)
-        self.document.add_annotation(concept)
+        self.document.add_annotation(self.to_concept())
 
 
 class CandidateDiscConcept(anno.DiscontinuousConcept):
@@ -159,9 +161,11 @@ class CandidateDiscConcept(anno.DiscontinuousConcept):
         super().__init__(document, spans)
         self.covered_tokens = [t for tokens in token_chunks for t in tokens]
 
+    def to_concept(self):
+        return anno.DiscontinuousConcept(self.document, self.spans)
+
     def accept(self):
-        concept = anno.DiscontinuousConcept(self.document, self.spans)
-        self.document.add_annotation(concept)
+        self.document.add_annotation(self.to_concept())
 
 
 class ExtractionFilters:
@@ -176,7 +180,8 @@ class AbstractCandidateExtractor:
         self.doc_index = defaultdict(set)
         self.concept_index = defaultdict(set)
         self.types = set()
-        self.all_candidates = []
+        self.all_candidates = set()
+        self.extracted_concepts = set()
 
     def extract_candidates(self, doc):
         candidates = self._extract_candidates(doc)
@@ -190,7 +195,8 @@ class AbstractCandidateExtractor:
         self.doc_index[concept.document].add(concept)
         self.concept_index[concept.normalized_concept()].add(concept)
         self.types.add(concept.normalized_concept())
-        self.all_candidates.append(concept)
+        self.all_candidates.add(concept)
+        self.extracted_concepts.add(concept.to_concept())
 
     def _extract_candidates(self, doc):
         pass
@@ -200,9 +206,13 @@ class AbstractCandidateExtractor:
             for instance in self.concept_index[concept]:
                 instance.accept()
 
-    def update(self, other):
+    def update(self, other, only_existing=False):
         for c in other.all_candidates:
-            self.add(c)
+            if only_existing:
+                if c.normalized_concept() in self.types:
+                    self.add(c)
+            else:
+                self.add(c)
 
     def term_frequencies(self):
         return Counter({key: len(sample)
@@ -268,9 +278,9 @@ class HypernymCandidateExtractor(CandidateExtractor):
                 continue
 
             obligatory_token = c_tokens[-1]
-            min_n = min(self.min_n, 2)
+            max_n = min(self.max_n, len(c_tokens))
 
-            skipgrams = [sg for n in range(min_n, self.max_n)
+            skipgrams = [sg for n in range(2, max_n)
                          for sg in nltk.skipgrams(c_tokens, n, self.max_k)
                          if sg[-1] == obligatory_token]
             for sg in skipgrams:
@@ -309,7 +319,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
             (re.compile(r'(([navs]+,?)+c[navs])+[navs]*'),
              re.compile(r'[navs]+n')),
         ExtractionFilters.SIMPLE: (re.compile(r'(([an]+,?)+c[an])+[an]*'),
-                                   re.compile(r'a*n+')),
+                                   re.compile(r'[an]+n')),
         ExtractionFilters.LIBERAL:
             (re.compile(r'(([navrds]+,?)+c[navrds])+[navrds]*'),
              re.compile(r'[navrds]+n'))
@@ -328,16 +338,16 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
         candidates = []
         for sentence in doc.get_annotations(anno.Sentence):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
-            sent_candidates = self._apply_filter(self.pos_filter[0],
-                                                 self.pos_filter[1], tokens,
-                                                 doc, self.model)
+            sent_candidates = self._apply_filter(
+                self.pos_filter[0], self.pos_filter[1], tokens, doc, self.model,
+                self.freq_threshold, self.pmi_threshold)
             candidates += sent_candidates
 
         return candidates
 
     @staticmethod
     def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
-                      freq_threshold=1, pmi_threshold=1.5):
+                      freq_threshold, pmi_threshold):
 
         candidates = []
 
@@ -397,10 +407,13 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                         potential_edges = {None: pmi_threshold}
                     for index in after_last:
                         token = supergram[index]
-                        pmi = conceptstats.ngram_pmi(first_token.lemma(),
-                                                     token.lemma(), model)
+                        bridge = (first_token.lemma(), token.lemma())
+                        pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
+                                                     model, smoothing=.1)
                         potential_edges[index] = pmi
-                        if pmi > pmi_threshold: break
+                        if pmi > pmi_threshold\
+                                and model[bridge] >= freq_threshold:
+                            break
 
                     right_edge = max(potential_edges,
                                      key=lambda x: potential_edges[x])
@@ -426,10 +439,12 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     potential_edges = {None: pmi_threshold}
                 for index in before_first:
                     token = supergram[index]
-                    pmi = conceptstats.ngram_pmi(token.lemma(),
-                                                 last_token.lemma(), model)
+                    bridge = (token.lemma(), last_token.lemma())
+                    pmi = conceptstats.ngram_pmi(bridge[0], bridge[1], model,
+                                                 smoothing=.1)
                     potential_edges[index] = pmi
-                    if pmi > pmi_threshold:
+                    if pmi > pmi_threshold \
+                            and model[bridge] >= freq_threshold:
                         break
 
                 left_edge = max(potential_edges,
@@ -473,9 +488,6 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
             for chunks in itertools.product(*elements):
                 # first, merge adjacent spans
                 chunks = [tuple(chunk) for chunk in chunks]
-                for c in chunks:
-                    if not c:
-                        print()
                 merged_chunks = [chunks.pop(0)]
                 for chunk in chunks:
                     if chunk[0].span[0] - merged_chunks[-1][-1].span[1] < 2:
@@ -488,10 +500,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     continue
                 else:
                     dc = CandidateDiscConcept(doc, merged_chunks)
-                    # post filtering step: allowed POS-sequence
-                    # and frequent enough?
-                    if re.match(concept_pattern, dc.pos_sequence())\
-                            and model[dc.normalized_concept()] >= freq_threshold:
+                    # post filtering step: allowed POS-sequence?
+                    if re.match(concept_pattern, dc.pos_sequence()):
                         candidates.append(dc)
 
         return candidates
@@ -743,10 +753,18 @@ class Metrics:
                 metrics[type(ranker).__name__] = ranker.value(item)
         return metrics
 
-    def inspect(self, concepts, char_window=20):
+    def inspect(self, concepts, extractors=None, doc_dict=None, char_window=20):
         for concept in concepts:
             print(concept.get_context(char_window))
             print(self[concept.normalized_concept()])
+            if extractors:
+                for ext in extractors:
+                    print(f'Extracted by {type(ext).__name__}:',
+                          concept in ext.extracted_concepts)
+            if doc_dict:
+                if concept.document.id in doc_dict:
+                    doc = doc_dict[concept.document.id]
+                    print(doc.get_annotations_at(concept.span, anno.Token))
             print()
 
 
