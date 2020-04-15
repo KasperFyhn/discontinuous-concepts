@@ -33,7 +33,7 @@ def _text_tokenizer(in_queue, out_queue, doc_loader):
     while True:  # keep going until reaching the "stop sign", i.e. a None object
         id_ = in_queue.get()  # get next doc id
         if not id_:  # a None was drawn from the queue
-            # means that there are no more docs: send signal to master counter
+            # means that there are no more docs: send signal to writer
             # that no more docs will come from this worker
             out_queue.put(None)
             break

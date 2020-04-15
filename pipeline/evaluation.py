@@ -235,9 +235,10 @@ class TypesReport(EvaluationReport):
 
 # PERFORMANCE MEASURES
 def gold_standard_concepts(corpus, continuous=True, discontinuous=True,
-                           exclude_unigrams=True):
+                           exclude_unigrams=True, pos_filter=None):
     print('Retrieving gold standard concepts ...', end=' ', flush=True)
     all_concepts = set()
+    filtered = set()
     skipped = set()
     for doc in corpus:
         concepts = doc.get_annotations(anno.Concept)
@@ -253,10 +254,16 @@ def gold_standard_concepts(corpus, continuous=True, discontinuous=True,
                              and c.span[1] == c_tokens[-1].span[1]):
                     # concept span does not equal token span, e.g. if only
                     # part of a token constitutes a concept
-                    skipped.add(c.get_covered_text())
+                    skipped.add(c)
                 else:
-                    all_concepts.add(c.normalized_concept())
-    print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries.')
+                    if pos_filter and not re.fullmatch(pos_filter,
+                                                       c.pos_sequence()):
+                        filtered.add(c)
+                    else:
+                        all_concepts.add(c.normalized_concept())
+    print(f'Skipped {len(skipped)} concepts not bounded at tokens boundaries '
+          f'and filtered out {len(filtered)} with the POS-tag filter:',
+          str(pos_filter))
     if exclude_unigrams:
         all_concepts = {c for c in all_concepts if not len(c) == 1}
     return all_concepts

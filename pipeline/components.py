@@ -394,7 +394,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                             # another coordination was encountered
                             hit_cc = True
                             break
-                        after_last.append(i)  # each encountered is a candidate
+                        else:
+                            after_last.append(i)  # is a candidate
 
                     # each candidate is a potential edge, but also None
                     # decide based on high PMI between candidates and first.
@@ -413,6 +414,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                         potential_edges[index] = pmi
                         if pmi > pmi_threshold\
                                 and model[bridge] >= freq_threshold:
+                            potential_edges = {index: pmi}
                             break
 
                     right_edge = max(potential_edges,
@@ -431,7 +433,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                         # another coordination was encountered
                         hit_cc = True
                         break
-                    before_first.append(i)
+                    else:
+                        before_first.append(i)
 
                 if hit_cc:
                     potential_edges = {}
@@ -445,6 +448,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     potential_edges[index] = pmi
                     if pmi > pmi_threshold \
                             and model[bridge] >= freq_threshold:
+                        potential_edges = {index: pmi}
                         break
 
                 left_edge = max(potential_edges,

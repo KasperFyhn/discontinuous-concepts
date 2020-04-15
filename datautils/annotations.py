@@ -318,10 +318,6 @@ class DiscontinuousConcept(Concept):
         build_string = build_string.replace('\n', ' ')
         return build_string
 
-    def normalized_concept(self):
-        tokens = self.get_tokens()
-        return tuple(t.lemma() for t in tokens)
-
     def __eq__(self, other):
         return super().__eq__(other) and self.spans == other.spans
 
