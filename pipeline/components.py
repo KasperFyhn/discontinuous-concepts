@@ -2,6 +2,7 @@ import re
 from collections import defaultdict, Counter
 import itertools
 
+import math
 import nltk
 import requests
 import os
@@ -409,11 +410,14 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                     for index in after_last:
                         token = supergram[index]
                         bridge = (first_token.lemma(), token.lemma())
-                        pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
-                                                     model, smoothing=.1)
+                        freq = model[bridge]
+                        if freq == 0:
+                            pmi = -math.inf
+                        else:
+                            pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
+                                                         model)
                         potential_edges[index] = pmi
-                        if pmi > pmi_threshold\
-                                and model[bridge] >= freq_threshold:
+                        if pmi > pmi_threshold and freq >= freq_threshold:
                             potential_edges = {index: pmi}
                             break
 
@@ -443,11 +447,14 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                 for index in before_first:
                     token = supergram[index]
                     bridge = (token.lemma(), last_token.lemma())
-                    pmi = conceptstats.ngram_pmi(bridge[0], bridge[1], model,
-                                                 smoothing=.1)
+                    freq = model[bridge]
+                    if freq == 0:
+                        pmi = -math.inf
+                    else:
+                        pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
+                                                     model)
                     potential_edges[index] = pmi
-                    if pmi > pmi_threshold \
-                            and model[bridge] >= freq_threshold:
+                    if pmi > pmi_threshold and freq >= freq_threshold:
                         potential_edges = {index: pmi}
                         break
 
@@ -509,6 +516,95 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                         candidates.append(dc)
 
         return candidates
+
+
+class CoordCandidateExtractor2(CoordCandidateExtractor):
+
+    @staticmethod
+    def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
+                      freq_threshold, pmi_threshold):
+
+        candidates = []
+
+        full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
+        super_match = [m for m in re.finditer(super_pattern.pattern,
+                                              full_pos_seq)]
+        super_match_chunks = [tokens[m.start(0):m.end(0)] for m in super_match]
+        supergrams = [sg for smc in super_match_chunks
+                      for n in range(4, len(smc) + 1)
+                      for sg in nltk.ngrams(smc, n)
+                      if len(sg) > 3
+                      and re.match(super_pattern, ''.join(t.mapped_pos()
+                                                          for t in sg))]
+
+        for supergram in super_match_chunks:
+            pos_seq = ''.join(t.mapped_pos() for t in supergram)
+
+            bridges = defaultdict(set)
+
+            # loop over the sequence to find all coordination pairs
+            # this is to make all possible bridges
+            for cc_group in re.finditer('(.)((?:,[^,]+)*),?c(.)', pos_seq):
+                # we need the indices of the tokens around the coordination
+                # but forget extra enumerated words for now
+                # e.g. we want B and D in A B, C and D E
+                first_index = cc_group.start(1)
+                enumerations = [i for i in range(cc_group.start(2),
+                                                 cc_group.end(2))
+                                if not pos_seq[i] == 'c']
+                last_index = cc_group.start(3)
+
+                # make potential bridges from first token to after the last
+                first_token = supergram[first_index]
+                if first_token.pos == 'NNS':
+                    # plural word, probably not a modifier, but a head which is
+                    # coordinated with the whole thing on the right, e.g.
+                    # JJ NNS CC NN NN
+                    continue
+                else:
+                    # get indices of all tokens after the last word
+                    # except coordinations
+                    after_last = [i for i in range(last_index + 1, len(pos_seq))
+                                  if not pos_seq[i] == 'c']
+                    
+                # and indices of all tokens before the first word (except cc's)
+                before_first = [i for i in range(first_index - 1, -1, -1)
+                                if not pos_seq[i] == 'c']
+
+                potential_bridges = []
+                # from the first token to anything after the last
+                potential_bridges += list(itertools.product([first_index],
+                                                            after_last))
+                # from the last token to anything before the first
+                potential_bridges += list(itertools.product(before_first,
+                                                            [last_index]))
+                # from anything before first to after last
+                potential_bridges += list(itertools.product(before_first,
+                                                            after_last))
+                # from before first to enumerated elements
+                potential_bridges += list(itertools.product(before_first,
+                                                            enumerations))
+                # from enumerated elements to after last
+                potential_bridges += list(itertools.product(before_first,
+                                                            enumerations))
+
+                for index1, index2 in potential_bridges:
+                    token1 = supergram[index1]
+                    token2 = supergram[index2]
+                    bridge = (token1.lemma(), token2.lemma())
+                    freq = model[bridge]
+                    if freq == 0:
+                        pmi = -math.inf
+                    else:
+                        pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
+                                                     model)
+                    if pmi > pmi_threshold and freq >= freq_threshold:
+                        bridges[index1].add(index2)
+
+
+
+
+
 
 
 ################################################################################

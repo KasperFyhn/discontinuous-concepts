@@ -6,14 +6,14 @@ from pipeline.evaluation import CorpusReport, TypesReport,\
 from tqdm import tqdm
 
 # RUN CONFIGURATIONS
-CORPUS = 'genia'
+CORPUS = 'craft'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
 C_VALUE_THRESHOLD = 2
-FREQ_THRESHOLD = 3
+FREQ_THRESHOLD = 4
 MAX_N = 5
-GAP_PMI_THRESHOLD = .5
+GAP_PMI_THRESHOLD = .0
 
 METRICS = cm.Metrics()
 FILTER = cm.ConceptFilter(

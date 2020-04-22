@@ -44,7 +44,8 @@ def prepare_comparable_latex_boxplots(x_value, y_value, data,
     top_string_begin = r"\begin{axis}[boxplot/draw direction=y, "
     ticks = ', '.join(str(i) for i in range(1, len(tick_labels) + 1))
     tick_string = f"xtick={{{ticks}}}, "
-    tick_label_string = f"xticklabels={{{', '.join(tick_labels)}}}]"
+    tick_labels_str = [str(v) for v in tick_labels]
+    tick_label_string = f"xticklabels={{{', '.join(tick_labels_str)}}}]"
     top_string = top_string_begin + tick_string + tick_label_string + '\n'
 
     plots_string = ''
