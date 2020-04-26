@@ -6,14 +6,15 @@ from pipeline.evaluation import CorpusReport, TypesReport,\
 from tqdm import tqdm
 
 # RUN CONFIGURATIONS
-CORPUS = 'craft'
+CORPUS = 'genia'
 RUN_VERSION = '1'
 
 SKIPGRAMS = False
 C_VALUE_THRESHOLD = 2
 FREQ_THRESHOLD = 4
 MAX_N = 5
-GAP_PMI_THRESHOLD = .0
+BRIDGE_STRENGTH_THRESHOLD = .5
+FREQ_FACTOR = 2
 
 METRICS = cm.Metrics()
 FILTER = cm.ConceptFilter(
@@ -59,13 +60,15 @@ print('\nSTEP 3: EXTRACT CANDIDATE CONCEPTS')
 extractor = cm.CandidateExtractor(
     pos_tag_filter=cm.ExtractionFilters.SIMPLE, max_n=MAX_N
 )
-coord_extractor = cm.CoordCandidateExtractor(
+coord_extractor = cm.CoordCandidateExtractor2(
     cm.ExtractionFilters.SIMPLE, ngram_model,
-    max_n=MAX_N, pmi_threshold=GAP_PMI_THRESHOLD
+    max_n=MAX_N, pmi_threshold=BRIDGE_STRENGTH_THRESHOLD,
+    freq_factor=FREQ_FACTOR
 )
 hypernym_extractor = cm.HypernymCandidateExtractor(
     cm.ExtractionFilters.SIMPLE, ngram_model, extractor,
-    coord_extractor, max_n=MAX_N, pmi_threshold=GAP_PMI_THRESHOLD
+    coord_extractor, max_n=MAX_N, pmi_threshold=BRIDGE_STRENGTH_THRESHOLD,
+    freq_factor=FREQ_FACTOR
 )
 for doc in tqdm(docs, desc='Extracting candidates'):
     extractor.extract_candidates(doc)

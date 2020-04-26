@@ -286,6 +286,22 @@ class DiscontinuousConcept(Concept):
     def get_spanned_tokens(self):
         return super().get_tokens()
 
+    def contains_illegal_bridges(self):
+        for i in range(len(self.spans) - 1):
+            span1 = self.spans[i]
+            span2 = self.spans[i + 1]
+            gap = (span1[1], span2[0])
+            span1_tokens = {t.lemma() for t
+                            in self.document.get_annotations_at(span1, 'Token')}
+            gap_tokens = {t.lemma() for t
+                          in self.document.get_annotations_at(gap, 'Token')}
+            span2_tokens = {t.lemma()for t
+                            in self.document.get_annotations_at(span2, 'Token')}
+            if all(t in gap_tokens for t in span1_tokens) \
+                    or all(t in gap_tokens for t in span2_tokens):
+                return True
+        return False  # no illegal bridges were found
+
     def get_covered_text(self):
         """Returns only the concept, disregarding tokens within the full span
         that are not part of the concept."""

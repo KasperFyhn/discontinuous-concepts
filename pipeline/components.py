@@ -258,7 +258,7 @@ class CandidateExtractor(AbstractCandidateExtractor):
 class HypernymCandidateExtractor(CandidateExtractor):
 
     def __init__(self, pos_tag_filter, model, *extractors, min_n=3, max_n=5,
-                 max_k=None, freq_threshold=1, pmi_threshold=1):
+                 max_k=None, freq_threshold=1, pmi_threshold=1, freq_factor=1):
         super().__init__(pos_tag_filter, min_n, max_n)
         self.model = model
         self.extractors = extractors
@@ -268,6 +268,7 @@ class HypernymCandidateExtractor(CandidateExtractor):
             self.max_k = min(max_k, max_n - 2)
         self.freq_threshold = freq_threshold
         self.pmi_threshold = pmi_threshold
+        self.freq_factor = freq_factor
 
     def _extract_candidates(self, doc):
         basic_candidates = [c for extractor in self.extractors
@@ -296,11 +297,17 @@ class HypernymCandidateExtractor(CandidateExtractor):
                     chunk = chunks[i]
                     next_chunk = chunks[i+1]
                     left_of_gap, right_of_gap = chunk[-1], next_chunk[0]
-                    bridge_pmi = conceptstats.ngram_pmi(left_of_gap.lemma(),
-                                                        right_of_gap.lemma(),
-                                                        self.model)
+                    bridge = (left_of_gap.lemma(), right_of_gap.lemma())
+                    freq = self.model[bridge]
+                    if freq == 0:
+                        bridges_accepted = False
+                        break
+                    bridge_pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
+                                                        self.model)\
+                                 + math.log10(freq) * self.freq_factor
                     if bridge_pmi < self.pmi_threshold:
                         bridges_accepted = False  # not high enough association
+                        break
 
                 if len(chunks) < 2 or not bridges_accepted:
                     continue
@@ -311,7 +318,11 @@ class HypernymCandidateExtractor(CandidateExtractor):
                             > self.freq_threshold:
                         dc_candidates.append(dc)
 
-        return dc_candidates
+        # remove dc's in which a bridge goes from a chunk of words across an
+        # identical chunk of words, e.g. "human T lymphocytes and T cell lines"
+        allowed_candidates = {dc for dc in dc_candidates
+                              if not dc.contains_illegal_bridges()}
+        return allowed_candidates
 
 
 class CoordCandidateExtractor(AbstractCandidateExtractor):
@@ -327,12 +338,13 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
     }
 
     def __init__(self, pos_tag_filter, model, max_n=5, freq_threshold=1,
-                 pmi_threshold=1):
+                 pmi_threshold=1, freq_factor=1):
         super().__init__()
         self.pos_filter = self.FILTERS[pos_tag_filter]
         self.model = model
         self.max_n = max_n
         self.pmi_threshold = pmi_threshold
+        self.freq_factor = freq_factor
         self.freq_threshold = freq_threshold
 
     def _extract_candidates(self, doc):
@@ -341,14 +353,18 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
             sent_candidates = self._apply_filter(
                 self.pos_filter[0], self.pos_filter[1], tokens, doc, self.model,
-                self.freq_threshold, self.pmi_threshold)
+                self.freq_threshold, self.pmi_threshold, self.freq_factor)
             candidates += sent_candidates
 
-        return candidates
+        # remove dc's in which a bridge goes from a chunk of words across an
+        # identical chunk of words, e.g. "human T lymphocytes and T cell lines"
+        allowed_candidates = {dc for dc in candidates
+                              if not dc.contains_illegal_bridges()}
+        return allowed_candidates
 
     @staticmethod
     def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
-                      freq_threshold, pmi_threshold):
+                      freq_threshold, pmi_threshold, freq_factor):
 
         candidates = []
 
@@ -360,8 +376,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                       for n in range(4, len(smc) + 1)
                       for sg in nltk.ngrams(smc, n)
                       if len(sg) > 3
-                      and re.match(super_pattern, ''.join(t.mapped_pos()
-                                                          for t in sg))]
+                      and re.fullmatch(super_pattern, ''.join(t.mapped_pos()
+                                                              for t in sg))]
 
         for supergram in supergrams:
             pos_seq = ''.join(t.mapped_pos() for t in supergram)
@@ -498,13 +514,14 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
 
             for chunks in itertools.product(*elements):
                 # first, merge adjacent spans
-                chunks = [tuple(chunk) for chunk in chunks]
-                merged_chunks = [chunks.pop(0)]
-                for chunk in chunks:
-                    if chunk[0].span[0] - merged_chunks[-1][-1].span[1] < 2:
-                        merged_chunks[-1] += chunk
+                tokens = sorted({token for chunk in chunks for token in chunk},
+                                key=lambda t: t.span[0])
+                merged_chunks = [[tokens.pop(0)]]
+                for token in tokens:
+                    if token.span[0] - merged_chunks[-1][-1].span[1] < 2:
+                        merged_chunks[-1].append(token)
                     else:
-                        merged_chunks.append(chunk)
+                        merged_chunks.append([token])
 
                 # then see if they are merged into one; if so, move on
                 if len(merged_chunks) == 1:  # not discontinuous
@@ -512,7 +529,7 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                 else:
                     dc = CandidateDiscConcept(doc, merged_chunks)
                     # post filtering step: allowed POS-sequence?
-                    if re.match(concept_pattern, dc.pos_sequence()):
+                    if re.fullmatch(concept_pattern, dc.pos_sequence()):
                         candidates.append(dc)
 
         return candidates
@@ -521,23 +538,23 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
 class CoordCandidateExtractor2(CoordCandidateExtractor):
 
     @staticmethod
-    def _apply_filter(super_pattern, concept_pattern, tokens, doc, model,
-                      freq_threshold, pmi_threshold):
+    def _apply_filter(super_pattern, concept_pattern, sequence, doc, model,
+                      freq_threshold, pmi_threshold, freq_factor):
 
         candidates = []
 
-        full_pos_seq = ''.join(t.mapped_pos() for t in tokens)
+        full_pos_seq = ''.join(t.mapped_pos() for t in sequence)
         super_match = [m for m in re.finditer(super_pattern.pattern,
                                               full_pos_seq)]
-        super_match_chunks = [tokens[m.start(0):m.end(0)] for m in super_match]
+        super_match_chunks = [sequence[m.start(0):m.end(0)] for m in super_match]
         supergrams = [sg for smc in super_match_chunks
                       for n in range(4, len(smc) + 1)
                       for sg in nltk.ngrams(smc, n)
                       if len(sg) > 3
-                      and re.match(super_pattern, ''.join(t.mapped_pos()
-                                                          for t in sg))]
+                      and re.fullmatch(super_pattern, ''.join(t.mapped_pos()
+                                                              for t in sg))]
 
-        for supergram in super_match_chunks:
+        for supergram in supergrams:
             pos_seq = ''.join(t.mapped_pos() for t in supergram)
 
             bridges = defaultdict(set)
@@ -551,42 +568,39 @@ class CoordCandidateExtractor2(CoordCandidateExtractor):
                 first_index = cc_group.start(1)
                 enumerations = [i for i in range(cc_group.start(2),
                                                  cc_group.end(2))
-                                if not pos_seq[i] == 'c']
+                                if not pos_seq[i] == ',']
                 last_index = cc_group.start(3)
 
-                # make potential bridges from first token to after the last
-                first_token = supergram[first_index]
-                if first_token.pos == 'NNS':
-                    # plural word, probably not a modifier, but a head which is
-                    # coordinated with the whole thing on the right, e.g.
-                    # JJ NNS CC NN NN
-                    continue
-                else:
-                    # get indices of all tokens after the last word
-                    # except coordinations
-                    after_last = [i for i in range(last_index + 1, len(pos_seq))
-                                  if not pos_seq[i] == 'c']
+                # get indices of all tokens after the last word except cc's
+                after_last = [i for i in range(last_index + 1, len(pos_seq))
+                              if not pos_seq[i] == 'c']
                     
                 # and indices of all tokens before the first word (except cc's)
                 before_first = [i for i in range(first_index - 1, -1, -1)
                                 if not pos_seq[i] == 'c']
 
-                potential_bridges = []
+                potential_bridges = set()
+
                 # from the first token to anything after the last
-                potential_bridges += list(itertools.product([first_index],
-                                                            after_last))
+                first_token = supergram[first_index]
+                if not first_token.pos == 'NNS':
+                    # if it's a plural word, it's probably not a modifier, but a
+                    # head which is coordinated with the whole thing on the
+                    # right, e.g. JJ NNS CC NN NN
+                    potential_bridges.update(set(itertools.product(
+                        [first_index], after_last)))
                 # from the last token to anything before the first
-                potential_bridges += list(itertools.product(before_first,
-                                                            [last_index]))
+                potential_bridges.update(set(itertools.product(before_first,
+                                                               [last_index])))
                 # from anything before first to after last
-                potential_bridges += list(itertools.product(before_first,
-                                                            after_last))
+                potential_bridges.update(set(itertools.product(before_first,
+                                                               after_last)))
                 # from before first to enumerated elements
-                potential_bridges += list(itertools.product(before_first,
-                                                            enumerations))
+                potential_bridges.update(set(itertools.product(before_first,
+                                                               enumerations)))
                 # from enumerated elements to after last
-                potential_bridges += list(itertools.product(before_first,
-                                                            enumerations))
+                potential_bridges.update(set(itertools.product(enumerations,
+                                                               after_last)))
 
                 for index1, index2 in potential_bridges:
                     token1 = supergram[index1]
@@ -594,17 +608,48 @@ class CoordCandidateExtractor2(CoordCandidateExtractor):
                     bridge = (token1.lemma(), token2.lemma())
                     freq = model[bridge]
                     if freq == 0:
-                        pmi = -math.inf
+                        continue
                     else:
                         pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
-                                                     model)
+                                                     model)\
+                              + math.log10(freq) * freq_factor
                     if pmi > pmi_threshold and freq >= freq_threshold:
                         bridges[index1].add(index2)
 
+            def trie_combos(prefix):
+                last = prefix[-1]
+                combos = []
+                for bridge in bridges[last]:
+                    combos += trie_combos(prefix + [bridge])
+                if last + 1 == len(pos_seq) or pos_seq[last + 1] in 'c,':
+                    combos += [prefix]
+                else:
+                    combos += trie_combos(prefix + [last + 1])
+                return combos
 
+            combinations = trie_combos([0])
+            skip_sequences = [[supergram[i] for i in combo if not i == -1]
+                              for combo in combinations]
 
+            for sequence in skip_sequences:
+                # first, merge adjacent spans
+                merged_chunks = [[sequence.pop(0)]]
+                for token in sequence:
+                    if token.span[0] - merged_chunks[-1][-1].span[1] < 2:
+                        merged_chunks[-1].append(token)
+                    else:
+                        merged_chunks.append([token])
 
+                # then see if they are merged into one; if so, move on
+                if len(merged_chunks) == 1:  # not discontinuous
+                    continue
+                else:
+                    dc = CandidateDiscConcept(doc, merged_chunks)
+                    # post filtering step: allowed POS-sequence?
+                    if re.fullmatch(concept_pattern, dc.pos_sequence()):
+                        candidates.append(dc)
 
+        return candidates
 
 
 ################################################################################
