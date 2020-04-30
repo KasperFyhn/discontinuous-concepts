@@ -85,7 +85,7 @@ def pointwise_mutual_information(contingency_table: ContingencyTable):
     return math.log(p_x_and_y / (p_x * p_y))
 
 
-def length_normalized_pmi(ngram, model, smoothing=.1):
+def length_normalized_pmi(ngram, model, smoothing=1):
     if isinstance(ngram, str):
         ngram = tuple(ngram.split())
     if len(ngram) < 2:
@@ -143,10 +143,13 @@ def c_value(term: tuple, nested_ngrams: dict, model):
     if not nested_ngrams[term]:
         return math.log2(len(term)) * model[term]
     else:
-        nested_in = nested_ngrams[term]
-        return math.log2(len(term)) * (model[term] - sum(
-            rectified_freq(s, nested_ngrams, model)
-            for s in nested_in) / len(nested_in))
+        nested_in = []
+        for supergram in nested_ngrams[term]:
+            rect_freq = rectified_freq(supergram, nested_ngrams, model)
+            if rect_freq > 0:
+                nested_in.append(rect_freq)
+        return math.log2(len(term))\
+               * (model[term] - sum(nested_in) / len(nested_in))
 
 
 def calculate_rectified_freqs(candidates, model):
