@@ -248,6 +248,13 @@ class Token(Annotation):
             self._lemma = lemma
         return self._lemma
 
+    def tokens_between(self, other_token, ignore_pos=''):
+        tokens_between = self.document.get_annotations_at(
+            (self.span[1], other_token.span[0]), Token)
+        tokens_between = [t for t in tokens_between
+                          if t.mapped_pos() not in ignore_pos]
+        return len(tokens_between)
+
     def __eq__(self, other):
         return super().__eq__(other) and self.pos == other.pos
 

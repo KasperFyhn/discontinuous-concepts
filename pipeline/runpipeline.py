@@ -88,7 +88,7 @@ tf_idf = cm.TfIdfRanker(extractor)
 glossex = cm.GlossexRanker(extractor, ngram_model)
 pmi_nl = cm.PmiNlRanker(extractor, ngram_model)
 term_coherence = cm.TermCoherenceRanker(extractor, ngram_model)
-voter = cm.VotingRanker(extractor, c_value, tf_idf, glossex, pmi_nl,
+voter = cm.VotingRanker(extractor, rect_freq, c_value, tf_idf, glossex, pmi_nl,
                         term_coherence)
 METRICS.add(c_value, rect_freq, tf_idf, glossex, pmi_nl, term_coherence, voter)
 

@@ -305,6 +305,8 @@ class HypernymCandidateExtractor(CandidateExtractor):
                     bridge_pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
                                                         self.model)\
                                  + math.log10(freq) * self.freq_factor
+                    bridge_pmi = bridge_pmi / left_of_gap.tokens_between(
+                        right_of_gap)
                     if bridge_pmi < self.pmi_threshold:
                         bridges_accepted = False  # not high enough association
                         break
@@ -431,7 +433,8 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
                             pmi = -math.inf
                         else:
                             pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
-                                                         model)
+                                                         model)\
+                                  + math.log10(freq) * freq_factor
                         potential_edges[index] = pmi
                         if pmi > pmi_threshold and freq >= freq_threshold:
                             potential_edges = {index: pmi}
@@ -562,22 +565,30 @@ class CoordCandidateExtractor2(CoordCandidateExtractor):
             # loop over the sequence to find all coordination pairs
             # this is to make all possible bridges
             for cc_group in re.finditer('(.)((?:,[^,]+)*),?c(.)', pos_seq):
-                # we need the indices of the tokens around the coordination
-                # but forget extra enumerated words for now
-                # e.g. we want B and D in A B, C and D E
+                # we need the indices of the coordinated/enumerated tokens
                 first_index = cc_group.start(1)
                 enumerations = [i for i in range(cc_group.start(2),
                                                  cc_group.end(2))
                                 if not pos_seq[i] == ',']
                 last_index = cc_group.start(3)
 
-                # get indices of all tokens after the last word except cc's
-                after_last = [i for i in range(last_index + 1, len(pos_seq))
-                              if not pos_seq[i] == 'c']
+                # get indices of all tokens after the last word
+                after_last = []
+                for i in range(last_index + 1, len(pos_seq)):
+                    if pos_seq[i] == 'c':  # another coordination
+                        after_last.append(i+1)
+                        break
+                    else:
+                        after_last.append(i)  # is a candidate
                     
-                # and indices of all tokens before the first word (except cc's)
-                before_first = [i for i in range(first_index - 1, -1, -1)
-                                if not pos_seq[i] == 'c']
+                # and indices of all tokens before the first word
+                before_first = []
+                for i in range(first_index - 1, -1, -1):
+                    if pos_seq[i] == 'c':  # another coordination
+                        before_first.append(i-1)
+                        break
+                    else:
+                        before_first.append(i)
 
                 potential_bridges = set()
 
@@ -592,9 +603,7 @@ class CoordCandidateExtractor2(CoordCandidateExtractor):
                 # from the last token to anything before the first
                 potential_bridges.update(set(itertools.product(before_first,
                                                                [last_index])))
-                # from anything before first to after last
-                potential_bridges.update(set(itertools.product(before_first,
-                                                               after_last)))
+
                 # from before first to enumerated elements
                 potential_bridges.update(set(itertools.product(before_first,
                                                                enumerations)))
@@ -613,14 +622,15 @@ class CoordCandidateExtractor2(CoordCandidateExtractor):
                         pmi = conceptstats.ngram_pmi(bridge[0], bridge[1],
                                                      model)\
                               + math.log10(freq) * freq_factor
+                        pmi = pmi / token1.tokens_between(token2)
                     if pmi > pmi_threshold and freq >= freq_threshold:
                         bridges[index1].add(index2)
 
             def trie_combos(prefix):
                 last = prefix[-1]
                 combos = []
-                for bridge in bridges[last]:
-                    combos += trie_combos(prefix + [bridge])
+                for b in bridges[last]:
+                    combos += trie_combos(prefix + [b])
                 if last + 1 == len(pos_seq) or pos_seq[last + 1] in 'c,':
                     combos += [prefix]
                 else:
@@ -813,7 +823,8 @@ class VotingRanker(AbstractCandidateRanker):
         super().__init__(candidate_extractor)
 
     def _calculate_values(self):
-        self._values = {tc: sum(1 / r.rank(tc) for r in self._rankers)
+        self._values = {tc: sum(1 / r.rank(tc) * self._weights[r]
+                                for r in self._rankers)
                         for tc in self.candidate_extractor.candidate_types()}
 
 
