@@ -4,7 +4,8 @@ from nltk import WordNetLemmatizer
 from tqdm import tqdm
 from datautils import annotations as anno, dataio
 from stats import ngramcounting
-from stats.ngramcounting import NgramModel, ContingencyTable, make_ngrams
+from stats.ngramcounting import NgramModel, ContingencyTable, make_ngrams,\
+    make_skipgrams
 import multiprocessing as mp
 from collections import Counter
 from pipeline.evaluation import gold_standard_concepts
@@ -100,19 +101,30 @@ def length_normalized_pmi(ngram, model, smoothing=1):
     return pmi_nl
 
 
-# TERM COHERENCE
+# DICE FACTOR & TERM COHERENCE
+def dice_factor(term, model):
+    freq = model[term]
+    if freq == 0:
+        return 0
+    else:
+        top = len(term) * freq
+        bottom = sum(model[t] for t in term)
+        return top / bottom
+
+
 def term_coherence(term, model):
     freq = model[term]
     if freq == 0:
         return 0
     else:
-        top = len(term) * math.log10(freq) * freq
+        top = math.log10(freq) * len(term) * freq
         bottom = sum(model[t] for t in term)
         return top / bottom
 
 
 # C-VALUE
-def calculate_c_values(candidate_terms: list, threshold: float, model):
+def calculate_c_values(candidate_terms: list, threshold: float, model,
+                       skipgrams=False):
     """
     Return a dict of terms and their C-values, calculated as in Frantzi et
     al. (2000). If a term's C-value is below the threshold, it will not be used
@@ -131,9 +143,14 @@ def calculate_c_values(candidate_terms: list, threshold: float, model):
         c = c_value(t, nested_ngrams, model)
         final_terms[t] = c
         if c >= threshold:
-            for ng in make_ngrams(t, max_n=len(t)-1):
-                if ng in nested_ngrams:
-                    nested_ngrams[ng].add(t)
+            if skipgrams:
+                for ng in make_skipgrams(t, max_n=len(t) - 1):
+                    if ng in nested_ngrams:
+                        nested_ngrams[ng].add(t)
+            else:
+                for ng in make_ngrams(t, max_n=len(t) - 1):
+                    if ng in nested_ngrams:
+                        nested_ngrams[ng].add(t)
 
     return final_terms
 
@@ -152,16 +169,21 @@ def c_value(term: tuple, nested_ngrams: dict, model):
                * (model[term] - sum(nested_in) / len(nested_in))
 
 
-def calculate_rectified_freqs(candidates, model):
+def calculate_rectified_freqs(candidates, model, skipgrams=False):
     # make sure that the candidate terms list is sorted
     candidate_terms = sorted(candidates, key=lambda x: len(x), reverse=True)
     final_terms = {}
     nested_ngrams = {t: set() for t in candidate_terms}
     for t in candidate_terms:
         final_terms[t] = rectified_freq(t, nested_ngrams, model)
-        for ng in make_ngrams(t, max_n=len(t) - 1):
-            if ng in nested_ngrams:
-                nested_ngrams[ng].add(t)
+        if skipgrams:
+            for ng in make_skipgrams(t, max_n=len(t) - 1):
+                if ng in nested_ngrams:
+                    nested_ngrams[ng].add(t)
+        else:
+            for ng in make_ngrams(t, max_n=len(t) - 1):
+                if ng in nested_ngrams:
+                    nested_ngrams[ng].add(t)
     return final_terms
 
 

@@ -720,34 +720,38 @@ class AbstractCandidateRanker:
 class CValueRanker(AbstractCandidateRanker):
 
     def __init__(self, candidate_extractor: AbstractCandidateExtractor,
-                 c_value_threshold, term_counter=None):
+                 c_value_threshold, term_counter=None, consider_dcs=False):
         print('Calculating C-values')
         self._c_threshold = c_value_threshold
         if not term_counter:
             term_counter = candidate_extractor.term_frequencies()
         self._term_counter = term_counter
+        self.consider_dcs = consider_dcs
         super().__init__(candidate_extractor)
 
     def _calculate_values(self):
         self._values = conceptstats.calculate_c_values(
             list(self.candidate_extractor.candidate_types()), self._c_threshold,
-            self.candidate_extractor.term_frequencies()
+            self.candidate_extractor.term_frequencies(),
+            skipgrams=self.consider_dcs
         )
 
 
 class RectifiedFreqRanker(AbstractCandidateRanker):
 
     def __init__(self, candidate_extractor: AbstractCandidateExtractor,
-                 term_counter=None):
+                 term_counter=None, consider_dcs=False):
         print('Calculating Rectified Frequencies')
         if not term_counter:
             term_counter = candidate_extractor.term_frequencies()
         self._term_counter = term_counter
+        self.consider_dcs = consider_dcs
         super().__init__(candidate_extractor)
 
     def _calculate_values(self):
         self._values = conceptstats.calculate_rectified_freqs(
-            self.candidate_extractor.candidate_types(), self._term_counter
+            self.candidate_extractor.candidate_types(), self._term_counter,
+            skipgrams=self.consider_dcs
         )
 
 
@@ -894,19 +898,19 @@ class Metrics:
     GOLD = GoldMatcher.__name__
 
     def __init__(self, *rankers):
-        self.rankers = list(rankers)
+        self.rankers = {type(ranker).__name__: ranker for ranker in rankers}
 
     def add(self, *rankers):
         for ranker in rankers:
-            self.rankers.append(ranker)
+            self.rankers[type(ranker).__name__] = ranker
 
     def __getitem__(self, item):
         metrics = {}
-        for ranker in self.rankers:
+        for ranker_name, ranker in self.rankers.items():
             if isinstance(ranker, Matcher):
-                metrics[type(ranker).__name__] = ranker.value(item)
+                metrics[ranker_name] = ranker.value(item)
             elif item in ranker:
-                metrics[type(ranker).__name__] = ranker.value(item)
+                metrics[ranker_name] = ranker.value(item)
         return metrics
 
     def inspect(self, concepts, extractors=None, doc_dict=None, char_window=20):

@@ -277,15 +277,35 @@ class NgramModel:
 
         return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
 
-    def update(self, counter):
-        for ngram, count in counter:
-            self.add(ngram, count)
 
-    def add(self, ngram, count):
-        if isinstance(ngram, tuple):
-            ngram = ' '.join(ngram)
-        pattern = self.encoder.buildpattern(ngram)
-        self.model.add(pattern, count)
+class AggregateNgramModel:
+
+    def __init__(self, *models):
+        self.models = list(models)
+
+    def __getitem__(self, item):
+        return self.freq(item)
+
+    def freq(self, ngram):
+        return sum(model.freq(ngram) for model in self.models)
+
+    def total_counts(self, of_length):
+        return sum(model.total_counts(of_length) for model in self.models)
+
+    def prob(self, ngram, smoothing=1):
+        return (self.freq(ngram) + smoothing) \
+               / (self.total_counts(1) + smoothing)
+
+    def contingency_table(self, ngram_a, ngram_b, smoothing=1):
+        n = self.total_counts(1)
+        a_b = self.freq(ngram_a + ngram_b) + smoothing
+        a_not_b = self.freq(ngram_a) - a_b + smoothing * 2
+        if a_not_b <= 0: a_not_b = smoothing
+        not_a_b = self.freq(ngram_b) - a_b + smoothing * 2
+        if not_a_b <= 0: not_a_b = smoothing
+        not_a_not_b = n - a_not_b - not_a_b - a_b + smoothing * 4
+
+        return ContingencyTable(a_b, a_not_b, not_a_b, not_a_not_b)
 
 
 class ContingencyTable:
@@ -339,8 +359,7 @@ def make_skipgrams(tokens, min_n=2, max_n=5, min_k=1, max_k=None):
     for n in range(min_n, max_n+1):
         max_k_for_n = len(tokens) - n
         max_k_for_n = min(max_k_for_n, max_k)
-        for k in range(min_k, max_k_for_n + 1):
-            skipgrams += list(nltk.skipgrams(tokens, n, k))
+        skipgrams += list(nltk.skipgrams(tokens, n, max_k_for_n))
     return skipgrams
 
 

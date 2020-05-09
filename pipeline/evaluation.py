@@ -92,6 +92,7 @@ class CorpusReport(EvaluationReport):
         max_prec = max(prec_values)
         min_prec = min(prec_values)
         print('Summary of CorpusReport for', self._anno_type.__name__)
+        print('# extracted concepts:', len(self.predicted))
         print(f'Precision: {self.precision():.3f}   (highest: {max_prec:.3f}'
               f', lowest: {min_prec:.3f})')
         print(f'Recall:    {self.recall():.3f}   (highest: {max_recall:.3f}'
@@ -184,6 +185,7 @@ class TypesReport(EvaluationReport):
         precision = self.precision()
         recall = self.recall()
         f1 = self.f1_measure()
+        print('# types     ', len(self.predicted))
         print('Precision:  ', round(precision, 3))
         print('Recall:     ', round(recall, 3))
         print('F1-measure: ', round(f1, 3))
