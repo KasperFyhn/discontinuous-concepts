@@ -9,6 +9,8 @@ class EvaluationReport:
         self.predicted = set(predicted)
         self.expected = set(expected)
         self.ok = self.predicted.intersection(self.expected)
+        self._alternatively_validated = set()
+        self._ignored_fns = set()
 
     def true_positives(self):
         return self.ok
@@ -32,22 +34,39 @@ class EvaluationReport:
             return 0
 
     def f1_measure(self, beta=1):
-        precision = self.precision()
-        recall = self.recall()
-        return (1 + beta) * precision * recall / (beta * precision + recall)
+        try:
+            precision = self.precision()
+            recall = self.recall()
+            return (1 + beta) * precision * recall / (beta * precision + recall)
+        except ZeroDivisionError:
+            return 0
 
-    def corrected_precision(self, accounted_for):
-        precision = self.precision()
-        errors = 1 - precision
-        errors_accounted_for = errors * accounted_for / 100
-        return precision + errors_accounted_for
+    def corrected_precision(self):
+        ok = self.predicted.intersection(
+            self.expected.union(self._alternatively_validated)
+        )
+        try:
+            return len(ok) / len(self.predicted)
+        except ZeroDivisionError:
+            return 0
 
-    def corrected_recall(self, accounted_for):
-        recall = self.recall()
-        errors = 1 - recall
-        errors_accounted_for = errors * accounted_for / 100
-        measurable_proportion = 1 - errors_accounted_for
-        return recall / measurable_proportion
+    def actual_false_positives(self):
+        try:
+            return self.predicted.difference(
+                self.expected.union(self._alternatively_validated))
+        except ZeroDivisionError:
+            return 0
+
+    def corrected_recall(self):
+        considered = self.expected.difference(self._ignored_fns)
+        ok = self.predicted.intersection(considered)
+        try:
+            return len(ok) / len(considered)
+        except ZeroDivisionError:
+            return 0
+
+    def actual_false_negatives(self):
+        return self.expected.difference(self.predicted.union(self._ignored_fns))
 
 
 class DocumentReport(EvaluationReport):
@@ -101,7 +120,6 @@ class CorpusReport(EvaluationReport):
     def error_analysis(self, gold_concepts, verified_concepts, max_n,
                        pos_filter, gold_counter, freq_threshold):
         print('Error analysis of CorpusReport for', self._anno_type.__name__)
-        return_dict = {}
         if self.false_positives():
             # some concepts are not annotated, but occur elsewhere
             gold_concepts = set(gold_concepts)
@@ -121,13 +139,12 @@ class CorpusReport(EvaluationReport):
 
             # all analyzed FP's
             analyzed_fps = set.union(gold_fps, verified_fps)
+            self._alternatively_validated.update(analyzed_fps)
             percent = len(analyzed_fps) / len(self.false_positives()) * 100
             print(f'{len(analyzed_fps)} ({percent:.2f}%) FP\'s were accounted '
                   'for in this analysis.')
 
-            print('Corrected precision:',
-                  round(self.corrected_precision(percent), 3))
-            return_dict['fps'] = self.false_positives().difference(analyzed_fps)
+            print('Corrected precision:', round(self.corrected_precision(), 3))
 
         if self.false_negatives():
             # some concepts cannot be captured if they are longer than max n
@@ -156,11 +173,9 @@ class CorpusReport(EvaluationReport):
             percent = len(analyzed_fns) / len(self.false_negatives()) * 100
             print(f'{len(analyzed_fns)} ({percent:.2f}%) FN\'s were accounted '
                   'for in this analysis.')
+            self._ignored_fns.update(analyzed_fns)
 
-            print('Corrected recall:', round(self.corrected_recall(percent), 3))
-            return_dict['fns'] = self.false_negatives().difference(analyzed_fns)
-
-        return return_dict
+            print('Corrected recall:', round(self.corrected_recall(), 3))
 
 
 class TypesReport(EvaluationReport):
@@ -174,6 +189,9 @@ class TypesReport(EvaluationReport):
         for k in k_values:
             if k > len(self.ranked_final):
                 k = len(self.ranked_final)
+                if k == 0:
+                    print('No annotations!')
+                    break
             predicted_at_k = set(self.ranked_final[:k])
             prec_at_k = len(predicted_at_k.intersection(self.expected)) / k
             print(f'\tP@{k:<6}', round(prec_at_k, 3))
@@ -191,48 +209,46 @@ class TypesReport(EvaluationReport):
         print('F1-measure: ', round(f1, 3))
         self.precision_at_k(k)
 
-    def error_analysis(self, verified_concepts, max_n, gold_counter,
+    def error_analysis(self, verified, max_n, gold_counter,
                        freq_threshold):
         print('Error analysis of TypesReport')
-        return_dict = {}
-        # some concepts can be verified from other sources, e.g. ontologies
-        verified_concepts = set(verified_concepts)
-        verified_fps = verified_concepts.intersection(self.false_positives())
-        percent = len(verified_fps) / len(self.false_positives()) * 100
-        print(f'{len(verified_fps)} ({percent:.2f}%) FP\'s were verified.')
+        if self.false_positives():
+            # some concepts can be verified from other sources, e.g. ontologies
+            verified = set(verified)
+            verified_fps = verified.intersection(self.false_positives())
+            percent = len(verified_fps) / len(self.false_positives()) * 100
+            print(f'{len(verified_fps)} ({percent:.2f}%) FP\'s were verified.')
 
-        # all analyzed FP's
-        analyzed_fps = set.union(verified_fps)
-        percent = len(analyzed_fps) / len(self.false_positives()) * 100
-        print(f'{len(analyzed_fps)} ({percent:.2f}%) FP\'s were accounted for '
-              'in this analysis.')
+            # all analyzed FP's
+            analyzed_fps = set.union(verified_fps)
+            percent = len(analyzed_fps) / len(self.false_positives()) * 100
+            print(f'{len(analyzed_fps)} ({percent:.2f}%) FP\'s were accounted '
+                  'for in this analysis.')
+            self._alternatively_validated.update(analyzed_fps)
 
-        print('Corrected precision:',
-              round(self.corrected_precision(percent), 3))
-        return_dict['fps'] = self.false_positives().difference(analyzed_fps)
+            print('Corrected precision:', round(self.corrected_precision(), 3))
 
-        # some concepts cannot be captured if they are longer than max n
-        over_max = {c for c in self.false_negatives() if len(c) > max_n}
-        percent = len(over_max) / len(self.false_negatives()) * 100
-        print(f'{len(over_max)} ({percent:.2f}%) FN\'s are above max n.')
+        if self.false_negatives():
+            # some concepts cannot be captured if they are longer than max n
+            over_max = {c for c in self.false_negatives() if len(c) > max_n}
+            percent = len(over_max) / len(self.false_negatives()) * 100
+            print(f'{len(over_max)} ({percent:.2f}%) FN\'s are above max n.')
 
-        # many low-frequency concepts will be filtered out
-        below_threshold = {c for c in self.false_negatives()
-                           if 0 < gold_counter[c] < freq_threshold}
-        percent = len(below_threshold) / len(self.false_negatives()) * 100
-        print(f'{len(below_threshold)} ({percent:.2f}%) FN\'s occur less '
-              'often than the frequency threshold.')
+            # many low-frequency concepts will be filtered out
+            below_threshold = {c for c in self.false_negatives()
+                               if 0 < gold_counter[c] < freq_threshold}
+            percent = len(below_threshold) / len(self.false_negatives()) * 100
+            print(f'{len(below_threshold)} ({percent:.2f}%) FN\'s occur less '
+                  'often than the frequency threshold.')
 
-        # all analyzed FN's
-        analyzed_fns = set.union(over_max, below_threshold)
-        percent = len(analyzed_fns) / len(self.false_negatives()) * 100
-        print(f'{len(analyzed_fns)} ({percent:.2f}%) FN\'s were accounted for '
-              'in this analysis.')
+            # all analyzed FN's
+            analyzed_fns = set.union(over_max, below_threshold)
+            percent = len(analyzed_fns) / len(self.false_negatives()) * 100
+            print(f'{len(analyzed_fns)} ({percent:.2f}%) FN\'s were accounted '
+                  'for in this analysis.')
+            self._ignored_fns.update(analyzed_fns)
 
-        print('Corrected recall:', round(self.corrected_recall(percent), 3))
-        return_dict['fns'] = self.false_negatives().difference(analyzed_fns)
-
-        return return_dict
+            print('Corrected recall:', round(self.corrected_recall(), 3))
 
 
 # PERFORMANCE MEASURES

@@ -293,19 +293,30 @@ class DiscontinuousConcept(Concept):
     def get_spanned_tokens(self):
         return super().get_tokens()
 
+    def get_bridges(self):
+        bridges = []
+        for i in range(len(self.spans) - 1):
+            span1 = self.spans[i]
+            span2 = self.spans[i + 1]
+            span1_tokens = self.document.get_annotations_at(span1, Token)
+            span2_tokens = self.document.get_annotations_at(span2, Token)
+            bridge = (span1_tokens[-1], span2_tokens[0])
+            bridges.append(bridge)
+        return bridges
+
     def contains_illegal_bridges(self):
         for i in range(len(self.spans) - 1):
             span1 = self.spans[i]
             span2 = self.spans[i + 1]
             gap = (span1[1], span2[0])
             span1_tokens = {t.lemma() for t
-                            in self.document.get_annotations_at(span1, 'Token')}
+                            in self.document.get_annotations_at(span1, Token)}
             gap_tokens = {t.lemma() for t
-                          in self.document.get_annotations_at(gap, 'Token')}
+                          in self.document.get_annotations_at(gap, Token)}
             span2_tokens = {t.lemma()for t
-                            in self.document.get_annotations_at(span2, 'Token')}
-            if all(t in gap_tokens for t in span1_tokens) \
-                    or all(t in gap_tokens for t in span2_tokens):
+                            in self.document.get_annotations_at(span2, Token)}
+            if span1_tokens.issubset(gap_tokens)\
+                    or span2_tokens.issubset(gap_tokens):
                 return True
         return False  # no illegal bridges were found
 

@@ -9,14 +9,17 @@ import multiprocessing as mp
 from tqdm import tqdm
 from datautils.annotations import *
 from datautils.datapaths import PATH_TO_CRAFT, PATH_TO_GENIA, PATH_TO_PMC,\
-    PATH_TO_MESH, PATH_TO_ACL
+    PATH_TO_MESH, PATH_TO_ACL, PATH_TO_ACLARC
 
 
 def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
     """Loads in the CRAFT document with the given ID and returns it as a
     Document object with annotations.py."""
 
-    path = os.path.join(PATH_TO_CRAFT, 'txt', doc_id + '.txt')
+    if type(doc_id) == tuple:
+        doc_id, folder_path = doc_id
+
+    path = os.path.join(folder_path, 'txt', doc_id + '.txt')
     doc_id = os.path.basename(path)[:-4]
     with open(path) as craft_file:
         doc = Document(doc_id, craft_file.read())
@@ -26,7 +29,7 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
 
     # add sentence and token annotations; sents are recognized by their labels
     # make soup from POS XML
-    path_to_xml = os.path.join(folder_path, 'part-of-speech', doc_id + '.xml')
+    path_to_xml = os.path.join(PATH_TO_CRAFT, 'part-of-speech', doc_id + '.xml')
     raw_xml = open(path_to_xml).read()
     pos_bs = BeautifulSoup(raw_xml, 'xml')
 
@@ -42,7 +45,7 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
             doc.add_annotation(token)
 
     # make beautiful soup from concept XML and add concept annotations
-    path_to_xml = os.path.join(folder_path, 'concepts', doc_id + '.xml')
+    path_to_xml = os.path.join(PATH_TO_CRAFT, 'concepts', doc_id + '.xml')
     raw_xml = open(path_to_xml).read()
     concept_bs = BeautifulSoup(raw_xml, 'xml')
 
@@ -64,7 +67,7 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
         doc.add_annotation(concept)
 
     # parse the appropriate .tree file
-    path_to_tree = os.path.join(folder_path, 'treebank', doc_id + '.tree')
+    path_to_tree = os.path.join(PATH_TO_CRAFT, 'treebank', doc_id + '.tree')
     raw_tree = open(path_to_tree).read()
     section_trees = raw_tree.split('\n')
     tokens_stack = doc.get_annotations(Token)
@@ -118,6 +121,8 @@ def load_craft_document(doc_id, folder_path=PATH_TO_CRAFT, only_text=False):
 def load_craft_corpus(path=PATH_TO_CRAFT, text_only=False, as_generator=False):
     
     ids = craft_corpus_ids(path=path)
+    if path != PATH_TO_CRAFT:
+        ids = [(id_, path) for id_ in ids]
 
     if text_only:
         print('Loading CRAFT corpus without annotations ...')
@@ -265,6 +270,9 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     """Loads in the GENIA document with the given ID and returns it as a
     Document object with annotations.py."""
 
+    if type(doc_id) == tuple:
+        doc_id, folder_path = doc_id
+
     # create xml soup
     xml_path = os.path.join(folder_path, 'pos+concepts', doc_id + '.xml')
     xml_file = open(xml_path)
@@ -302,7 +310,7 @@ def load_genia_document(doc_id, folder_path=PATH_TO_GENIA, only_text=False):
     # treebank annotations are found elsewhere. Handle these similar to before
     # create xml soup
     pmid = _MEDLINE_TO_PMID[doc_id]
-    xml_path = os.path.join(folder_path, 'treebank', pmid + '.xml')
+    xml_path = os.path.join(PATH_TO_GENIA, 'treebank', pmid + '.xml')
     xml_file = open(xml_path)
     soup = BeautifulSoup(xml_file.read(), 'xml')
 
@@ -384,6 +392,8 @@ def genia_corpus_ids(path=PATH_TO_GENIA):
 def load_genia_corpus(path=PATH_TO_GENIA, text_only=False, as_generator=False):
 
     ids = genia_corpus_ids(path=path)
+    if path != PATH_TO_GENIA:
+        ids = [(id_, path) for id_ in ids]
 
     if text_only:
         print('Loading GENIA corpus without annotations ...')
@@ -557,6 +567,33 @@ def load_acl_corpus(path=PATH_TO_ACL, text_only=False, as_generator=False):
         return [load_acl_doc(id_, only_text=text_only)
                 for id_ in tqdm(acl_corpus_ids(path=path),
                                 desc='Loading ACL 2.0 corpus')]
+
+
+def load_aclarc_document(doc_id, folder_path=PATH_TO_ACLARC, only_text=False):
+
+    # the documents are stored in nested folders,
+    # e.g. PMC/PMC001XXXXXX.txt/PMC0012XXXXX/PMC1249490.txt
+    # build this path based on the provided ID
+    first_folder = 'txt/' + doc_id[0] + '/'
+    second_folder = doc_id[:3] + '/'
+    full_path = folder_path + first_folder + second_folder + doc_id
+    if not full_path[-4:] == '.txt':
+        full_path += '.txt'
+    with open(full_path) as in_file:
+        doc = Document(doc_id, in_file.read())
+    if only_text:
+        return doc
+    else:
+        annotation_file = os.path.join(folder_path, 'annotations/',
+                                       doc_id + '.anno')
+        doc.load_annotations_from_file(annotation_file)
+        return doc
+
+
+def aclarc_corpus_ids(path=PATH_TO_ACLARC):
+    doc_paths = glob.glob(path + 'txt/**/*.txt', recursive=True)
+    doc_ids = [os.path.basename(p)[:-4] for p in doc_paths]
+    return doc_ids
 
 
 def _read_mesh_terms(file, main_label, synonym_label):

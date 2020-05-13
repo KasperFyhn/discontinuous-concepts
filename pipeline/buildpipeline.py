@@ -10,7 +10,7 @@ from tqdm import tqdm
 class Configuration:
 
     def __init__(self, freq_threshold=2, c_value_threshold=2, max_n=5,
-                 skipgrams=False, bridge_strength_threshold=0, freq_factor=1,
+                 skipgrams=False, bridge_strength_threshold=.5, freq_factor=1,
                  extraction_filter=cm.ExtractionFilters.SIMPLE,
                  consider_dcs_in_ranking=False,
                  hypernym_dcs=True, coord_dcs=True):
@@ -68,7 +68,7 @@ class ConceptExtractionPipeline(Pipeline):
                                           max_n=self.config.max_n)
         dc_extractors = []
         if self.config.coord_dcs:
-            coord_extractor = cm.CoordCandidateExtractor2(
+            coord_extractor = cm.CoordCandidateExtractor(
                 self.config.extraction_filter, ngram_model, self.config.max_n,
                 self.config.bridge_strength_threshold, self.config.freq_factor
             )
@@ -77,9 +77,8 @@ class ConceptExtractionPipeline(Pipeline):
         if self.config.hypernym_dcs:
             hypernym_extractor = cm.HypernymCandidateExtractor(
                 self.config.extraction_filter, ngram_model, extractor,
-                *dc_extractors, max_n=self.config.max_n,
-                pmi_threshold=self.config.bridge_strength_threshold,
-                freq_factor=self.config.freq_factor
+                *dc_extractors, freq_factor=self.config.freq_factor,
+                bridge_strength_threshold=self.config.bridge_strength_threshold
             )
             dc_extractors.append(hypernym_extractor)
 
@@ -89,7 +88,11 @@ class ConceptExtractionPipeline(Pipeline):
             for dc_extractor in dc_extractors:
                 dc_extractor.extract_candidates(doc)
 
-        n_dcs = len(set.union(*[ext.all_candidates for ext in dc_extractors]))
+        candidate_sets = [ext.all_candidates for ext in dc_extractors]
+        if candidate_sets:
+            n_dcs = len(set.union(*candidate_sets))
+        else:
+            n_dcs = 0
         print(f'Extracted {len(extractor.all_candidates)} continuous '
               f'candidates and {n_dcs} discontinuous candidates.')
 
