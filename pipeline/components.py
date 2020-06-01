@@ -362,8 +362,10 @@ class CoordCandidateExtractor(AbstractCandidateExtractor):
     def _extract_candidates(self, doc):
         candidates = set()
         for sentence in doc.get_annotations(anno.Sentence):
+            if 'in both NK and T cells' in sentence.get_covered_text():
+                print()
             tokens = doc.get_annotations_at(sentence.span, anno.Token)
-            if len(tokens) > 30:
+            if len(tokens) > 100:
                 continue
             sent_candidates = self._apply_filter(
                 self.pos_filter[0], self.pos_filter[1], tokens, doc, self.model,

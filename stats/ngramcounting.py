@@ -165,12 +165,19 @@ class NgramModel:
             return ((p.tostring(self.decoder), c)
                     for p, c in self.model.filter(threshold, size=n))
 
-    def freq(self, ngram):
+    def freq(self, ngram, skipgrams=True):
+        """
+
+        :param ngram:
+        :param skipgrams: Only relevant for skipgram models; whether to include
+        skipgram counts in the frequency value.
+        :return:
+        """
         if isinstance(ngram, tuple):
             ngram = ' '.join(ngram)
         if isinstance(ngram, str):
             ngram = self.encoder.buildpattern(ngram)
-        if not self._is_skipgram_model:
+        if not self._is_skipgram_model or not skipgrams:
             return self.model.occurrencecount(ngram)
         else:
             skipgram_counts = sum(self.skipgrams_with(ngram).values())
@@ -179,8 +186,16 @@ class NgramModel:
     def __getitem__(self, item):
         return self.freq(item)
 
-    def prob(self, ngram, smoothing=1):
-        return (self.freq(ngram) + smoothing) \
+    def prob(self, ngram, smoothing=1, skipgrams=True):
+        """
+
+        :param ngram:
+        :param smoothing:
+        :param skipgrams: Only relevant for skipgram models; whether to include
+        skipgram counts in the frequency value.
+        :return:
+        """
+        return (self.freq(ngram, skipgrams) + smoothing) \
                / (self.total_counts(1) + smoothing)
 
     def max_length(self):

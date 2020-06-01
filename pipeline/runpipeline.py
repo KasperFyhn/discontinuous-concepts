@@ -9,10 +9,9 @@ BLACKLIST = {'figure', 'fig.', 'table', 'various', 'other', 'most', 'many',
              'current'}
 
 # RUN CONFIGURATIONS
-CORPUS = 'genia'
+CORPUS = 'acl'
 run_with_test_docs = False
-background_model = None
-# ngramcounting.NgramModel.load_model('aclarc', '_l7_min10')
+background_model = ngramcounting.NgramModel.load_model('aclarc', '_l7_min10')
 configs = buildpipeline.Configuration(
     freq_threshold=2,
     extraction_filter=cm.ExtractionFilters.SIMPLE,
@@ -70,7 +69,7 @@ if run_with_test_docs:
     test_docs_ids = {doc.id for doc in test_docs}
     docs = [d for d in docs if d.id in test_docs_ids]
 
-for threshold in range(4, 21, 2):
+for threshold in range(1, 2, 2):
     for doc in tqdm(docs, desc='Cleaning documents'):
         concepts = [c for c in doc.get_annotations(anno.Concept)]
         for c in concepts:

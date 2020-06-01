@@ -10,7 +10,7 @@ from tqdm import tqdm
 class Configuration:
 
     def __init__(self, freq_threshold=2, c_value_threshold=2, max_n=5,
-                 skipgrams=False, bridge_strength_threshold=.5, freq_factor=1,
+                 skipgrams=False, bridge_strength_threshold=1, freq_factor=1,
                  extraction_filter=cm.ExtractionFilters.SIMPLE,
                  consider_dcs_in_ranking=False,
                  hypernym_dcs=True, coord_dcs=True):
